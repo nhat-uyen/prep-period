@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from app.models.lesson import RequestLesson
-from app.services.lesson_service import generate_lesson
+from app.services.lesson_service import generate_lesson_using_ai_service
 
 home_router = APIRouter()
 lessons_router = APIRouter(prefix="/lessons", tags=["lessons"])
@@ -14,4 +14,4 @@ def home():
 
 @lessons_router.post("", response_model=None)
 def create_lesson_plan(request: RequestLesson):
-    return generate_lesson(request)
+    return generate_lesson_using_ai_service(request)

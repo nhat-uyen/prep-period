@@ -1,20 +1,14 @@
 from app.models.lesson import RequestLesson, ResponseLesson
+from app.services.ai_service import (build_prompt, generate_response)
 
-def generate_lesson(request: ResponseLesson) -> ResponseLesson:
-    subject = request.subject
-    topic = request.topic
-    objectives = ["By the end of the lesson,",
-                  f"Students will understand the {request.topic}",
-                  "Apply the concepts"]
-    activities = ["Warm-up activity",
-                  "Teacher modeling and explanation",
-                  "Guided practice",
-                  "Independent practice",
-                  "Assessment and feedback"
-              ]
+def generate_lesson_using_ai_service(request_lesson: RequestLesson):
+    prompt = build_prompt(
+        subject=request_lesson.subject,
+        topic=request_lesson.topic,
+        grade=request_lesson.grade,
+        duration_minutes=request_lesson.duration_minutes
+    )
 
-    lesson_plan = ResponseLesson(subject=subject,
-                                topic=topic,
-                                objectives=objectives,
-                                activities=activities)
-    return lesson_plan
+    # AI integration logic would go here. For now, we'll simulate a response.
+    lesson = generate_response(prompt)
+    return {"lesson": lesson}
