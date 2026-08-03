@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter  
 
 from app.models.lesson import LessonRequest, LessonResponse
 from app.services.lesson_service import generate_lesson_using_ai_service
