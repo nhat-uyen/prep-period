@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.models.lesson import RequestLesson
+from app.models.lesson import LessonRequest, LessonResponse
 from app.services.lesson_service import generate_lesson_using_ai_service
 
 home_router = APIRouter()
@@ -12,6 +12,6 @@ def home():
         "message": "Welcome to PrepPeriod!"
     }
 
-@lessons_router.post("", response_model=None)
-def create_lesson_plan(request: RequestLesson):
+@lessons_router.post("/lessons", response_model=LessonResponse)
+def create_lesson_plan(request: LessonRequest):
     return generate_lesson_using_ai_service(request)

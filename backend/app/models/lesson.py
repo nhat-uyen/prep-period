@@ -1,13 +1,20 @@
 from pydantic import BaseModel
 
-class RequestLesson(BaseModel):
+class LessonRequest(BaseModel):
     subject: str
-    grade: int
     topic: str
+    grade: int
     duration_minutes: int
 
-class ResponseLesson(BaseModel):
+class Activity(BaseModel):
+    name: str
+    duration_minutes: int
+    instructions: str
+
+class LessonResponse(BaseModel):
     subject: str
     topic: str
     objectives: list[str]
-    activities: list[str]
+    materials: list[str]
+    activities: list[Activity]
+    assessment_type: str
