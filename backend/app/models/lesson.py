@@ -14,6 +14,7 @@ class Activity(BaseModel):
 class LessonResponse(BaseModel):
     subject: str
     topic: str
+    title: str
     objectives: list[str]
     materials: list[str]
     activities: list[Activity]
