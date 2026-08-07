@@ -19,7 +19,6 @@ def build_prompt(subject, topic, grade, duration_minutes):
                 "instructions": "..."
             }}
         ],
-        "assessment_type": "..."
     }}
     """
     return prompt

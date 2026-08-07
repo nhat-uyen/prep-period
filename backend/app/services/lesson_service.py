@@ -17,7 +17,7 @@ def generate_lesson_using_ai_service(request: LessonRequest):
         subject=request.subject,
         topic=request.topic,
         grade=request.grade,
-        duration_minutes=request.duration_minutes
+        duration_minutes=request.duration_minutes,
     )
     
     try:
@@ -25,7 +25,7 @@ def generate_lesson_using_ai_service(request: LessonRequest):
 
         lesson_data["subject"] = request.subject
         lesson_data["topic"] = request.topic
-
+        
         logger.info("Lesson generated successfully.")
 
         return LessonResponse(**lesson_data)

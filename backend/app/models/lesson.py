@@ -18,4 +18,3 @@ class LessonResponse(BaseModel):
     objectives: list[str]
     materials: list[str]
     activities: list[Activity]
-    assessment_type: str

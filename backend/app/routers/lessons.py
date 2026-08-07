@@ -12,6 +12,6 @@ def home():
         "message": "Welcome to PrepPeriod!"
     }
 
-@lessons_router.post("/lessons", response_model=LessonResponse)
+@lessons_router.post("", response_model=LessonResponse)
 def create_lesson_plan(request: LessonRequest):
     return generate_lesson_using_ai_service(request)
