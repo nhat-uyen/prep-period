@@ -1,26 +1,27 @@
-import axios from "axios";
+import { useState } from "react";
+import LessonForm from "./components/LessonForm"; 
+import LessonCard from "./components/LessonCard";
 
-// For current testing purposes, the base URL is set to "http://localhost:8000" to connect to the backend API.
+
 function App() {
-  async function testApi() {
-    try {
-      const response = await axios.post("http://localhost:8000/lessons", {
-        subject: "Math",
-        topic: "Fractions",
-        grade: 5,
-        duration_minutes: 45,
-      });
-
-      console.log(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  }
+  const [lesson, setLesson] = useState(null);
+  const [loading, setLoading] = useState(false)
+  const [loadError, setLoadError] = useState("")
 
   return (
-    <div>
-      <button onClick={testApi}>Test API</button>
-    </div>
+    <>
+      <LessonForm 
+        onLessonGenerated={setLesson} 
+        setLoading={setLoading}
+        setLoadError={setLoadError}
+        />
+      {lesson && <LessonCard lesson={lesson} />}
+
+      {loading && <h2>Generating lesson...</h2>}
+      
+      {loadError && <p>{loadError}</p>
+      }
+    </>
   );
 }
 
