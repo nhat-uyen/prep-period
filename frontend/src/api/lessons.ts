@@ -10,5 +10,9 @@ The response from the server is logged to the console for verification.
 
 // Configure Axios instance with the base URL for the backend API
 const api = axios.create({ baseURL: "http://localhost:8000"});
-
 export default api
+
+export async function getLessons() {
+    const response = await api.get("/all");
+    return response.data
+}

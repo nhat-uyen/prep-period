@@ -2,13 +2,11 @@ import { useState } from "react";
 import api from "../api/lessons";
 
 
-
 type LessonFormProps = ({ 
     onLessonGenerated: (lesson: any) => void;
     setLoading: (loading: boolean) => void;
     setLoadError: (loadError: string) => void
 });
-
 
 export default function LessonForm({ onLessonGenerated, setLoading, setLoadError }: LessonFormProps) {
     const [subject, setSubject] = useState("");
@@ -29,6 +27,7 @@ export default function LessonForm({ onLessonGenerated, setLoading, setLoadError
 
             console.log(lessonRequest.data);
             onLessonGenerated(lessonRequest.data);
+            
         } catch(err) {
             setLoadError("Failed to generate lesson. Please try again");
         } finally {

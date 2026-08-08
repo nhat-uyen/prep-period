@@ -1,14 +1,8 @@
-type Activity = { 
-    name: string; duration_minutes: number; instructions: string
-};
+type Activity = { name: string; duration_minutes: number; instructions: string };
 
-type Lesson = {
-    title: string; objectives: string[]; materials: string[]; activities: Activity[]
-};
+type Lesson = { title: string; objectives: string[]; materials: string[]; activities: Activity[] };
 
-type LessonCardProps = {
-    lesson: Lesson
-};
+type LessonCardProps = { lesson: Lesson };
 
 export default function LessonCard({lesson}: LessonCardProps) {
     return (
