@@ -18,3 +18,5 @@ class LessonResponse(BaseModel):
     objectives: list[str]
     materials: list[str]
     activities: list[Activity]
+
+# TODO: created a model for SavedLesson(BaseModel)

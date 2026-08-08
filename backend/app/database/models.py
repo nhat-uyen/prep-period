@@ -1,6 +1,5 @@
-from datetime import datetime
 from sqlalchemy import Column, DateTime, Integer, String, JSON
-
+from datetime import datetime, timezone
 from app.database.database import Base
 
 
@@ -16,5 +15,4 @@ class Lesson(Base):
 
     # Store the lesson content as JSON -> this gives the flexibility to modify the lesson structure in the future without needing to change the database schema.
     lesson_json = Column(JSON)
-
-    created_at = Column(DateTime, default=datetime)
+    created_at = Column(DateTime, default=datetime.now(timezone.utc).astimezone)
