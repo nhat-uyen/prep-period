@@ -1,9 +1,10 @@
 import { useState } from "react";
 import api from "../api/lessons";
+import type { Lesson } from "../types/lesson";
 
 
 type LessonFormProps = ({ 
-    onLessonGenerated: (lesson: any) => void;
+    onLessonGenerated: (lesson: Lesson) => void;
     setLoading: (loading: boolean) => void;
     setLoadError: (loadError: string) => void
 });

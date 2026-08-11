@@ -17,9 +17,9 @@ def create_lesson(db: Session, subject: str, topic: str, grade: int, duration_mi
 
     return lesson
 
-def get_lessons(db: Session):
+def get_lessons(db: Session) -> list[Lesson]:
     # Get all lessons in order of the newest first
     return db.query(Lesson).order_by(Lesson.id.desc()).all()
 
-def get_lesson_by_id(db: Session, lesson_id: int):
+def get_lesson_by_id(db: Session, lesson_id: int) -> Lesson:
     return db.query(Lesson).filter(Lesson.id == lesson_id).first()

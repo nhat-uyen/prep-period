@@ -24,7 +24,19 @@ def create_lesson_plan(request: LessonRequest, db: Session = Depends(get_db)):
 # GET: retrive all saved lessons
 @router.get("/all")
 def get_saved_lessons(db: Session = Depends(get_db)):
-    return crud.get_lessons(db)
+    lessons = crud.get_lessons(db)
+    all_lessons = [
+        {
+        "id": lesson.id,
+        "subject": lesson.subject,
+        "topic": lesson.topic,
+        "grade": lesson.grade,
+        "duration_minutes": lesson.duration_minutes,
+        **lesson.lesson_json
+        }
+        for lesson in lessons
+    ]
+    return all_lessons
 
 @router.get("/{lesson_id}")
 def get_one_lesson(lesson_id: int, db: Session = Depends(get_db)):
@@ -32,5 +44,13 @@ def get_one_lesson(lesson_id: int, db: Session = Depends(get_db)):
 
     if lesson is None:
         raise HTTPException(status_code=404, detail="Lesson not found")
-    
-    return lesson
+
+    lesson_by_id = {
+        "id": lesson.id,
+        "subject": lesson.subject,
+        "topic": lesson.topic,
+        "grade": lesson.grade,
+        "duration_minutes": lesson.duration_minutes,
+        **lesson.lesson_json
+    }
+    return lesson_by_id

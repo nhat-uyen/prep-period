@@ -19,4 +19,13 @@ class LessonResponse(BaseModel):
     materials: list[str]
     activities: list[Activity]
 
-# TODO: created a model for SavedLesson(BaseModel)
+class SavedLesson (BaseModel):
+    id: int
+    subject: str
+    topic: str
+    grade: int
+    duration_minutes: int
+    title: str
+    objectives: list[str]
+    materials: list[str]
+    activities: list[Activity]

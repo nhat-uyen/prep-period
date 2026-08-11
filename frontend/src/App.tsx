@@ -3,13 +3,14 @@ import LessonForm from "./components/LessonForm";
 import LessonCard from "./components/LessonCard";
 import { getLessons } from "./api/lessons";
 import LessonHistory from "./components/LessonHistory";
+import type { Lesson } from "./types/lesson";
 
 
 function App() {
-  const [lesson, setLesson] = useState(null);
+  const [lesson, setLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState("");
-  const [history, setHistory] = useState<any[]>([]);
+  const [history, setHistory] = useState<Lesson[]>([]);
 
   useEffect(() => {
     async function LoadHistory() {

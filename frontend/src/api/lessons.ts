@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import type { Lesson } from "../types/lesson"
 /*
 Connect to the backend API using Axios with a base URL of "http://localhost:5173". 
 This allows for making HTTP requests to the backend server for lesson-related operations. 
@@ -12,7 +12,7 @@ The response from the server is logged to the console for verification.
 const api = axios.create({ baseURL: "http://localhost:8000"});
 export default api
 
-export async function getLessons() {
-    const response = await api.get("/all");
+export async function getLessons(): Promise<Lesson[]> {
+    const response = await api.get<Lesson[]>("/lessons/all");
     return response.data
 }

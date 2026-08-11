@@ -1,6 +1,8 @@
+import type { Lesson } from "../types/lesson";
+
 type LessonHistoryProps = {
     lessons: any[];
-    onLessonSelected: (lesson: any) => void
+    onLessonSelected: (lesson: Lesson) => void
 };
 
 export default function LessonHistory({lessons, onLessonSelected}: LessonHistoryProps) {

@@ -1,8 +1,8 @@
-type Activity = { name: string; duration_minutes: number; instructions: string };
+import type { Lesson } from "../types/lesson";
 
-type Lesson = { title: string; objectives: string[]; materials: string[]; activities: Activity[] };
-
-type LessonCardProps = { lesson: Lesson };
+type LessonCardProps = { 
+    lesson: Lesson 
+};
 
 export default function LessonCard({lesson}: LessonCardProps) {
     return (

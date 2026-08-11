@@ -46,7 +46,7 @@ def generate_lesson_using_ai_service(request: LessonRequest, db: Session):
         raise HTTPException(status_code=500, detail=f"Validation error: {e}")
 
 def save_lesson_to_databse(db: Session, request: LessonRequest, lesson: LessonResponse):
-    # TODO: add option to save lesson to databse
+    # TODO: add options to whether or not to save lesson to databse
 
     crud.create_lesson(db=db, 
                        subject=request.subject,
