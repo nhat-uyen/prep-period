@@ -16,3 +16,8 @@ export async function getLessons(): Promise<Lesson[]> {
     const response = await api.get<Lesson[]>("/lessons/all");
     return response.data
 }
+
+export async function getLessonByID(id:number): Promise<Lesson>  {
+    const response = await api.get<Lesson>(`/lessons/${id}`);
+    return response.data
+}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import LessonForm from "./components/LessonForm"; 
 import LessonCard from "./components/LessonCard";
-import { getLessons } from "./api/lessons";
+import { getLessons, getLessonByID } from "./api/lessons";
 import LessonHistory from "./components/LessonHistory";
 import type { Lesson } from "./types/lesson";
 
@@ -12,13 +12,24 @@ function App() {
   const [loadError, setLoadError] = useState("");
   const [history, setHistory] = useState<Lesson[]>([]);
 
+  async function handleLessonSelected(lessonId: number) {
+    try {
+      setLoadError("")
+      const selectedLesson = await getLessonByID(lessonId);
+      setLesson(selectedLesson);
+      
+    } catch (loadError) {
+      setLoadError("Failed to load lesson")
+    }
+  }
+
   useEffect(() => {
     async function LoadHistory() {
       try {
         const lessons = await getLessons();
         setHistory(lessons)
-      } catch (error) {
-        console.error("Failed to load lesson history", error);
+      } catch (loadError) {
+        setLoadError("Failed to load lesson history");
       }
     }
 
@@ -34,7 +45,7 @@ function App() {
         />
         <LessonHistory 
         lessons={history} 
-        onLessonSelected={setLesson}
+        onLessonSelected={handleLessonSelected}
         />
 
       {lesson && <LessonCard lesson={lesson} />}
