@@ -24,10 +24,9 @@ export default function LessonForm({ onLessonGenerated, setLoading, setLoadError
             setLoading(true);
             setLoadError("");
 
-            const lessonRequest = await api.post("/lessons", {subject, topic, grade, duration_minutes:duration});
+            const response= await api.post("/lessons", {subject, topic, grade, duration_minutes:duration});
 
-            console.log(lessonRequest.data);
-            onLessonGenerated(lessonRequest.data);
+            onLessonGenerated(response.data);
             
         } catch(err) {
             setLoadError("Failed to generate lesson. Please try again");

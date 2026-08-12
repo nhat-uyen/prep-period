@@ -17,7 +17,7 @@ def home():
     }
 
 # POST: create and save lessons
-@router.post("", response_model=LessonResponse)
+@router.post("")
 def create_lesson_plan(request: LessonRequest, db: Session = Depends(get_db)):
     return generate_lesson_using_ai_service(request, db)
 
@@ -54,3 +54,14 @@ def get_one_lesson(lesson_id: int, db: Session = Depends(get_db)):
         **lesson.lesson_json
     }
     return lesson_by_id
+
+@router.delete("/{lesson_id}")
+def delete_lesson(lesson_id: int, db: Session = Depends(get_db)):
+    lesson = crud.delete_lesson(db, lesson_id)
+
+    if lesson is None:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+
+    return {
+        "message": "Lesson deleted successfully"
+    }

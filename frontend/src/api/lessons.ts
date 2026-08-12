@@ -17,7 +17,11 @@ export async function getLessons(): Promise<Lesson[]> {
     return response.data
 }
 
-export async function getLessonByID(id:number): Promise<Lesson>  {
+export async function getLessonByID(id: number): Promise<Lesson>  {
     const response = await api.get<Lesson>(`/lessons/${id}`);
     return response.data
+}
+
+export async function deleteLesson(id:number): Promise<void> {
+    await api.delete(`/lessons/${id}`);
 }

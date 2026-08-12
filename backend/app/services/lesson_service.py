@@ -32,9 +32,9 @@ def generate_lesson_using_ai_service(request: LessonRequest, db: Session):
         logger.info("Lesson generated successfully.")
         lesson = LessonResponse(**lesson_data)
 
-        save_lesson_to_databse(db, request, lesson)
+        saved_lesson_with_id = save_lesson_to_databse(db, request, lesson)
 
-        return LessonResponse(**lesson_data)
+        return saved_lesson_with_id
     
     # Catch errors when AI did not return valid JSON
     except json.JSONDecodeError:
@@ -47,11 +47,21 @@ def generate_lesson_using_ai_service(request: LessonRequest, db: Session):
 
 def save_lesson_to_databse(db: Session, request: LessonRequest, lesson: LessonResponse):
     # TODO: add options to whether or not to save lesson to databse
-
-    crud.create_lesson(db=db, 
+    saved_lesson = crud.create_lesson(db=db, 
                        subject=request.subject,
                        topic=request.topic,
                        grade=request.grade,
                        duration_minutes= request.duration_minutes,
                        lesson_json=lesson.model_dump()  # converts the Pydantic model into a dictionary
     )
+
+
+
+    lesson_with_id = {"id": saved_lesson.id,
+                      "subject": saved_lesson.subject,
+                      "topic": saved_lesson.topic,
+                      "grade": saved_lesson.grade,
+                      "duration_minutes": saved_lesson.duration_minutes,
+                      **saved_lesson.lesson_json
+                      }
+    return lesson_with_id

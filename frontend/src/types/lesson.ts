@@ -5,7 +5,7 @@ export type Activity = {
 };
 
 export type Lesson = {
-    id?: number;    // this means that id is optional
+    id: number;    // this means that id is optional
     subject: string;
     topic: string; grade: string;
     duration_minutes: number; title: string;

@@ -23,3 +23,14 @@ def get_lessons(db: Session) -> list[Lesson]:
 
 def get_lesson_by_id(db: Session, lesson_id: int) -> Lesson:
     return db.query(Lesson).filter(Lesson.id == lesson_id).first()
+
+def delete_lesson(db: Session, lesson_id: int): 
+    lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
+
+    if lesson is None:
+        return None
+
+    db.delete(lesson)
+    db.commit()
+
+    return lesson
