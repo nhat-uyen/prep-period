@@ -25,9 +25,6 @@ def generate_lesson_using_ai_service(request: LessonRequest, db: Session):
     
     try:
         lesson_data= json.loads(generate_response(prompt))
-
-        lesson_data["subject"] = request.subject
-        lesson_data["topic"] = request.topic
         
         logger.info("Lesson generated successfully.")
         lesson = LessonResponse(**lesson_data)
@@ -54,9 +51,6 @@ def save_lesson_to_databse(db: Session, request: LessonRequest, lesson: LessonRe
                        duration_minutes= request.duration_minutes,
                        lesson_json=lesson.model_dump()  # converts the Pydantic model into a dictionary
     )
-
-
-
     lesson_with_id = {"id": saved_lesson.id,
                       "subject": saved_lesson.subject,
                       "topic": saved_lesson.topic,

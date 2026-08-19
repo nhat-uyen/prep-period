@@ -1,4 +1,14 @@
+/**
+ * LessonHistory module
+ *
+ * Renders a list of lessons with buttons to select or delete each lesson.
+ * Props:
+ * - `lessons`: array of `Lesson` objects to display.
+ * - `onLessonSelected(lessonId)`: called when a lesson is selected.
+ * - `onLessonDeleted(lessonId)`: called when a lesson is deleted.
+ */
 import type { Lesson } from "../types/lesson";
+
 
 type LessonHistoryProps = {
     lessons: Lesson[];
@@ -16,7 +26,7 @@ export default function LessonHistory({lessons, onLessonSelected, onLessonDelete
                     <button
                     onClick={() => onLessonSelected(lesson.id)} 
                     >
-                        {lesson.subject}: {lesson.topic}
+                        {lesson.subject}: {lesson.title}
                     </button>
 
                     <button 

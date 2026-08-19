@@ -1,3 +1,10 @@
+/**
+ * LessonForm module
+ *
+ * Renders a form for collecting lesson generation parameters and submits
+ * them to the lessons API. Calls `onLessonGenerated` with the created lesson
+ * when the request succeeds.
+ */
 import { useState } from "react";
 import api from "../api/lessons";
 import type { Lesson } from "../types/lesson";
@@ -6,10 +13,10 @@ import type { Lesson } from "../types/lesson";
 type LessonFormProps = ({ 
     onLessonGenerated: (lesson: Lesson) => void;
     setLoading: (loading: boolean) => void;
-    setLoadError: (loadError: string) => void
+    setError: (error: string) => void
 });
 
-export default function LessonForm({ onLessonGenerated, setLoading, setLoadError }: LessonFormProps) {
+export default function LessonForm({ onLessonGenerated, setLoading, setError }: LessonFormProps) {
     const [subject, setSubject] = useState("");
     const [topic, setTopic] = useState("");
     const [grade, setGrade] = useState("");
@@ -22,14 +29,14 @@ export default function LessonForm({ onLessonGenerated, setLoading, setLoadError
 
         try {
             setLoading(true);
-            setLoadError("");
+            setError("");
 
             const response= await api.post("/lessons", {subject, topic, grade, duration_minutes:duration});
 
             onLessonGenerated(response.data);
             
-        } catch(err) {
-            setLoadError("Failed to generate lesson. Please try again");
+        } catch(error) {
+            setError("Failed to generate lesson. Please try again");
         } finally {
             setLoading(false);
         }

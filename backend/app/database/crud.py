@@ -34,3 +34,20 @@ def delete_lesson(db: Session, lesson_id: int):
     db.commit()
 
     return lesson
+
+def update_lesson(db: Session, lesson_id: int, lesson_data: dict):
+    lesson = (db.query(Lesson).filter(Lesson.id == lesson_id).first())
+
+    if lesson is None:
+        return None
+
+    lesson.subject = lesson_data["subject"]
+    lesson.topic = lesson_data["topic"]
+    lesson.grade = lesson_data["grade"]
+    lesson.duration_minutes = lesson_data["duration_minutes"]
+    lesson.lesson_json = lesson_data["lesson_json"]
+
+    db.commit()
+    db.refresh(lesson)
+
+    return lesson

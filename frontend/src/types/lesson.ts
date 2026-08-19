@@ -7,9 +7,13 @@ export type Activity = {
 export type Lesson = {
     id: number;    // this means that id is optional
     subject: string;
-    topic: string; grade: string;
-    duration_minutes: number; title: string;
-    objectives: string[]; materials: string[];
+    topic: string; 
+    grade: string;
+    duration_minutes: number; 
+    title: string;
+    objectives: string[];
+    prior_knowledge: string[];
+    materials: string[];
     activities: Activity[]
 };
 

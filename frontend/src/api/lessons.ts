@@ -25,3 +25,8 @@ export async function getLessonByID(id: number): Promise<Lesson>  {
 export async function deleteLesson(id:number): Promise<void> {
     await api.delete(`/lessons/${id}`);
 }
+
+export async function updateLesson(id: number, lesson: Lesson): Promise<Lesson> {
+    const response = await api.put<Lesson>(`/lessons/${id}`, lesson);
+    return response.data
+}

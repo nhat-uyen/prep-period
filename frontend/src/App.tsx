@@ -1,26 +1,46 @@
 import { useEffect, useState } from "react";
 import LessonForm from "./components/LessonForm"; 
 import LessonCard from "./components/LessonCard";
-import { getLessons, getLessonByID, deleteLesson } from "./api/lessons";
+import { getLessons, getLessonByID, deleteLesson, updateLesson } from "./api/lessons";
 import LessonHistory from "./components/LessonHistory";
 import type { Lesson } from "./types/lesson";
+import LessonEditor from "./components/LessonEditor";
 
 
 function App() {
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(false);
-  const [loadError, setLoadError] = useState("");
+  const [error, setError] = useState("");
   const [history, setHistory] = useState<Lesson[]>([]);
+  const [editing, setEditing] = useState(false)
+
+  useEffect(() => {
+    async function LoadHistory() {
+      try {
+        const lessons = await getLessons();
+        setHistory(lessons)
+      } catch (error) {
+        setError("Failed to load lesson history");
+      }
+    }
+
+    LoadHistory();
+  }, [])
+
+  function handleLessonGenerated(newLesson: Lesson) {
+    setLesson(newLesson);
+    setHistory((previousHistory) => [newLesson, ...previousHistory]);
+  }
 
   async function handleLessonSelected(lessonId: number) {
     try {
-      setLoadError("")
+      setError("")
       if (lesson != null && lesson.id != lessonId || lesson == null) {
         const selectedLesson = await getLessonByID(lessonId);
         setLesson(selectedLesson);
       }
-    } catch (loadError) {
-      setLoadError("Failed to load lesson")
+    } catch (error) {
+      setError("Failed to load lesson")
     }
   }
 
@@ -33,27 +53,28 @@ function App() {
       if (lesson?.id === lessonId) {
         setLesson(null)
       }
-    } catch (loadError) {
-      setLoadError("Failed to delete lesson.")
+    } catch (error) {
+      setError("Failed to delete lesson.")
     }
   }
 
-  useEffect(() => {
-    async function LoadHistory() {
-      try {
-        const lessons = await getLessons();
-        setHistory(lessons)
-      } catch (loadError) {
-        setLoadError("Failed to load lesson history");
-      }
+  async function handleLessonUpdated(updatedLesson: Lesson) {
+    try {
+      setError("");
+
+      const savedLesson = await updateLesson(updatedLesson.id, updatedLesson);
+
+      setLesson(savedLesson);
+      setHistory(previousHistory => previousHistory.map(lesson => lesson.id == savedLesson.id
+        ? savedLesson
+        : lesson
+      ));
+
+      setEditing(false);
+    } catch(loadError) {
+      console.error("Failed to update lesson:", loadError);
+      setError("Failed to save lesson.")
     }
-
-    LoadHistory();
-  }, [])
-
-  function handleLessonGenerated(newLesson: Lesson) {
-    setLesson(newLesson);
-    setHistory((previousHistory) => [newLesson, ...previousHistory]);
   }
   
   return (
@@ -61,7 +82,7 @@ function App() {
       <LessonForm 
         onLessonGenerated={handleLessonGenerated} 
         setLoading={setLoading}
-        setLoadError={setLoadError}
+        setError={setError}
         />
       <LessonHistory 
         lessons={history} 
@@ -71,11 +92,25 @@ function App() {
 
       {loading && <h2>Generating lesson...</h2>}
       
-      {loadError && <p>{loadError}</p>}
+      {error && <p>{error}</p>}
 
-      {lesson && <LessonCard lesson={lesson} />}
+      {lesson && editing && (
+        <LessonEditor 
+        lesson={lesson}
+        onSaved={handleLessonUpdated}
+        onCancel={() => setEditing(false)}
+        />
+      )}
+
+      {lesson && !editing && (
+        <LessonCard 
+        lesson={lesson} 
+        onEdit={() => setEditing(true)}
+        />
+      )}
+
     </>
-  );
+  )
 }
 
 export default App;

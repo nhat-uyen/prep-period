@@ -11,6 +11,7 @@ def build_prompt(subject, topic, grade, duration_minutes):
     {{
         "topic": "...",
         "objectives": [],
+        "prior_knowledge": [],
         "materials": [],
         "activities": [
             {{

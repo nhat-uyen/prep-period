@@ -12,10 +12,9 @@ class Activity(BaseModel):
     instructions: str
 
 class LessonResponse(BaseModel):
-    subject: str
-    topic: str
     title: str
     objectives: list[str]
+    prior_knowledge: list[str]
     materials: list[str]
     activities: list[Activity]
 
@@ -27,5 +26,17 @@ class SavedLesson (BaseModel):
     duration_minutes: int
     title: str
     objectives: list[str]
+    prior_knowledge: list[str]
+    materials: list[str]
+    activities: list[Activity]
+
+class UpdateLesson (BaseModel):
+    subject: str
+    topic: str
+    grade: int
+    duration_minutes: int
+    title: str
+    objectives: list[str]
+    prior_knowledge: list[str]
     materials: list[str]
     activities: list[Activity]

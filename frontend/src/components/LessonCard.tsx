@@ -1,10 +1,18 @@
+/**
+ * LessonCard module
+ *
+ * Displays a lesson summary including objectives, prior knowledge,
+ * materials, and activities. Provides an `onEdit` callback for editing.
+ */
 import type { Lesson } from "../types/lesson";
 
+
 type LessonCardProps = { 
-    lesson: Lesson 
+    lesson: Lesson;
+    onEdit: () => void
 };
 
-export default function LessonCard({lesson}: LessonCardProps) {
+export default function LessonCard({lesson, onEdit}: LessonCardProps) {
     return (
         <div>
             <h2>{lesson.title}</h2>
@@ -14,12 +22,17 @@ export default function LessonCard({lesson}: LessonCardProps) {
                 {lesson.objectives.map((objective) => (<li key={objective}>{objective}</li>))}
             </ul>
 
+            <h3>Prior Knowledge</h3>
+            <ul>
+                {lesson.prior_knowledge.map((priorknowledge) => (<li key={priorknowledge}>{priorknowledge}</li>))}
+            </ul>
+
             <h3>Materials</h3>
             <ul>
                 {lesson.materials.map((material) => (<li key={material}>{material}</li>))}
             </ul>
 
-            <h3>Activies</h3>
+            <h3>Activities</h3>
             {lesson.activities.map((activity) => (
                 <div key={activity.name}>
                     <h4>
@@ -29,6 +42,10 @@ export default function LessonCard({lesson}: LessonCardProps) {
                     <p>{activity.instructions}</p>
                 </div>
             ))}
+
+            <button onClick={onEdit}>
+                Edit Lesson
+            </button>
         </div>
     )
 }
