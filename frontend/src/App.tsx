@@ -1,115 +1,43 @@
-import { useEffect, useState } from "react";
-import LessonForm from "./components/LessonForm"; 
-import LessonCard from "./components/LessonCard";
-import { getLessons, getLessonByID, deleteLesson, updateLesson } from "./api/lessons";
-import LessonHistory from "./components/LessonHistory";
+import { useReducer } from "react";
+import { BrowserRouter, Routes, Route } from "react-router"
 import type { Lesson } from "./types/lesson";
-import LessonEditor from "./components/LessonEditor";
-
+import History from "./pages/History";
+import GenerateLesson from "./pages/GenerateLesson";
+import { historyReducer, initialHistory } from "./reducers/historyReducer";
+import Home from "./pages/Home";
 
 function App() {
-  const [lesson, setLesson] = useState<Lesson | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [history, setHistory] = useState<Lesson[]>([]);
-  const [editing, setEditing] = useState(false)
+  const [history, dispatch] = useReducer(historyReducer, initialHistory);
 
-  useEffect(() => {
-    async function LoadHistory() {
-      try {
-        const lessons = await getLessons();
-        setHistory(lessons)
-      } catch (error) {
-        setError("Failed to load lesson history");
-      }
-    }
-
-    LoadHistory();
-  }, [])
-
-  function handleLessonGenerated(newLesson: Lesson) {
-    setLesson(newLesson);
-    setHistory((previousHistory) => [newLesson, ...previousHistory]);
+  function setHistory(lessons: Lesson[]) {
+    dispatch({ type: "SET_HISTORY", lessons })
+  }
+  function removeLesson(lessonId: number) {
+    dispatch({ type: "REMOVE_LESSON", id: lessonId })
   }
 
-  async function handleLessonSelected(lessonId: number) {
-    try {
-      setError("")
-      if (lesson != null && lesson.id != lessonId || lesson == null) {
-        const selectedLesson = await getLessonByID(lessonId);
-        setLesson(selectedLesson);
-      }
-    } catch (error) {
-      setError("Failed to load lesson")
-    }
+  function addLesson(newLesson: Lesson) {
+    dispatch({ type: "ADD_LESSON", lesson: newLesson })
+  }
+  function editLesson(savedLesson: Lesson) {
+    dispatch({ type: "EDIT_LESSON", lesson: savedLesson })
   }
 
-  async function handleLessonDeleted(lessonId: number) {
-    try {
-      await deleteLesson(lessonId);
-
-      setHistory((previousHistory) => previousHistory.filter((lesson) => lesson.id !== lessonId));
-
-      if (lesson?.id === lessonId) {
-        setLesson(null)
-      }
-    } catch (error) {
-      setError("Failed to delete lesson.")
-    }
-  }
-
-  async function handleLessonUpdated(updatedLesson: Lesson) {
-    try {
-      setError("");
-
-      const savedLesson = await updateLesson(updatedLesson.id, updatedLesson);
-
-      setLesson(savedLesson);
-      setHistory(previousHistory => previousHistory.map(lesson => lesson.id == savedLesson.id
-        ? savedLesson
-        : lesson
-      ));
-
-      setEditing(false);
-    } catch(loadError) {
-      console.error("Failed to update lesson:", loadError);
-      setError("Failed to save lesson.")
-    }
-  }
-  
   return (
-    <>
-      <LessonForm 
-        onLessonGenerated={handleLessonGenerated} 
-        setLoading={setLoading}
-        setError={setError}
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/generate" element={<GenerateLesson
+          addLesson={addLesson}
+          editLesson={editLesson} />} />
+        <Route path="/history" element={<History
+          history={history}
+          setHistory={setHistory}
+          removeLesson={removeLesson} />}
         />
-      <LessonHistory 
-        lessons={history} 
-        onLessonSelected={handleLessonSelected}
-        onLessonDeleted={handleLessonDeleted}
-        />
+      </Routes>
+    </BrowserRouter>
 
-      {loading && <h2>Generating lesson...</h2>}
-      
-      {error && <p>{error}</p>}
-
-      {lesson && editing && (
-        <LessonEditor 
-        lesson={lesson}
-        onSaved={handleLessonUpdated}
-        onCancel={() => setEditing(false)}
-        />
-      )}
-
-      {lesson && !editing && (
-        <LessonCard 
-        lesson={lesson} 
-        onEdit={() => setEditing(true)}
-        />
-      )}
-
-    </>
   )
 }
 
