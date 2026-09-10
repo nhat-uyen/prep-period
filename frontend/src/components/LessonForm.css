@@ -1,0 +1,92 @@
+.lesson-form {
+    width: min(100% - 40px, 760px);
+    margin: 32px auto 0;
+    padding: 28px 22px;
+    border: 1px solid #dce5e9;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 8px 20px rgba(38, 76, 96, 0.1);
+    box-sizing: border-box;
+    text-align: left;
+}
+
+.lesson-form__form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.lesson-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.lesson-form__field label {
+    color: #17212b;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.lesson-form__field input {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid #dce5e9;
+    border-radius: 8px;
+    color: #17212b;
+    background: #fbfdfe;
+    font: inherit;
+    box-sizing: border-box;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.lesson-form__field input::placeholder {
+    color: #87959d;
+}
+
+.lesson-form__field input:focus {
+    border-color: #2d6a8a;
+    outline: none;
+    box-shadow: 0 0 0 3px #9cc9dc;
+}
+
+.lesson-form__button {
+    grid-column: 1 / -1;
+    justify-self: start;
+    margin-top: 4px;
+    padding: 12px 20px;
+    border: 0;
+    border-radius: 8px;
+    color: #ffffff;
+    background: #2d6a8a;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 160ms ease, transform 160ms ease;
+}
+
+.lesson-form__button:hover {
+    background: #24566f;
+    box-shadow: 0 8px 20px rgba(38, 76, 96, 0.1);
+    transform: translateY(-2px);
+}
+
+.lesson-form__button:focus-visible {
+    outline: 3px solid #9cc9dc;
+    outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+    .lesson-form {
+        width: min(100% - 32px, 760px);
+        margin-top: 24px;
+        padding: 20px 16px;
+    }
+
+    .lesson-form__form {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+}

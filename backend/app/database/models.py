@@ -2,7 +2,7 @@ from sqlalchemy import Column, DateTime, Integer, String, JSON
 from datetime import datetime, timezone
 from app.database.database import Base
 
-
+# this is a table containing all lessons
 class Lesson(Base):
     __tablename__ = "lessons"
 

@@ -141,6 +141,9 @@ mnesia/
 rabbitmq/
 rabbitmq-data/
 
+# Database files
+backend/*.db
+backend/*.db-journal
 # ActiveMQ
 activemq-data/
 

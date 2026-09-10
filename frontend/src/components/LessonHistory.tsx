@@ -11,33 +11,35 @@ import type { Lesson } from "../types/lesson";
 
 
 type LessonHistoryProps = {
-    lessons: Lesson[];
-    onLessonSelected: (lessonId: number) => void;
-    onLessonDeleted: (lessonId: number) => void
+  lessons: Lesson[];
+  onLessonSelected: (lessonId: number) => void;
+  onLessonDeleted: (lessonId: number) => void;
+  onClearLessons: () => void;
 };
 
-export default function LessonHistory({lessons, onLessonSelected, onLessonDeleted}: LessonHistoryProps) {
-    return (
-        <div>
-            <h2>Lesson Hitory</h2>
+export default function LessonHistory({ lessons, onLessonSelected, onLessonDeleted, onClearLessons }: LessonHistoryProps) {
+  return (
+    <div>
+      <h2>Lesson Hitory</h2>
 
-            {lessons.map((lesson) => (
-                <div key={lesson.id}>
-                    <button
-                    onClick={() => onLessonSelected(lesson.id)} 
-                    >
-                        {lesson.subject}: {lesson.title}
-                    </button>
+      {lessons.map((lesson) => (
+        <div key={lesson.id}>
+          <button
+            onClick={() => onLessonSelected(lesson.id)}
+          >
+            {lesson.subject}: {lesson.title}
+          </button>
 
-                    <button 
-                    onClick={() => onLessonDeleted(lesson.id)}
-                    >
-                        Delete
-                    </button>
-                </div>
-            )
-        )
-    }
+          <button
+            onClick={() => onLessonDeleted(lesson.id)}
+          >
+            Delete
+          </button>
+        </div>
+      )
+      )
+      }
+      <button onClick={onClearLessons} > Delete All Lessons </button>
     </div>
-    )
+  )
 }

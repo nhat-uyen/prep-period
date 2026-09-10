@@ -38,13 +38,13 @@ export default function GenerateLesson({ addLesson, editLesson }: GenerateProps)
   return (
     <div>
       <h1> Generate Lesson </h1>
-      {loading && <h2>Generating lesson...</h2>}
-      {error && <p>{error}</p>}
       <LessonForm
         onLessonGenerated={handleLessonGenerated}
         setLoading={setLoading}
         setError={setError}
       />
+      {loading && <h2>Generating lesson...</h2>}
+      {error && <p>{error}</p>}
       {lesson && editing && (
         <LessonEditor
           lesson={lesson}

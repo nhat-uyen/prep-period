@@ -29,6 +29,7 @@ export function historyReducer(state: Lesson[] = initialHistory, action: History
         lesson.id === action.lesson.id ? action.lesson : lesson,
       );
     case "CLEAR_HISTORY":
+      // #TODO: add the backend function to clear history
       return [];
     default:
       return state;

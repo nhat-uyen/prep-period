@@ -1,8 +1,7 @@
-import json
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.models.lesson import LessonRequest, UpdateLesson, LessonResponse
+from app.models.lesson import LessonRequest, UpdateLesson
 from app.services.lesson_service import generate_lesson_using_ai_service
 from app.database import crud
 from app.database.database import get_db
@@ -56,6 +55,11 @@ def get_one_lesson(lesson_id: int, db: Session = Depends(get_db)):
     }
     return lesson_by_id
 
+@router.delete("/clear")
+def clear_lessons(db: Session = Depends(get_db)):
+    crud.clear_history(db=db)
+    return {"message": "Lesson history cleared"}
+
 @router.delete("/{lesson_id}")
 def delete_lesson(lesson_id: int, db: Session = Depends(get_db)):
     lesson = crud.delete_lesson(db, lesson_id)
@@ -63,9 +67,7 @@ def delete_lesson(lesson_id: int, db: Session = Depends(get_db)):
     if lesson is None:
         raise HTTPException(status_code=404, detail="Lesson not found")
 
-    return {
-        "message": "Lesson deleted successfully"
-    }
+    return { "message": "Lesson deleted successfully" }
 
 @router.put("/{lesson_id}")
 def update_lesson(lesson_id: int, update: UpdateLesson, db: Session= Depends(get_db)):

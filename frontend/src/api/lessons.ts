@@ -9,24 +9,28 @@ The response from the server is logged to the console for verification.
 
 
 // Configure Axios instance with the base URL for the backend API
-const api = axios.create({ baseURL: "http://localhost:8000"});
+const api = axios.create({ baseURL: "http://localhost:8000" });
 export default api
 
 export async function getLessons(): Promise<Lesson[]> {
-    const response = await api.get<Lesson[]>("/lessons/all");
-    return response.data
+  const response = await api.get<Lesson[]>("/lessons/all");
+  return response.data
 }
 
-export async function getLessonByID(id: number): Promise<Lesson>  {
-    const response = await api.get<Lesson>(`/lessons/${id}`);
-    return response.data
+export async function getLessonByID(id: number): Promise<Lesson> {
+  const response = await api.get<Lesson>(`/lessons/${id}`);
+  return response.data
 }
 
-export async function deleteLesson(id:number): Promise<void> {
-    await api.delete(`/lessons/${id}`);
+export async function deleteLesson(id: number): Promise<void> {
+  await api.delete(`/lessons/${id}`);
 }
 
 export async function updateLesson(id: number, lesson: Lesson): Promise<Lesson> {
-    const response = await api.put<Lesson>(`/lessons/${id}`, lesson);
-    return response.data
+  const response = await api.put<Lesson>(`/lessons/${id}`, lesson);
+  return response.data
+}
+
+export async function clearLessons() {
+  await api.delete("/lessons/clear");
 }

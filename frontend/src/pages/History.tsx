@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getLessons, deleteLesson, getLessonByID } from "../api/lessons";
+import { getLessons, deleteLesson, getLessonByID, clearLessons } from "../api/lessons";
 import type { Lesson } from "../types/lesson";
 import LessonHistory from "../components/LessonHistory";
 
@@ -8,24 +8,25 @@ type HistoryProps = {
   history: Lesson[];
   setHistory: (lessons: Lesson[]) => void;
   removeLesson: (lessonId: number) => void;
+  clearHistory: () => void;
 }
 
-function History({ history, setHistory, removeLesson }: HistoryProps) {
+function History({ history, setHistory, removeLesson, clearHistory }: HistoryProps) {
   const [error, setError] = useState('');
   const [lesson, setLesson] = useState<Lesson | null>(null);
 
   useEffect(() => {
-    async function LoadHistory() {
+    async function loadHistory() {
       try {
-        const lessons = await getLessons();
-        setHistory(lessons);
+        const result = await getLessons();
+        setHistory(result);
       } catch (error) {
-        console.error("Failed to load lesson history", error);
-        setError("Failed to load lesson history")
+        console.error("Failed to load history", error);
+        setError("Failed to load history.");
       }
     }
-    LoadHistory();
-  }, [setHistory])
+    loadHistory();
+  }, [setHistory]);
 
   async function handleLessonSelected(lessonId: number) {
     try {
@@ -55,6 +56,17 @@ function History({ history, setHistory, removeLesson }: HistoryProps) {
     }
   }
 
+  async function handleClearHistory() {
+    try {
+      setError("");
+      await clearLessons();
+      clearHistory();
+    } catch (error) {
+      console.error("Failed to clear history:", error);
+      setError("Failed to clear lesson history.");
+    }
+  }
+
   return (
     <div>
       <h1>History</h1>
@@ -63,6 +75,7 @@ function History({ history, setHistory, removeLesson }: HistoryProps) {
         lessons={history}
         onLessonSelected={handleLessonSelected}
         onLessonDeleted={handleLessonDeleted}
+        onClearLessons={handleClearHistory}
       />
     </div>
   )

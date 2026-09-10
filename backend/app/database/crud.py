@@ -51,3 +51,7 @@ def update_lesson(db: Session, lesson_id: int, lesson_data: dict):
     db.refresh(lesson)
 
     return lesson
+
+def clear_history(db: Session):
+    db.query(Lesson).delete()
+    db.commit()

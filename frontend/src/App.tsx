@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { useCallback, useReducer } from "react";
 import { BrowserRouter, Routes, Route } from "react-router"
 import type { Lesson } from "./types/lesson";
 import History from "./pages/History";
@@ -9,11 +9,15 @@ import Home from "./pages/Home";
 function App() {
   const [history, dispatch] = useReducer(historyReducer, initialHistory);
 
-  function setHistory(lessons: Lesson[]) {
+  const setHistory = useCallback((lessons: Lesson[]) => {
     dispatch({ type: "SET_HISTORY", lessons })
-  }
+  }, []);
+
   function removeLesson(lessonId: number) {
     dispatch({ type: "REMOVE_LESSON", id: lessonId })
+  }
+  function clearHistory() {
+    dispatch({ type: "CLEAR_HISTORY" })
   }
 
   function addLesson(newLesson: Lesson) {
@@ -22,6 +26,7 @@ function App() {
   function editLesson(savedLesson: Lesson) {
     dispatch({ type: "EDIT_LESSON", lesson: savedLesson })
   }
+
 
   return (
     <BrowserRouter>
@@ -33,7 +38,8 @@ function App() {
         <Route path="/history" element={<History
           history={history}
           setHistory={setHistory}
-          removeLesson={removeLesson} />}
+          removeLesson={removeLesson}
+          clearHistory={clearHistory} />}
         />
       </Routes>
     </BrowserRouter>
