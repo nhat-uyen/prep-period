@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getLessons, deleteLesson, getLessonByID, clearLessons } from "../api/lessons";
 import type { Lesson } from "../types/lesson";
 import LessonHistory from "../components/LessonHistory";
+import { Link } from "react-router";
 
 // need to add Props when passing constant from one component to another
 type HistoryProps = {
@@ -70,13 +71,20 @@ function History({ history, setHistory, removeLesson, clearHistory }: HistoryPro
   return (
     <div>
       <h1>History</h1>
-      {error && <p>{error}</p>}
-      <LessonHistory
-        lessons={history}
-        onLessonSelected={handleLessonSelected}
-        onLessonDeleted={handleLessonDeleted}
-        onClearLessons={handleClearHistory}
-      />
+      {history.length === 0
+        ? <div>
+          <h2>No past lesson </h2>
+          <Link to="/">Back to Home</Link>
+        </div>
+        : <>
+          {error && <p>{error}</p>}
+          <LessonHistory
+            lessons={history}
+            onLessonSelected={handleLessonSelected}
+            onLessonDeleted={handleLessonDeleted}
+            onClearLessons={handleClearHistory}
+          />
+        </>}
     </div>
   )
 }
