@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <main className="home">
       <header className="home__header">
-        <p className="home__eyebrow">PrepPeriod</p>
+        <p className="home__eyebrow">Prep-Period</p>
         <h1>What would you like to do?</h1>
         <p className="home__intro">Plan, revisit, and improve your lessons in one place.</p>
       </header>
@@ -27,10 +27,10 @@ export default function Home() {
           </span>
           <span aria-hidden="true" className="home__arrow">-&gt;</span>
         </Link>
-        <Link className="home__link" to="/feedback">
+        <Link className="home__link" to="/reflection">
           <span className="home__link-number">03</span>
           <span>
-            <strong>Lesson Feedback</strong>
+            <strong>Lesson Reflection</strong>
             <small>Reflect on what worked</small>
           </span>
           <span aria-hidden="true" className="home__arrow">-&gt;</span>

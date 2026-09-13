@@ -5,6 +5,7 @@ import History from "./pages/History";
 import GenerateLesson from "./pages/GenerateLesson";
 import { historyReducer, initialHistory } from "./reducers/historyReducer";
 import Home from "./pages/Home";
+import Reflection from "./pages/Reflection";
 
 function App() {
   const [history, dispatch] = useReducer(historyReducer, initialHistory);
@@ -41,6 +42,7 @@ function App() {
           removeLesson={removeLesson}
           clearHistory={clearHistory} />}
         />
+        <Route path="/reflection" element={<Reflection history={history} />} />
       </Routes>
     </BrowserRouter>
 

@@ -54,10 +54,10 @@ export default function GenerateLesson({ addLesson, editLesson }: GenerateProps)
       )}
 
       {lesson && !editing && (
-        <LessonCard
-          lesson={lesson}
-          onEdit={() => setEditing(true)}
-        />
+        <>
+          <LessonCard lesson={lesson} />
+          <button onClick={() => setEditing(true)}>Edit Lesson</button>
+        </>
       )}
     </div>
   )

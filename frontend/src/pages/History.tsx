@@ -3,6 +3,7 @@ import { getLessons, deleteLesson, getLessonByID, clearLessons } from "../api/le
 import type { Lesson } from "../types/lesson";
 import LessonHistory from "../components/LessonHistory";
 import { Link } from "react-router";
+import LessonCard from "../components/LessonCard";
 
 // need to add Props when passing constant from one component to another
 type HistoryProps = {
@@ -62,6 +63,7 @@ function History({ history, setHistory, removeLesson, clearHistory }: HistoryPro
       setError("");
       await clearLessons();
       clearHistory();
+      setLesson(null);
     } catch (error) {
       console.error("Failed to clear history:", error);
       setError("Failed to clear lesson history.");
@@ -85,6 +87,9 @@ function History({ history, setHistory, removeLesson, clearHistory }: HistoryPro
             onClearLessons={handleClearHistory}
           />
         </>}
+      {lesson !== null
+        ? <LessonCard lesson={lesson} />
+        : null}
     </div>
   )
 }

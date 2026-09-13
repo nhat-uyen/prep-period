@@ -6,8 +6,9 @@ def build_prompt(subject, topic, grade, duration_minutes):
     Topic: {topic}
     
     Respond ONLY with vaid JSON.
+    Number of activities depending on {duration_minutes}
     Use EXACTLY this schema for your response:
-
+    
     {{
         "topic": "...",
         "objectives": [],
