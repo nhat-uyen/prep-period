@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.database.models import Lesson
+from app.database.models import ActivityReflection, Lesson, Reflection
 
 
 def create_lesson(db: Session, subject: str, topic: str, grade: int, duration_minutes: int, lesson_json: dict) -> Lesson:
@@ -52,6 +52,60 @@ def update_lesson(db: Session, lesson_id: int, lesson_data: dict):
 
     return lesson
 
+# create, get, and deletre reflections
+def create_reflection(db: Session, lesson_id: int, objectives_rating: int, objectives_notes: str, prior_knowledge_rating: int, prior_knowledge_notes: str, materials_rating: int, materials_notes: str, activities: list[dict], keep_notes: str, change_notes: str,) :
+    reflection = Reflection(lesson_id = lesson_id,
+                            objectives_rating = objectives_rating,
+                            objectives_notes = objectives_notes,
+                            prior_knowledge_rating = prior_knowledge_rating, 
+                            prior_knowledge_notes = prior_knowledge_notes,
+                            materials_rating = materials_rating,
+                            materials_notes = materials_notes,
+                            keep_notes = keep_notes,
+                            change_notes = change_notes)
+
+    db.add(reflection)
+    db.commit()
+    db.refresh(reflection)
+
+    for activity in activities:
+        activity_reflection = ActivityReflection(reflection_id=reflection.id,
+                            activity_index=activity.activity_index,
+                            rating=activity.rating,
+                            notes=activity.notes)
+        db.add(activity_reflection)
+    db.commit()
+    return {"message": "reflection saved successfully", "reflection_id": reflection.id}
+
+# when looking at past lessons, if lessons have reflection, reflection will be shown as well
+def get_reflection(db: Session, lesson_id: int) -> Reflection:
+    return db.query(Reflection).filter(Reflection.lesson_id == lesson_id).first()
+
+def get_activityReflections(db: Session, reflection_id: int) -> list[ActivityReflection]:
+    return db.query(ActivityReflection).filter(ActivityReflection.reflection_id == reflection_id).all()
+
+def delete_reflection(db: Session, lesson_id: int):
+    reflection = db.query(Reflection).filter(Reflection.lesson_id == lesson_id).first()
+
+    if reflection is None:
+        return None
+
+    db.delete(reflection)
+    db.commit()
+
+    return reflection
+
+def delete_activityReflections(db: Session, reflection_id: int):
+    activity_reflections = db.query(ActivityReflection).filter( ActivityReflection.reflection_id == reflection_id).all()
+
+    for activity_reflection in activity_reflections:
+        db.delete(activity_reflection)
+    db.commit()
+
+    return activity_reflections
+
 def clear_history(db: Session):
+    db.query(ActivityReflection).delete()
+    db.query(Reflection).delete()
     db.query(Lesson).delete()
     db.commit()

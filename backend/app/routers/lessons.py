@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.models.lesson import LessonRequest, UpdateLesson
 from app.services.lesson_service import generate_lesson_using_ai_service
+from app.services.reflection_service import get_reflection
 from app.database import crud
 from app.database.database import get_db
 
@@ -53,6 +54,11 @@ def get_one_lesson(lesson_id: int, db: Session = Depends(get_db)):
         "duration_minutes": lesson.duration_minutes,
         **lesson.lesson_json
     }
+
+    reflection = get_reflection(db, lesson.id, raise_if_missing=False)
+
+    lesson_by_id["reflection"] = reflection
+
     return lesson_by_id
 
 @router.delete("/clear")

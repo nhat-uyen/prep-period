@@ -1,17 +1,44 @@
-import { useState } from "react";
-import type { Lesson } from "../types/lesson";
+import { useEffect, useState } from "react";
+import type { Lesson, Reflection } from "../types/lesson";
 
 type LessonReflectionProps = {
   lesson: Lesson;
+  onReflectionChange: (reflection: Reflection) => void;
 }
 
-export default function LessonReflection({ lesson }: LessonReflectionProps) {
+export default function LessonReflection({ lesson, onReflectionChange }: LessonReflectionProps) {
   const [objectiveReflect, setObjectiveReflect] = useState("");
   const [priorKnowledgeReflect, setPriorKnowledgeReflect] = useState("");
   const [materialsReflect, setMaterialReflect] = useState("");
   const [activityReflect, setActivityReflect] = useState<string[]>(
     () => lesson.activities.map(() => ""));
 
+  const [keepReflect, setKeepReflect] = useState("");
+  const [changeReflect, setChangeReflect] = useState("");
+
+  useEffect(() => {
+    const reflection: Reflection = {
+      lesson_id: lesson.id,
+      objectives_rating: null,
+      objectives_notes: objectiveReflect,
+
+      prior_knowledge_rating: null,
+      prior_knowledge_notes: priorKnowledgeReflect,
+
+      materials_rating: null,
+      materials_notes: materialsReflect,
+
+      activities: activityReflect.map((notes, index) => ({
+        activity_index: index,
+        rating: null,
+        notes: notes,
+      })),
+
+      keep_notes: keepReflect,
+      change_notes: changeReflect,
+    };
+    onReflectionChange(reflection);
+  }, [lesson.id, onReflectionChange, objectiveReflect, priorKnowledgeReflect, materialsReflect, activityReflect, keepReflect, changeReflect]);
 
   function handleActivityReflectChange(index: number, value: string) {
     const updatedReflects = [...activityReflect];
@@ -96,6 +123,19 @@ export default function LessonReflection({ lesson }: LessonReflectionProps) {
         </div>
 
       ))}
+
+      <hr />
+      <h2>05. Overall Reflection</h2>
+      <label>What worked well? (Keep it!)</label>
+      <br />
+
+      <textarea value={keepReflect} onChange={e => setKeepReflect(e.target.value)} />
+      <br />
+      <br />
+
+      <label> What didn't work so well? (Modify it!)</label>
+      <br />
+      <textarea value={changeReflect} onChange={e => setChangeReflect(e.target.value)} />
     </div>
   )
 }

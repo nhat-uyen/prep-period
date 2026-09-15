@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import LessonReflection from "../components/LessonReflection";
 import type { Lesson } from "../types/lesson";
-import { getLessonByID, getLessons } from "../api/lessons";
+import type { Reflection } from "../types/lesson";
+import { createReflection, getLessonByID, getLessons } from "../api/lessons";
 
 
 
 export default function Reflection() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
+  const [reflection, setReflection] = useState<Reflection | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -38,6 +40,23 @@ export default function Reflection() {
     }
   }
 
+  async function handleSavingReflection() {
+    if (!reflection) {
+      setError("Please complete your reflection.");
+      return;
+    }
+    try {
+      setError("")
+
+      await createReflection(reflection);
+      console.log("Reflection saved!");
+    } catch (error) {
+      console.error(error);
+      setError("Failed to save reflection.");
+    }
+
+  }
+
   return (
     <div>
       <h1>Lesson Reflection</h1>
@@ -60,8 +79,11 @@ export default function Reflection() {
       {error && <p>{error}</p>}
       {selectedLesson !== null
         ? <>
-          <LessonReflection lesson={selectedLesson} />
-          <button type="button">
+          <LessonReflection
+            lesson={selectedLesson}
+            onReflectionChange={setReflection} />
+
+          <button type="button" onClick={handleSavingReflection}>
             Save Reflection
           </button>
         </>

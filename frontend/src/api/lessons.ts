@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { Lesson } from "../types/lesson"
+import type { Reflection } from "../types/lesson";
 /*
 Connect to the backend API using Axios with a base URL of "http://localhost:5173". 
 This allows for making HTTP requests to the backend server for lesson-related operations. 
@@ -33,4 +34,14 @@ export async function updateLesson(id: number, lesson: Lesson): Promise<Lesson> 
 
 export async function clearLessons() {
   await api.delete("/lessons/clear");
+}
+
+export async function createReflection(reflection: Reflection): Promise<Reflection> {
+  const response = await api.post<Reflection>("/reflections", reflection);
+  return response.data;
+}
+
+export async function getReflection(lessonId: number): Promise<Reflection> {
+  const response = await api.get<Reflection>(`/reflections/${lessonId}`);
+  return response.data;
 }
