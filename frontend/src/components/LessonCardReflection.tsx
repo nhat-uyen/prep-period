@@ -1,18 +1,15 @@
-/**
- * LessonCard module
- *
- * Displays a lesson summary including objectives, prior knowledge,
- * materials, and activities. Provides an `onEdit` callback for editing.
- */
-import type { Lesson } from "../types/lesson";
+// displaying lesson with reflection, if available, when selected in History
+import type { Lesson, Reflection } from "../types/lesson";
+import ActivityReflection from "./ActivityReflection";
 import "./LessonCard.css";
 
 
-type LessonCardProps = {
+type LessonCardReflectionProps = {
   lesson: Lesson;
+  reflection: Reflection;
 };
 
-export default function LessonCard({ lesson }: LessonCardProps) {
+export default function LessonCardReflection({ lesson, reflection }: LessonCardReflectionProps) {
   return (
     <article className="lesson-card">
       <header className="lesson-card__header">
@@ -26,6 +23,8 @@ export default function LessonCard({ lesson }: LessonCardProps) {
           <ul>
             {lesson.objectives.map((objective) => (<li key={objective}>{objective}</li>))}
           </ul>
+          <h3>Notes</h3>
+          <p>{reflection.objectives_notes || "No notes saved"}</p>
         </section>
 
         <section className="lesson-card__section">
@@ -33,6 +32,8 @@ export default function LessonCard({ lesson }: LessonCardProps) {
           <ul>
             {lesson.prior_knowledge.map((priorknowledge) => (<li key={priorknowledge}>{priorknowledge}</li>))}
           </ul>
+          <h3>Notes</h3>
+          <p>{reflection.prior_knowledge_notes || "No notes saved"}</p>
         </section>
 
         <section className="lesson-card__section">
@@ -40,21 +41,20 @@ export default function LessonCard({ lesson }: LessonCardProps) {
           <ul>
             {lesson.materials.map((material) => (<li key={material}>{material}</li>))}
           </ul>
+          <h3>Notes</h3>
+          <p>{reflection.materials_notes || "No notes saved"}</p>
         </section>
       </div>
 
       <section className="lesson-card__activities">
         <h3>Activities</h3>
         <div className="lesson-card__activity-list">
-          {lesson.activities.map((activity) => (
-            <article className="lesson-card__activity" key={activity.name}>
-              <div className="lesson-card__activity-heading">
-                <h4>{activity.name}</h4>
-                <span>{activity.duration_minutes} min</span>
-              </div>
-
-              <p>{activity.instructions}</p>
-            </article>
+          {lesson.activities.map((activity, activityIndex) => (
+            <ActivityReflection
+              key={activity.name}
+              activity={activity}
+              reflection={reflection.activities.find((item) => item.activity_index === activityIndex,)!}
+            />
           ))}
         </div>
       </section>

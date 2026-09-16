@@ -7,8 +7,8 @@ from app.models.reflection import RelfectionRequest
 
 def create_reflection(db: Session, reflection_request : RelfectionRequest):
     return crud.create_reflection(db=db, lesson_id=reflection_request.lesson_id,
-                                        objectives_rating=reflection_request.objective_rating,
-                                        objectives_notes=reflection_request.objective_notes,
+                                        objectives_rating=reflection_request.objectives_rating,
+                                        objectives_notes=reflection_request.objectives_notes,
                                         prior_knowledge_rating=reflection_request.prior_knowledge_rating,
                                         prior_knowledge_notes=reflection_request.prior_knowledge_notes,
                                         materials_rating=reflection_request.materials_rating, 

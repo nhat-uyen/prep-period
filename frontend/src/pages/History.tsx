@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { getLessons, deleteLesson, getLessonByID, clearLessons } from "../api/lessons";
-import type { Lesson } from "../types/lesson";
+import { type Reflection, type Lesson } from "../types/lesson";
 import LessonHistory from "../components/LessonHistory";
 import { Link } from "react-router";
 import LessonCard from "../components/LessonCard";
+import "./History.css";
+import LessonCardReflection from "../components/LessonCardReflection";
 
 // need to add Props when passing constant from one component to another
 type HistoryProps = {
@@ -16,6 +18,10 @@ type HistoryProps = {
 function History({ history, setHistory, removeLesson, clearHistory }: HistoryProps) {
   const [error, setError] = useState('');
   const [lesson, setLesson] = useState<Lesson | null>(null);
+  const [reflection, setReflection] = useState<Reflection | null>(null);
+
+  const lessonWithoutReflection = history.filter(lesson => lesson.reflection === null);
+  const lessonWithReflection = history.filter(lesson => lesson.reflection !== null);
 
   useEffect(() => {
     async function loadHistory() {
@@ -37,10 +43,14 @@ function History({ history, setHistory, removeLesson, clearHistory }: HistoryPro
       if (lesson?.id !== lessonId) {
         const selectedLesson = await getLessonByID(lessonId);
         setLesson(selectedLesson);
+        if (selectedLesson.reflection !== null) {
+          setReflection(selectedLesson.reflection);
+        };
       }
     } catch (error) {
       console.error(error);
       setError("Failed to load lesson")
+      setReflection(null)
     }
   }
 
@@ -80,15 +90,34 @@ function History({ history, setHistory, removeLesson, clearHistory }: HistoryPro
         </div>
         : <>
           {error && <p>{error}</p>}
-          <LessonHistory
-            lessons={history}
-            onLessonSelected={handleLessonSelected}
-            onLessonDeleted={handleLessonDeleted}
-            onClearLessons={handleClearHistory}
-          />
+          <div className="history-grid">
+            <div>
+              <h2>No Reflection</h2>
+              <LessonHistory
+                lessons={lessonWithoutReflection}
+                onLessonSelected={handleLessonSelected}
+                onLessonDeleted={handleLessonDeleted}
+              />
+            </div>
+            <div>
+              <h2>Reflected</h2>
+              <LessonHistory
+                lessons={lessonWithReflection}
+                onLessonSelected={handleLessonSelected}
+                onLessonDeleted={handleLessonDeleted}
+              />
+            </div>
+          </div>
+          <button className="history__clear-button" onClick={handleClearHistory}>
+            Delete All Lessons
+          </button>
         </>}
       {lesson !== null
-        ? <LessonCard lesson={lesson} />
+        ? <div>
+          {reflection !== null
+            ? <LessonCardReflection lesson={lesson} reflection={reflection} />
+            : <LessonCard lesson={lesson} />}
+        </div>
         : null}
     </div>
   )

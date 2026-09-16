@@ -8,8 +8,8 @@ class ActivityReflectionRequest(BaseModel):
 class RelfectionRequest(BaseModel):
     lesson_id: int
 
-    objective_rating: int | None = None
-    objective_notes: str | None = None
+    objectives_rating: int | None = None
+    objectives_notes: str | None = None
 
     prior_knowledge_rating: int | None = None
     prior_knowledge_notes: str | None = None

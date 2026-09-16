@@ -19,6 +19,7 @@ export default function LessonReflection({ lesson, onReflectionChange }: LessonR
   useEffect(() => {
     const reflection: Reflection = {
       lesson_id: lesson.id,
+
       objectives_rating: null,
       objectives_notes: objectiveReflect,
 

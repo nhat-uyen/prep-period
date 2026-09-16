@@ -42,7 +42,7 @@ function App() {
           removeLesson={removeLesson}
           clearHistory={clearHistory} />}
         />
-        <Route path="/reflection" element={<Reflection history={history} />} />
+        <Route path="/reflection" element={<Reflection />} />
       </Routes>
     </BrowserRouter>
 

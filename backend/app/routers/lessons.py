@@ -26,8 +26,10 @@ def create_lesson_plan(request: LessonRequest, db: Session = Depends(get_db)):
 @router.get("/all")
 def get_saved_lessons(db: Session = Depends(get_db)):
     lessons = crud.get_lessons(db)
-    all_lessons = [
-        {
+    all_lessons = []
+
+    for lesson in lessons:
+        lesson_by_id = {
         "id": lesson.id,
         "subject": lesson.subject,
         "topic": lesson.topic,
@@ -35,8 +37,11 @@ def get_saved_lessons(db: Session = Depends(get_db)):
         "duration_minutes": lesson.duration_minutes,
         **lesson.lesson_json
         }
-        for lesson in lessons
-    ]
+        reflection = get_reflection(db, lesson.id, raise_if_missing=False)
+        lesson_by_id["reflection"] = reflection
+
+        all_lessons.append(lesson_by_id)
+    
     return all_lessons
 
 @router.get("/{lesson_id}")

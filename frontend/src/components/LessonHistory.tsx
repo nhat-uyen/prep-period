@@ -8,38 +8,37 @@
  * - `onLessonDeleted(lessonId)`: called when a lesson is deleted.
  */
 import type { Lesson } from "../types/lesson";
+import './LessonHistory.css';
 
 
 type LessonHistoryProps = {
   lessons: Lesson[];
   onLessonSelected: (lessonId: number) => void;
   onLessonDeleted: (lessonId: number) => void;
-  onClearLessons: () => void;
 };
 
-export default function LessonHistory({ lessons, onLessonSelected, onLessonDeleted, onClearLessons }: LessonHistoryProps) {
+export default function LessonHistory({ lessons, onLessonSelected, onLessonDeleted }: LessonHistoryProps) {
   return (
-    <div>
-      <h2>Lesson Hitory</h2>
-
+    <ul className="lesson-history">
       {lessons.map((lesson) => (
-        <div key={lesson.id}>
+        <li key={lesson.id} className="lesson-history__item">
           <button
+            className="lesson-history__select"
             onClick={() => onLessonSelected(lesson.id)}
           >
             {lesson.subject}: {lesson.title}
           </button>
 
           <button
+            className="lesson-history__delete"
             onClick={() => onLessonDeleted(lesson.id)}
           >
-            Delete
+            X
           </button>
-        </div>
+        </li>
       )
       )
       }
-      <button onClick={onClearLessons} > Delete All Lessons </button>
-    </div>
+    </ul>
   )
 }
