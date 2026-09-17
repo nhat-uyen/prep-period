@@ -6,7 +6,7 @@ from app.config import settings
 
 
 logger = logging.getLogger(__name__)
-
+# TODO: Change to streaming response
 def generate_response(prompt:str) -> str:
     logger.info("Sending request to Ollama using model: %s", settings.ollama_model)
     response = chat(

@@ -16,6 +16,8 @@ export default function LessonReflection({ lesson, onReflectionChange }: LessonR
   const [keepReflect, setKeepReflect] = useState("");
   const [changeReflect, setChangeReflect] = useState("");
 
+
+
   useEffect(() => {
     const reflection: Reflection = {
       lesson_id: lesson.id,

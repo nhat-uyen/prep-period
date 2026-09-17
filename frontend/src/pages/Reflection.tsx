@@ -12,6 +12,8 @@ export default function Reflection() {
   const [reflection, setReflection] = useState<Reflection | null>(null);
   const [error, setError] = useState("");
 
+  const [successMessage, setSuccessMessage] = useState("");
+
   useEffect(() => {
     async function loadLessons() {
       try {
@@ -43,18 +45,20 @@ export default function Reflection() {
   async function handleSavingReflection() {
     if (!reflection) {
       setError("Please complete your reflection.");
+      setSuccessMessage("");
       return;
     }
     try {
       setError("")
 
       await createReflection(reflection);
+      setSuccessMessage("Reflection saved successfully!")
       console.log("Reflection saved!");
     } catch (error) {
       console.error(error);
       setError("Failed to save reflection.");
+      setSuccessMessage("");
     }
-
   }
 
   return (
@@ -82,6 +86,20 @@ export default function Reflection() {
           <LessonReflection
             lesson={selectedLesson}
             onReflectionChange={setReflection} />
+
+          {successMessage && (
+            <div style={{
+              marginTop: "12px",
+              padding: "10px 12px",
+              backgroundColor: "#e6ffed",
+              color: "#1f7a45",
+              border: "1px solid #a3d9b1",
+              borderRadius: "6px",
+              fontWeight: 600,
+            }}>
+              {successMessage}
+            </div>
+          )}
 
           <button type="button" onClick={handleSavingReflection}>
             Save Reflection
