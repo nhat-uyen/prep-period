@@ -6,41 +6,59 @@
  * when the request succeeds.
  */
 import { useState } from "react";
-import api from "../api/lessons";
+import { streamLesson } from "../api/lessons";
 import type { Lesson } from "../types/lesson";
 import "./LessonForm.css";
 
 
 type LessonFormProps = ({
   onLessonGenerated: (lesson: Lesson) => void;
-  setLoading: (loading: boolean) => void;
   setError: (error: string) => void
 });
 
-export default function LessonForm({ onLessonGenerated, setLoading, setError }: LessonFormProps) {
+export default function LessonForm({ setError, onLessonGenerated }: LessonFormProps) {
   const [subject, setSubject] = useState("");
   const [topic, setTopic] = useState("");
   const [grade, setGrade] = useState("");
   const [duration, setDuration] = useState("");
+  const [streamedText, setStreamedText] = useState("");
 
 
   //Later: add in try catch block to catch input that are empty
-  async function handleSubmit(e: React.SubmitEvent) {
+  // async function handleSubmit(e: React.SubmitEvent) {
+  //   e.preventDefault();
+
+  //   try {
+  //     setLoading(true);
+  //     setError("");
+
+  //     const response = await api.post("/lessons", { subject, topic, grade, duration_minutes: duration });
+
+  //     onLessonGenerated(response.data);
+
+  //   } catch (error) {
+  //     console.error(error)
+  //     setError("Failed to generate lesson. Please try again");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
+
+  // Testing streaming lesson with a different button
+  async function handleSubmit(e: { preventDefault: () => void; }) {
     e.preventDefault();
+    setError("");
 
     try {
-      setLoading(true);
-      setError("");
+      setStreamedText("");
+      const streamedLesson = await streamLesson(
+        { subject, topic, grade: Number(grade), duration_minutes: Number(duration) },
+        (chunk) => { setStreamedText(previous => previous + chunk) });
 
-      const response = await api.post("/lessons", { subject, topic, grade, duration_minutes: duration });
-
-      onLessonGenerated(response.data);
-
+      onLessonGenerated(streamedLesson)
     } catch (error) {
-      console.error(error)
+      console.error(error);
       setError("Failed to generate lesson. Please try again");
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -92,6 +110,8 @@ export default function LessonForm({ onLessonGenerated, setLoading, setError }: 
         <button className="lesson-form__button" type="submit">
           Generate Lesson
         </button>
+        {/* remove this latter but keep this for now to make sure lessons are streaming */}
+        <pre>{streamedText}</pre>
       </form>
     </div>
   );

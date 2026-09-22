@@ -12,7 +12,6 @@ type GenerateProps = {
 
 export default function GenerateLesson({ addLesson, editLesson }: GenerateProps) {
   const [lesson, setLesson] = useState<Lesson | null>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(false);
 
@@ -40,10 +39,8 @@ export default function GenerateLesson({ addLesson, editLesson }: GenerateProps)
       <h1> Generate Lesson </h1>
       <LessonForm
         onLessonGenerated={handleLessonGenerated}
-        setLoading={setLoading}
         setError={setError}
       />
-      {loading && <h2>Generating lesson...</h2>}
       {error && <p>{error}</p>}
       {lesson && editing && (
         <LessonEditor

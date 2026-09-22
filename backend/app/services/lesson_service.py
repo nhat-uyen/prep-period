@@ -9,6 +9,7 @@ from app.llm.ollama_client import generate_response
 from app.llm.lesson_prompt import build_prompt
 from app.models.lesson import LessonRequest, LessonResponse
 from app.database import crud
+from app.database.models import Lesson
 
 
 logger = logging.getLogger(__name__)
@@ -59,3 +60,14 @@ def save_lesson_to_databse(db: Session, request: LessonRequest, lesson: LessonRe
                       **saved_lesson.lesson_json
                       }
     return lesson_with_id
+
+def save_streamed_lesson(db: Session, full_response: str, request: LessonRequest) -> Lesson:
+  try:
+    lesson_data = json.loads(full_response)
+    lesson = LessonResponse(**lesson_data)
+
+    return save_lesson_to_databse(db, request, lesson)
+  
+  except json.JSONDecodeError:
+          logger.exception("AI returned invalid JSON.")
+          raise HTTPException(status_code=500, detail="Invalid response from AI")

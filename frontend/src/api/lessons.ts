@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { Lesson } from "../types/lesson"
+import type { Lesson, LessonRequest } from "../types/lesson"
 import type { Reflection } from "../types/lesson";
 /*
 Connect to the backend API using Axios with a base URL of "http://localhost:5173". 
@@ -44,4 +44,56 @@ export async function createReflection(reflection: Reflection): Promise<Reflecti
 export async function getReflection(lessonId: number): Promise<Reflection> {
   const response = await api.get<Reflection>(`/reflections/${lessonId}`);
   return response.data;
+}
+
+// For streaming respsonse
+export async function streamLesson(request: LessonRequest, onChunk: (chunk: string) => void): Promise<Lesson> {
+  let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
+
+  try {
+    const response = await fetch("http://localhost:8000/lessons/stream", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const detail = await response.text();
+      throw new Error(`Unable to stream lesson (${response.status}): ${detail || response.statusText}`);
+    }
+
+    if (!response.body) {
+      throw new Error("Unable to stream lesson: response did not include a body");
+    }
+
+    reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    let fullResponse = "";
+
+    while (true) {
+      const { value, done } = await reader.read();
+
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+
+      fullResponse += chunk;
+      onChunk(chunk);
+    }
+
+    fullResponse += decoder.decode();
+
+    try {
+      return JSON.parse(fullResponse) as Lesson;
+    } catch (error) {
+      throw new Error("Unable to parse the lesson returned by the server", { cause: error });
+    }
+  }
+  catch (error) {
+    console.error("Error streaming lesson:", error);
+    throw error;
+  } finally {
+    reader?.releaseLock();
+  }
 }
