@@ -69,28 +69,41 @@ export async function streamLesson(request: LessonRequest, onChunk: (chunk: stri
     reader = response.body.getReader();
     const decoder = new TextDecoder();
 
-    let fullResponse = "";
+    let buffer = "";
 
     while (true) {
       const { value, done } = await reader.read();
 
       if (done) break;
 
-      const chunk = decoder.decode(value, { stream: true });
+      buffer += decoder.decode(value, { stream: true });
 
-      fullResponse += chunk;
-      onChunk(chunk);
+      const lines = buffer.split("\n");
+      // Keep incomplete line for the next chunk
+      buffer = lines.pop() ?? "";
+
+      for (const line of lines) {
+        if (!line.trim()) continue;
+
+        try {
+          const message = JSON.parse(line);
+
+          if (message.type === "chunk") {
+            onChunk(message.data);
+          }
+
+          if (message.type === "complete") {
+            return message.lesson as Lesson;
+          }
+
+        } catch (error) {
+          throw new Error("Unable to parse the lesson returned by the server", { cause: error });
+        }
+      }
     }
 
-    fullResponse += decoder.decode();
-
-    try {
-      return JSON.parse(fullResponse) as Lesson;
-    } catch (error) {
-      throw new Error("Unable to parse the lesson returned by the server", { cause: error });
-    }
-  }
-  catch (error) {
+    throw new Error("Unable to stream lesson: response did not include a complete lesson");
+  } catch (error) {
     console.error("Error streaming lesson:", error);
     throw error;
   } finally {

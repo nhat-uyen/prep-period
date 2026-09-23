@@ -3,6 +3,7 @@ import LessonReflection from "../components/LessonReflection";
 import type { Lesson } from "../types/lesson";
 import type { Reflection } from "../types/lesson";
 import { createReflection, getLessonByID, getLessons } from "../api/lessons";
+import "./Reflection.css";
 
 
 
@@ -62,11 +63,11 @@ export default function Reflection() {
   }
 
   return (
-    <div>
+    <main className="page-shell reflection-page">
       <h1>Lesson Reflection</h1>
       <p>Reflect on each part of your lesson.</p>
 
-      <select
+      <select className="reflection-page__select"
         value={selectedLesson?.id ?? ""}
         onChange={(e) => {
           const lessonId = Number(e.target.value);
@@ -88,25 +89,17 @@ export default function Reflection() {
             onReflectionChange={setReflection} />
 
           {successMessage && (
-            <div style={{
-              marginTop: "12px",
-              padding: "10px 12px",
-              backgroundColor: "#e6ffed",
-              color: "#1f7a45",
-              border: "1px solid #a3d9b1",
-              borderRadius: "6px",
-              fontWeight: 600,
-            }}>
+            <div className="reflection-page__success">
               {successMessage}
             </div>
           )}
 
-          <button type="button" onClick={handleSavingReflection}>
+          <button className="reflection-page__save" type="button" onClick={handleSavingReflection}>
             Save Reflection
           </button>
         </>
         : <p>Please select a lesson to begin your reflection.</p>
       }
-    </div>
+    </main>
   )
 }

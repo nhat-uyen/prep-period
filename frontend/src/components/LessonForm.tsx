@@ -21,41 +21,19 @@ export default function LessonForm({ setError, onLessonGenerated }: LessonFormPr
   const [topic, setTopic] = useState("");
   const [grade, setGrade] = useState("");
   const [duration, setDuration] = useState("");
-  const [streamedText, setStreamedText] = useState("");
+  // const [streamedText, setStreamedText] = useState("");
 
-
-  //Later: add in try catch block to catch input that are empty
-  // async function handleSubmit(e: React.SubmitEvent) {
-  //   e.preventDefault();
-
-  //   try {
-  //     setLoading(true);
-  //     setError("");
-
-  //     const response = await api.post("/lessons", { subject, topic, grade, duration_minutes: duration });
-
-  //     onLessonGenerated(response.data);
-
-  //   } catch (error) {
-  //     console.error(error)
-  //     setError("Failed to generate lesson. Please try again");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }
-
-  // Testing streaming lesson with a different button
   async function handleSubmit(e: { preventDefault: () => void; }) {
     e.preventDefault();
     setError("");
 
     try {
-      setStreamedText("");
-      const streamedLesson = await streamLesson(
-        { subject, topic, grade: Number(grade), duration_minutes: Number(duration) },
-        (chunk) => { setStreamedText(previous => previous + chunk) });
+      // setStreamedText("");
+      const streamedLesson = await streamLesson({ subject, topic, grade: Number(grade), duration_minutes: Number(duration) }, () => { })
+      // (chunk) => { setStreamedText(previous => previous + chunk) });
 
       onLessonGenerated(streamedLesson)
+      console.log("Finished streaming", streamedLesson)
     } catch (error) {
       console.error(error);
       setError("Failed to generate lesson. Please try again");
@@ -111,7 +89,7 @@ export default function LessonForm({ setError, onLessonGenerated }: LessonFormPr
           Generate Lesson
         </button>
         {/* remove this latter but keep this for now to make sure lessons are streaming */}
-        <pre>{streamedText}</pre>
+        {/* <pre>{streamedText}</pre> */}
       </form>
     </div>
   );

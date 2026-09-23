@@ -11,6 +11,7 @@ type GenerateProps = {
 }
 
 export default function GenerateLesson({ addLesson, editLesson }: GenerateProps) {
+
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(false);
@@ -28,15 +29,15 @@ export default function GenerateLesson({ addLesson, editLesson }: GenerateProps)
       setLesson(savedLesson);
 
       setEditing(false);
-    } catch (loadError) {
-      console.error("Failed to update lesson:", loadError);
+    } catch (error) {
+      console.error("Failed to update lesson:", error);
       setError("Failed to save lesson.")
     }
   }
 
   return (
-    <div>
-      <h1> Generate Lesson </h1>
+    <main className="page-shell">
+      <h1>Generate Lesson</h1>
       <LessonForm
         onLessonGenerated={handleLessonGenerated}
         setError={setError}
@@ -53,9 +54,9 @@ export default function GenerateLesson({ addLesson, editLesson }: GenerateProps)
       {lesson && !editing && (
         <>
           <LessonCard lesson={lesson} />
-          <button onClick={() => setEditing(true)}>Edit Lesson</button>
+          <button type="button" onClick={() => setEditing(true)}>Edit Lesson</button>
         </>
       )}
-    </div>
+    </main>
   )
 }

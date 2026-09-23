@@ -1,0 +1,82 @@
+.reflection-page__select {
+  width: min(100%, 520px);
+  min-height: 44px;
+  margin-bottom: 24px;
+  padding: 10px 12px;
+}
+
+.reflection-page__success {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid #b7d0c5;
+  border-radius: 8px;
+  color: #3e6856;
+  background: #edf5f1;
+  font-weight: 700;
+}
+
+.reflection-page__save {
+  margin-top: 18px;
+  color: var(--text-h);
+  border-color: #d1a04c;
+  background: var(--gold);
+}
+
+.reflection-page__save:hover {
+  border-color: #b9862d;
+  background: #c58f32;
+}
+
+.lesson-reflection {
+  margin-top: 12px;
+  padding: 30px 34px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  color: var(--text);
+}
+
+.lesson-reflection h2 {
+  margin-top: 28px;
+  color: var(--text-h);
+}
+
+.lesson-reflection h2:first-child {
+  margin-top: 0;
+}
+
+.lesson-reflection h3 {
+  margin: 22px 0 6px;
+  color: var(--teal);
+  font-size: 1rem;
+}
+
+.lesson-reflection label {
+  display: block;
+  margin-top: 18px;
+  color: var(--text-h);
+  font-weight: 700;
+}
+
+.lesson-reflection textarea {
+  display: block;
+  width: 100%;
+  min-height: 104px;
+  box-sizing: border-box;
+  margin-top: 8px;
+  padding: 12px;
+  resize: vertical;
+}
+
+.lesson-reflection hr {
+  margin: 28px 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 600px) {
+  .lesson-reflection {
+    padding: 22px 18px;
+  }
+}

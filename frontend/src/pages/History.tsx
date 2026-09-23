@@ -44,7 +44,7 @@ function History({ history, setHistory, removeLesson, clearHistory }: HistoryPro
         const selectedLesson = await getLessonByID(lessonId);
         setLesson(selectedLesson);
         if (selectedLesson.reflection !== null) {
-          setReflection(selectedLesson.reflection);
+          setReflection(selectedLesson.reflection!);
         };
       }
     } catch (error) {
@@ -81,7 +81,7 @@ function History({ history, setHistory, removeLesson, clearHistory }: HistoryPro
   }
 
   return (
-    <div>
+    <main className="page-shell">
       <h1>History</h1>
       {history.length === 0
         ? <div>
@@ -119,7 +119,7 @@ function History({ history, setHistory, removeLesson, clearHistory }: HistoryPro
             : <LessonCard lesson={lesson} />}
         </div>
         : null}
-    </div>
+    </main>
   )
 }
 

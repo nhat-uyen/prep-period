@@ -1,3 +1,4 @@
+import json
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -44,13 +45,22 @@ def stream_lesson_plan(request: LessonRequest, db: Session = Depends(get_db)):
             # each chunk produced is saved in full_repsonse
             full_repsonse += chunk
             # when Ollama produces chunk of respsonse, this send chunk to React
-            yield chunk
+            yield json.dumps({
+                "type": "chunk",
+                "content": chunk
+            }) + "\n"
 
         # happen when Ollama finishes streaming the repsonse
-        save_streamed_lesson(db,full_repsonse, request)
-        logger.info("Successfully save to database")
-        
-    return StreamingResponse(stream(), media_type="text/plain")
+        lesson_with_id = save_streamed_lesson(db, full_repsonse, request)
+        logger.info(lesson_with_id)
+
+        # Send the database version with id to React
+        yield json.dumps({
+            "type": "complete",
+            "lesson": lesson_with_id
+        }) + "\n"
+
+    return StreamingResponse(stream(), media_type="application/x-ndjson")
 
 # GET: retrive all saved lessons
 @router.get("/all")

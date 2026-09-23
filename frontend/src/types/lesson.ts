@@ -5,10 +5,10 @@ export type Activity = {
 };
 
 export type Lesson = {
-  id: number;    // this means that id is optional
+  id: number;
   subject: string;
   topic: string;
-  grade: string;
+  grade: number;
   duration_minutes: number;
   title: string;
   objectives: string[];
@@ -16,7 +16,7 @@ export type Lesson = {
   materials: string[];
   activities: Activity[];
 
-  reflection: Reflection | null;
+  reflection?: Reflection | null;
 };
 
 export type LessonRequest = {

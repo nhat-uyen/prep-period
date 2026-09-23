@@ -24,21 +24,21 @@ export default function LessonCard({ lesson }: LessonCardProps) {
         <section className="lesson-card__section">
           <h3>Objectives</h3>
           <ul>
-            {lesson.objectives.map((objective) => (<li key={objective}>{objective}</li>))}
+            {lesson.objectives.filter((objective) => objective.trim()).map((objective) => (<li key={objective}>{objective}</li>))}
           </ul>
         </section>
 
         <section className="lesson-card__section">
           <h3>Prior Knowledge</h3>
           <ul>
-            {lesson.prior_knowledge.map((priorknowledge) => (<li key={priorknowledge}>{priorknowledge}</li>))}
+            {lesson.prior_knowledge.filter((priorknowledge) => priorknowledge.trim()).map((priorknowledge) => (<li key={priorknowledge}>{priorknowledge}</li>))}
           </ul>
         </section>
 
         <section className="lesson-card__section">
           <h3>Materials</h3>
           <ul>
-            {lesson.materials.map((material) => (<li key={material}>{material}</li>))}
+            {lesson.materials.filter((material) => material.trim()).map((material) => (<li key={material}>{material}</li>))}
           </ul>
         </section>
       </div>
@@ -46,16 +46,18 @@ export default function LessonCard({ lesson }: LessonCardProps) {
       <section className="lesson-card__activities">
         <h3>Activities</h3>
         <div className="lesson-card__activity-list">
-          {lesson.activities.map((activity) => (
-            <article className="lesson-card__activity" key={activity.name}>
-              <div className="lesson-card__activity-heading">
-                <h4>{activity.name}</h4>
-                <span>{activity.duration_minutes} min</span>
-              </div>
+          {lesson.activities
+            .filter((activity) => activity.name.trim() || activity.instructions.trim())
+            .map((activity) => (
+              <article className="lesson-card__activity" key={activity.name}>
+                <div className="lesson-card__activity-heading">
+                  <h4>{activity.name}</h4>
+                  <span>{activity.duration_minutes} min</span>
+                </div>
 
-              <p>{activity.instructions}</p>
-            </article>
-          ))}
+                <p>{activity.instructions}</p>
+              </article>
+            ))}
         </div>
       </section>
     </article>

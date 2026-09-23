@@ -50,7 +50,7 @@ export default function LessonReflection({ lesson, onReflectionChange }: LessonR
   }
 
   return (
-    <div>
+    <div className="lesson-reflection">
       <h2>{lesson.title}</h2>
       <p>Subject: {lesson.subject} - Grade: {lesson.grade} - Duration: {lesson.duration_minutes} mins</p>
 

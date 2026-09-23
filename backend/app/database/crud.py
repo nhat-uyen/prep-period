@@ -35,7 +35,7 @@ def delete_lesson(db: Session, lesson_id: int):
 
     return lesson
 
-def update_lesson(db: Session, lesson_id: int, lesson_data: dict):
+def update_lesson(db: Session, lesson_id: int, lesson_data: dict) -> Lesson:
     lesson = (db.query(Lesson).filter(Lesson.id == lesson_id).first())
 
     if lesson is None:

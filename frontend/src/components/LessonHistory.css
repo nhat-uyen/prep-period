@@ -1,47 +1,47 @@
 .lesson-history {
-    display: grid;
-    gap: 10px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .lesson-history__item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 5px;
-    padding: 8px 18px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  padding: 8px 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
 }
 
 .lesson-history__select {
-    flex: 1;
-    border: 0;
-    color: var(--text-h);
-    background: transparent;
-    text-align: left;
-    cursor: pointer;
+  flex: 1;
+  border: 0;
+  color: var(--text-h);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
 }
 
 .lesson-history__select:hover {
-    color: var(--teal);
+  color: var(--teal);
 }
 
 .lesson-history__delete {
-    border: 1px solid #d98b79;
-    color: #a94f4d;
-    background: #fff5f0;
-    border-radius: 6px;
-    padding: 6px 10px;
-    cursor: pointer;
-    transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+  border: 1px solid var(--accent-border);
+  color: var(--accent-dark);
+  background: var(--accent-bg);
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
 }
 
 .lesson-history__delete:hover {
-    border-color: #a94f4d;
-    color: #ffffff;
-    background: #a94f4d;
+  border-color: var(--accent-dark);
+  color: #ffffff;
+  background: var(--accent-dark);
 }
