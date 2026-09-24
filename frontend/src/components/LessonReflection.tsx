@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import type { Lesson, Reflection } from "../types/lesson";
+import { Card, CardContent, Chip, Divider, Stack, TextField, Typography } from "@mui/material";
 
 type LessonReflectionProps = {
   lesson: Lesson;
@@ -50,95 +52,116 @@ export default function LessonReflection({ lesson, onReflectionChange }: LessonR
   }
 
   return (
-    <div className="lesson-reflection">
-      <h2>{lesson.title}</h2>
-      <p>Subject: {lesson.subject} - Grade: {lesson.grade} - Duration: {lesson.duration_minutes} mins</p>
+    <Card elevation={0} sx={{ mt: 3 }}>
+      <CardContent sx={{ p: { xs: 2, md: 4 } }}>
+        <Stack spacing={1} sx={{ mb: 4 }}>
+          <Typography variant="h2" sx={{ fontSize: { xs: "2rem", md: "2.8rem" } }}>{lesson.title}</Typography>
+          <Typography color="text.secondary">{lesson.subject} · Grade {lesson.grade} · {lesson.duration_minutes} minutes</Typography>
+        </Stack>
 
-      <hr />
-      <h2>01. Objectives</h2>
-      {lesson.objectives.map(objective => (
-        <p key={objective}> {objective} </p>
-      ))}
+        <Stack spacing={3}>
+          <ReflectionSection title="01. Objectives" items={lesson.objectives} prompt="What did you notice about student understanding?">
+            <TextField
+              fullWidth
+              multiline
+              minRows={3}
+              label="Your reflection"
+              value={objectiveReflect}
+              onChange={(e) => setObjectiveReflect(e.target.value)}
+            />
+          </ReflectionSection>
 
-      <label>What did you notice about student understanding?</label>
-      <br />
+          <ReflectionSection title="02. Prior knowledge" items={lesson.prior_knowledge} prompt="What did you notice about students' prior knowledge?">
+            <TextField
+              fullWidth
+              multiline
+              minRows={3}
+              label="Your reflection"
+              value={priorKnowledgeReflect}
+              onChange={(e) => setPriorKnowledgeReflect(e.target.value)}
+            />
+          </ReflectionSection>
 
-      <textarea
-        value={objectiveReflect}
-        onChange={(e) => setObjectiveReflect(e.target.value)} />
-      <hr />
+          <ReflectionSection title="03. Materials" items={lesson.materials} prompt="What worked well? What could be improved?">
+            <TextField
+              fullWidth
+              multiline
+              minRows={3}
+              label="Your reflection"
+              value={materialsReflect}
+              onChange={e => setMaterialReflect(e.target.value)}
+            />
+          </ReflectionSection>
 
-      <h2>02. Prior Knowledge</h2>
-      {lesson.prior_knowledge.map(knowledge => (
-        <p key={knowledge}> {knowledge}</p>
-      ))}
+          <Stack spacing={2}>
+            <Typography variant="h5">04. Activities</Typography>
+            <Typography color="text.secondary">Reflect on each activity separately.</Typography>
+            {lesson.activities.map((activity, index) => (
+              <Card key={activity.name} variant="outlined">
+                <CardContent>
+                  <Stack spacing={1.5}>
+                    <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", gap: 2 }}>
+                      <Typography variant="h6">{activity.name}</Typography>
+                      <Chip size="small" label={`${activity.duration_minutes} min`} color="primary" variant="outlined" />
+                    </Stack>
+                    <Typography color="text.secondary">{activity.instructions}</Typography>
+                    <TextField
+                      fullWidth
+                      multiline
+                      minRows={3}
+                      label="What happened during this activity?"
+                      value={activityReflect[index]}
+                      onChange={(e) => handleActivityReflectChange(index, e.target.value)}
+                    />
+                  </Stack>
+                </CardContent>
+              </Card>
+            ))}
+          </Stack>
 
-      <label>
-        What did you notice about students' prior knowledge?
-      </label>
-
-      <br />
-
-      <textarea
-        value={priorKnowledgeReflect}
-        onChange={(e) => setPriorKnowledgeReflect(e.target.value)}
-      />
-
-      <hr />
-
-      <h2>03. Materials</h2>
-      {lesson.materials.map(material => (
-        <p key={material}> {material}</p>
-      ))}
-
-      <label> What worked well? What could be improved?</label>
-      <br />
-      <textarea
-        value={materialsReflect}
-        onChange={e => setMaterialReflect(e.target.value)} />
-
-      <hr />
-
-      <h2>04. Activities</h2>
-
-      <p>Reflect on each activity separately.</p>
-
-      {lesson.activities.map((activity, index) => (
-        <div key={activity.name}>
-          <h3>{activity.name}</h3>
-
-          <p>{activity.duration_minutes} minutes</p>
-
-          <p>{activity.instructions}</p>
-
-          <label>
-            What happened during this activity?
-          </label>
-
-          <br />
-
-          <textarea
-            value={activityReflect[index]}
-            onChange={(e) => handleActivityReflectChange(index, e.target.value)}
-          />
-
-          <hr />
-        </div>
-
-      ))}
-
-      <hr />
-      <h2>05. Overall Reflection</h2>
-      <label>What worked well? (Keep it!)</label>
-      <br />
-
-      <textarea value={keepReflect} onChange={e => setKeepReflect(e.target.value)} />
-      <br />
-      <br />
-
-      <label> What didn't work so well? (Modify it!)</label>
-      <br />
-      <textarea value={changeReflect} onChange={e => setChangeReflect(e.target.value)} />
-    </div>
+          <ReflectionSection title="05. Overall reflection" items={[]} prompt="What worked well? (Keep it!)">
+            <TextField
+              fullWidth
+              multiline
+              minRows={3}
+              label="Keep"
+              value={keepReflect}
+              onChange={e => setKeepReflect(e.target.value)}
+            />
+            <TextField
+              fullWidth
+              multiline
+              minRows={3}
+              label="What didn't work so well? (Modify it!)"
+              value={changeReflect}
+              onChange={e => setChangeReflect(e.target.value)}
+            />
+          </ReflectionSection>
+        </Stack>
+      </CardContent>
+    </Card>
   )
+}
+
+type ReflectionSectionProps = {
+  title: string;
+  items: string[];
+  prompt: string;
+  children: ReactNode;
+};
+
+function ReflectionSection({ title, items, prompt, children }: ReflectionSectionProps) {
+  return (
+    <Stack spacing={1.5}>
+      <Typography variant="h5">{title}</Typography>
+      {items.length > 0 && (
+        <Stack direction="row" sx={{ flexWrap: "wrap", gap: 1 }}>
+          {items.map((item) => <Chip key={item} label={item} variant="outlined" />)}
+        </Stack>
+      )}
+      <Typography color="text.secondary">{prompt}</Typography>
+      {children}
+      <Divider />
+    </Stack>
+  );
 }

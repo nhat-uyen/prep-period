@@ -1,41 +1,41 @@
 import { Link } from "react-router";
-import "./Home.css";
+import { ArrowForward, AutoAwesome, History, RateReview } from "@mui/icons-material";
+import { Box, Container, Paper, Stack, Typography } from "@mui/material";
 
 export default function Home() {
   return (
-    <main className="home">
-      <header className="home__header">
-        <p className="home__eyebrow">Prep-Period</p>
-        <h1>What would you like to do?</h1>
-        <p className="home__intro">Plan, revisit, and improve your lessons in one place.</p>
-      </header>
+    <Box component="main" sx={{ minHeight: "100vh", py: { xs: 5, md: 10 } }}>
+      <Container maxWidth="md">
+        <Stack spacing={2} sx={{ mb: 6 }}>
+          <Typography variant="overline" color="primary.main" sx={{ fontWeight: 800, letterSpacing: ".16em" }}>
+            Prep-Period
+          </Typography>
+          <Typography variant="h1" sx={{ fontSize: { xs: "2.7rem", md: "4.5rem" }, lineHeight: 1.05 }}>
+            What would you like to do?
+          </Typography>
+          <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400, maxWidth: 520 }}>
+            Plan, revisit, and improve your lessons in one place.
+          </Typography>
+        </Stack>
 
-      <nav aria-label="Lesson menu" className="home__menu">
-        <Link className="home__link" to="/generate">
-          <span className="home__link-number">01</span>
-          <span>
-            <strong>Generate Lesson</strong>
-            <small>Build a fresh lesson plan</small>
-          </span>
-          <span aria-hidden="true" className="home__arrow">-&gt;</span>
-        </Link>
-        <Link className="home__link" to="/history">
-          <span className="home__link-number">02</span>
-          <span>
-            <strong>Past Lessons</strong>
-            <small>Browse your saved plans</small>
-          </span>
-          <span aria-hidden="true" className="home__arrow">-&gt;</span>
-        </Link>
-        <Link className="home__link" to="/reflection">
-          <span className="home__link-number">03</span>
-          <span>
-            <strong>Lesson Reflection</strong>
-            <small>Reflect on what worked</small>
-          </span>
-          <span aria-hidden="true" className="home__arrow">-&gt;</span>
-        </Link>
-      </nav>
-    </main>
+        <Stack component="nav" aria-label="Lesson menu" spacing={1.5}>
+          {[
+            { to: "/generate", number: "01", title: "Generate Lesson", detail: "Build a fresh lesson plan", icon: <AutoAwesome /> },
+            { to: "/history", number: "02", title: "Past Lessons", detail: "Browse your saved plans", icon: <History /> },
+            { to: "/reflection", number: "03", title: "Lesson Reflection", detail: "Reflect on what worked", icon: <RateReview /> },
+          ].map((item) => (
+            <Paper key={item.to} component={Link} to={item.to} elevation={0} sx={{ display: "flex", alignItems: "center", gap: 2, p: { xs: 2, md: 2.5 }, textDecoration: "none", color: "inherit", transition: "transform .2s, border-color .2s", "&:hover": { transform: "translateX(6px)", borderColor: "primary.main" } }}>
+              <Box sx={{ color: "primary.main", display: "flex" }}>{item.icon}</Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>{item.title}</Typography>
+                <Typography color="text.secondary">{item.detail}</Typography>
+              </Box>
+              <Typography color="text.secondary" sx={{ display: { xs: "none", sm: "block" }, fontWeight: 700 }}>{item.number}</Typography>
+              <ArrowForward color="primary" />
+            </Paper>
+          ))}
+        </Stack>
+      </Container>
+    </Box>
   )
 }

@@ -3,7 +3,7 @@ import LessonReflection from "../components/LessonReflection";
 import type { Lesson } from "../types/lesson";
 import type { Reflection } from "../types/lesson";
 import { createReflection, getLessonByID, getLessons } from "../api/lessons";
-import "./Reflection.css";
+import { Alert, Box, Button, Container, FormControl, InputLabel, MenuItem, Select, Stack, Typography } from "@mui/material";
 
 
 
@@ -63,43 +63,53 @@ export default function Reflection() {
   }
 
   return (
-    <main className="page-shell reflection-page">
-      <h1>Lesson Reflection</h1>
-      <p>Reflect on each part of your lesson.</p>
+    <Box component="main" sx={{ py: { xs: 4, md: 7 } }}>
+      <Container maxWidth="md">
+        <Stack spacing={1} sx={{ mb: 4 }}>
+          <Typography variant="overline" color="primary.main" sx={{ fontWeight: 800, letterSpacing: ".14em" }}>Look back</Typography>
+          <Typography variant="h1" sx={{ fontSize: { xs: "2.6rem", md: "4rem" } }}>Lesson Reflection</Typography>
+          <Typography color="text.secondary">Reflect on each part of your lesson.</Typography>
+        </Stack>
 
-      <select className="reflection-page__select"
-        value={selectedLesson?.id ?? ""}
-        onChange={(e) => {
-          const lessonId = Number(e.target.value);
-          handleSelectedLesson(lessonId)
+        <FormControl fullWidth>
+          <InputLabel id="lesson-select-label">Select a lesson</InputLabel>
+          <Select
+            labelId="lesson-select-label"
+            label="Select a lesson"
+            value={selectedLesson?.id ?? ""}
+            onChange={(e) => {
+              const lessonId = Number(e.target.value);
+              handleSelectedLesson(lessonId)
+            }
+            }
+          >
+            <MenuItem value="">Select a lesson</MenuItem>
+            {lessons.map(lesson => (
+              <MenuItem key={lesson.id} value={lesson.id}>{lesson.title}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+        {selectedLesson !== null
+          ? <>
+            <LessonReflection
+              lesson={selectedLesson}
+              onReflectionChange={setReflection} />
+
+            {successMessage && (
+              <Alert severity="success" sx={{ mt: 3 }}>
+                {successMessage}
+              </Alert>
+            )}
+
+            <Button variant="contained" type="button" onClick={handleSavingReflection} sx={{ mt: 3 }}>
+              Save Reflection
+            </Button>
+          </>
+          : <Typography color="text.secondary" sx={{ mt: 3 }}>Please select a lesson to begin your reflection.</Typography>
         }
-        }
-      >
-        <option value="">Select a lesson</option>
-        {lessons.map(lesson => (
-          <option key={lesson.id} value={lesson.id}>{lesson.title}</option>
-        ))}
-      </select>
-
-      {error && <p>{error}</p>}
-      {selectedLesson !== null
-        ? <>
-          <LessonReflection
-            lesson={selectedLesson}
-            onReflectionChange={setReflection} />
-
-          {successMessage && (
-            <div className="reflection-page__success">
-              {successMessage}
-            </div>
-          )}
-
-          <button className="reflection-page__save" type="button" onClick={handleSavingReflection}>
-            Save Reflection
-          </button>
-        </>
-        : <p>Please select a lesson to begin your reflection.</p>
-      }
-    </main>
+      </Container>
+    </Box>
   )
 }

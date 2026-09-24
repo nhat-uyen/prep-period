@@ -7,7 +7,7 @@
 import { useState } from "react";
 import type { Lesson } from "../types/lesson";
 import ActivityEditor from "./ActivityEditor";
-import "./LessonEditor.css";
+import { Box, Button, Container, Divider, Paper, Stack, TextField, Typography } from "@mui/material";
 
 
 type LessonEditorProps = {
@@ -51,135 +51,125 @@ export default function LessonEditor({ lesson, onCancel, onSaved }: LessonEditor
   }
 
   return (
-    <main className="lesson-editor">
-      <header className="lesson-editor__header">
-        <p className="lesson-editor__eyebrow">Lesson workspace</p>
-        <h2>Edit Lesson</h2>
-      </header>
+    <Box component="main" sx={{ py: 3 }}>
+      <Container maxWidth="md">
+        <Stack spacing={1} sx={{ mb: 4 }}>
+          <Typography variant="overline" color="primary.main" sx={{ fontWeight: 800, letterSpacing: ".14em" }}>Lesson workspace</Typography>
+          <Typography variant="h2" sx={{ fontSize: { xs: "2.2rem", md: "3rem" } }}>Edit Lesson</Typography>
+        </Stack>
 
-      <section className="lesson-editor__section lesson-editor__section--details">
-        <div className="lesson-editor__section-heading">
-          <span className="lesson-editor__section-number">01</span>
-          <div><h3>Lesson details</h3><p>Give this lesson a clear identity.</p></div>
-        </div>
-        <div className="lesson-editor__details-grid">
-          <label className="lesson-editor__field"> Title
-            <input
-              type="text"
-              value={title}
-              onChange={e => setTitle(e.target.value)} />
-          </label>
+        <Stack spacing={2.5}>
+          <Paper component="section" elevation={0} sx={{ p: { xs: 2, md: 3 } }}>
+            <Typography variant="h5">01. Lesson details</Typography>
+            <Typography color="text.secondary" sx={{ mb: 3 }}>Give this lesson a clear identity.</Typography>
+            <Stack spacing={2}>
+              <TextField label="Title"
+                type="text"
+                value={title}
+                onChange={e => setTitle(e.target.value)} />
+              <TextField label="Subject"
+                type="text"
+                value={subject}
+                onChange={e => setSubject(e.target.value)} />
+              <TextField label="Topic"
+                type="text"
+                value={topic}
+                onChange={e => setTopic(e.target.value)} />
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                <TextField fullWidth label="Grade"
+                  type="number"
+                  value={grade}
+                  onChange={e => setGrade(Number(e.target.value))} />
+                <TextField fullWidth label="Duration (minutes)"
+                  type="number"
+                  value={duration}
+                  onChange={e => setDuration(Number(e.target.value))} />
+              </Stack>
+            </Stack>
+          </Paper>
 
-          <label className="lesson-editor__field"> Subject
-            <input
-              type="text"
-              value={subject}
-              onChange={e => setSubject(e.target.value)} />
-          </label>
+          <Paper component="section" elevation={0} sx={{ p: { xs: 2, md: 3 } }}>
+            <Typography variant="h5">02. Objectives</Typography>
+            <Typography color="text.secondary" sx={{ mb: 3 }}>What should students know or be able to do?</Typography>
+            <Stack spacing={2}>
 
-          <label className="lesson-editor__field"> Topic
-            <input
-              type="text"
-              value={topic}
-              onChange={e => setTopic(e.target.value)} />
-          </label>
+              {objectives.map((objecctive, index) => (
+                <TextField label={`Objective ${index + 1}`}
+                  type="text"
+                  key={index}
+                  value={objecctive}
+                  onChange={e => {
+                    const updated = [...objectives];
+                    updated[index] = e.target.value;
+                    setObjecctives(updated)
+                  }} />
+              ))}
+            </Stack>
+          </Paper>
 
-          <label className="lesson-editor__field"> Grade
-            <input
-              type="number"
-              value={grade}
-              onChange={e => setGrade(Number(e.target.value))} />
-          </label>
+          <Paper component="section" elevation={0} sx={{ p: { xs: 2, md: 3 } }}>
+            <Typography variant="h5">03. Prior knowledge</Typography>
+            <Typography color="text.secondary" sx={{ mb: 3 }}>Connect the lesson to what students already know.</Typography>
+            <Stack spacing={2}>
 
-          <label className="lesson-editor__field"> Duration (minutes)
-            <input
-              type="number"
-              value={duration}
-              onChange={e => setDuration(Number(e.target.value))} />
-          </label>
-        </div>
-      </section>
+              {priorknowledge.map((prior, index) => (
+                <TextField label={`Prior knowledge ${index + 1}`}
+                  type="text"
+                  key={index}
+                  value={prior}
+                  onChange={e => {
+                    const updated = [...priorknowledge];
+                    updated[index] = e.target.value;
+                    setPriorknowledge(updated)
+                  }} />
+              ))}
+            </Stack>
+          </Paper>
 
-      <section className="lesson-editor__section">
-        <div className="lesson-editor__section-heading"><span className="lesson-editor__section-number">02</span><div><h3>Objectives</h3><p>What should students know or be able to do?</p></div></div>
-        <div className="lesson-editor__list">
+          <Paper component="section" elevation={0} sx={{ p: { xs: 2, md: 3 } }}>
+            <Typography variant="h5">04. Materials</Typography>
+            <Typography color="text.secondary" sx={{ mb: 3 }}>Keep the preparation list practical and specific.</Typography>
+            <Stack spacing={2}>
 
-          {objectives.map((objecctive, index) => (
-            <input
-              className="lesson-editor__list-input"
-              type="text"
-              key={index}
-              value={objecctive}
-              onChange={e => {
-                const updated = [...objectives];
-                updated[index] = e.target.value;
-                setObjecctives(updated)
-              }} />
-          ))}
-        </div>
-      </section>
+              {materials.map((material, index) => (
+                <TextField label={`Material ${index + 1}`}
+                  type="text"
+                  key={index}
+                  value={material}
+                  onChange={e => {
+                    const updated = [...materials];
+                    updated[index] = e.target.value;
+                    setMaterials(updated)
+                  }} />
+              ))}
+            </Stack>
+          </Paper>
 
-      <section className="lesson-editor__section">
-        <div className="lesson-editor__section-heading"><span className="lesson-editor__section-number">03</span><div><h3>Prior knowledge</h3><p>Connect the lesson to what students already know.</p></div></div>
-        <div className="lesson-editor__list">
+          <Paper component="section" elevation={0} sx={{ p: { xs: 2, md: 3 } }}>
+            <Typography variant="h5">05. Activities</Typography>
+            <Typography color="text.secondary" sx={{ mb: 3 }}>Organize the flow of the class from start to finish.</Typography>
 
-          {priorknowledge.map((prior, index) => (
-            <input
-              className="lesson-editor__list-input"
-              type="text"
-              key={index}
-              value={prior}
-              onChange={e => {
-                const updated = [...priorknowledge];
-                updated[index] = e.target.value;
-                setPriorknowledge(updated)
-              }} />
-          ))}
-        </div>
-      </section>
+            {activities.map((activity, index) => (
+              <ActivityEditor
+                key={index}
+                activity={activity}
+                onChange={(updatedActivity) => {
+                  const updatedActivities = [...activities];
+                  updatedActivities[index] = updatedActivity;
+                  setActivities(updatedActivities)
+                }}
+              />
+            ))}
+          </Paper>
 
-      <section className="lesson-editor__section">
-        <div className="lesson-editor__section-heading"><span className="lesson-editor__section-number">04</span><div><h3>Materials</h3><p>Keep the preparation list practical and specific.</p></div></div>
-        <div className="lesson-editor__list">
+          <Divider />
+          <Stack direction="row" spacing={2} sx={{ justifyContent: "flex-end" }}>
+            <Button onClick={onCancel}>Cancel</Button>
+            <Button variant="contained" onClick={handleSave}>Save Changes</Button>
+          </Stack>
+        </Stack>
+      </Container>
 
-          {materials.map((material, index) => (
-            <input
-              className="lesson-editor__list-input"
-              type="text"
-              key={index}
-              value={material}
-              onChange={e => {
-                const updated = [...materials];
-                updated[index] = e.target.value;
-                setMaterials(updated)
-              }} />
-          ))}
-        </div>
-      </section>
-
-      <section className="lesson-editor__section lesson-editor__section--activities">
-        <div className="lesson-editor__section-heading"><span className="lesson-editor__section-number">05</span><div><h3>Activities</h3><p>Organize the flow of the class from start to finish.</p></div></div>
-        <div className="lesson-editor__activities">
-
-          {activities.map((activity, index) => (
-            <ActivityEditor
-              key={index}
-              activity={activity}
-              onChange={(updatedActivity) => {
-                const updatedActivities = [...activities];
-                updatedActivities[index] = updatedActivity;
-                setActivities(updatedActivities)
-              }}
-            />
-          ))}
-        </div>
-      </section>
-
-      <footer className="lesson-editor__actions">
-        <button className="lesson-editor__button lesson-editor__button--secondary" onClick={onCancel}>Cancel</button>
-        <button className="lesson-editor__button lesson-editor__button--primary" onClick={handleSave}>Save Changes</button>
-      </footer>
-
-    </main>
+    </Box>
   );
 }

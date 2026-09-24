@@ -8,7 +8,7 @@
 import { useState } from "react";
 import { streamLesson } from "../api/lessons";
 import type { Lesson } from "../types/lesson";
-import "./LessonForm.css";
+import { Button, Paper, Stack, TextField, Typography } from "@mui/material";
 
 
 type LessonFormProps = ({
@@ -41,56 +41,53 @@ export default function LessonForm({ setError, onLessonGenerated }: LessonFormPr
   }
 
   return (
-    <div className="lesson-form">
-      <form className="lesson-form__form" onSubmit={handleSubmit}>
-        <div className="lesson-form__field">
-          <label htmlFor="lesson-subject">Subject</label>
-          <input
-            id="lesson-subject"
-            name="subject"
-            placeholder="e.g. Biology"
-            value={subject}
-            onChange={e => setSubject(e.target.value)}
-          />
-        </div>
-        <div className="lesson-form__field">
-          <label htmlFor="lesson-topic">Topic</label>
-          <input
-            id="lesson-topic"
-            name="topic"
-            placeholder="e.g. Cell structure"
-            value={topic}
-            onChange={e => setTopic(e.target.value)}
-          />
-        </div>
-        <div className="lesson-form__field">
-          <label htmlFor="lesson-grade">Grade</label>
-          <input
+    <Paper component="form" onSubmit={handleSubmit} elevation={0} sx={{ p: { xs: 2, md: 3 }, backgroundColor: "background.paper" }}>
+      <Stack spacing={2.5}>
+        <Typography variant="h5">Set the lesson parameters</Typography>
+        <TextField
+          label="Subject"
+          id="lesson-subject"
+          name="subject"
+          placeholder="e.g. Biology"
+          value={subject}
+          onChange={e => setSubject(e.target.value)}
+        />
+        <TextField
+          label="Topic"
+          id="lesson-topic"
+          name="topic"
+          placeholder="e.g. Cell structure"
+          value={topic}
+          onChange={e => setTopic(e.target.value)}
+        />
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+          <TextField
+            fullWidth
+            label="Grade"
             id="lesson-grade"
             name="grade"
-            min="1"
             value={grade}
             type="number"
+            slotProps={{ htmlInput: { min: 1 } }}
             onChange={e => setGrade(e.target.value)}
           />
-        </div>
-        <div className="lesson-form__field">
-          <label htmlFor="lesson-duration">Period duration (mins)</label>
-          <input
+          <TextField
+            fullWidth
+            label="Period duration (mins)"
             id="lesson-duration"
             name="duration"
-            min="1"
             value={duration}
             type="number"
+            slotProps={{ htmlInput: { min: 1 } }}
             onChange={e => setDuration(e.target.value)}
           />
-        </div>
-        <button className="lesson-form__button" type="submit">
+        </Stack>
+        <Button type="submit" variant="contained" size="large">
           Generate Lesson
-        </button>
+        </Button>
         {/* remove this latter but keep this for now to make sure lessons are streaming */}
         {/* <pre>{streamedText}</pre> */}
-      </form>
-    </div>
+      </Stack>
+    </Paper>
   );
 }
