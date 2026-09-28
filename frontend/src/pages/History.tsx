@@ -3,9 +3,9 @@ import { getLessons, deleteLesson, getLessonByID, clearLessons } from "../api/le
 import { type Reflection, type Lesson } from "../types/lesson";
 import LessonHistory from "../components/LessonHistory";
 import { Link } from "react-router";
-import LessonCard from "../components/LessonCard";
 import LessonCardReflection from "../components/LessonCardReflection";
 import { Alert, Box, Button, Container, Divider, Paper, Stack, Typography } from "@mui/material";
+import TeacherLessonView from "../components/TeacherLessonView";
 
 // need to add Props when passing constant from one component to another
 type HistoryProps = {
@@ -122,7 +122,7 @@ function History({ history, setHistory, removeLesson, clearHistory }: HistoryPro
           ? <Box sx={{ mt: 4 }}>
             {reflection !== null
               ? <LessonCardReflection lesson={lesson} reflection={reflection} />
-              : <LessonCard lesson={lesson} />}
+              : <TeacherLessonView lesson={lesson} />}
           </Box>
           : null}
         <Divider sx={{ mt: 5 }} />

@@ -9,14 +9,18 @@ def create_problem(
     instructions: str,
     answer: str,
     explanation: str,
-    skills: list[str],
+    skills: list[str] | None = None,
+    difficulty: str | None = None,
+    problem_type: str | None = None,
 ) -> Problem:
     problem = Problem(
         question=question,
         instructions=instructions,
         answer=answer,
         explanation=explanation,
-        skills=skills,
+        skills=skills if skills is not None else [],
+        difficulty=difficulty,
+        problem_type=problem_type,
     )
     db.add(problem)
     db.commit()

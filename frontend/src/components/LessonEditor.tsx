@@ -44,7 +44,7 @@ export default function LessonEditor({ lesson, onCancel, onSaved }: LessonEditor
       activities: activities.map((activity) => ({
         ...activity,
         name: activity.name.trim(),
-        instructions: activity.instructions.trim(),
+        instructions: activity.student_instructions.trim(),
       })).filter((activity) => activity.name || activity.instructions),
     };
     onSaved(updatedLesson)

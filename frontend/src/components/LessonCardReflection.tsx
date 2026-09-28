@@ -43,7 +43,7 @@ export default function LessonCardReflection({ lesson, reflection }: LessonCardR
         <Typography variant="h6" sx={{ mb: 1.5 }}>Activities</Typography>
         <Stack spacing={1.5}>
           {lesson.activities.map((activity, activityIndex) => (
-            activity.name.trim() || activity.instructions.trim() ? (
+            activity.name.trim() || activity.student_instructions.trim() ? (
               <ActivityReflection
                 key={activity.name}
                 activity={activity}

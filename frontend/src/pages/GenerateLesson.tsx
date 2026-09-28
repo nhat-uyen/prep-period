@@ -1,10 +1,11 @@
 import LessonForm from '../components/LessonForm';
-import LessonCard from '../components/LessonCard';
 import LessonEditor from '../components/LessonEditor';
 import { useState } from 'react';
 import type { Lesson } from '../types/lesson';
 import { updateLesson } from '../api/lessons';
-import { Alert, Box, Button, Container, Stack, Typography } from '@mui/material';
+import { Alert, Box, Button, Container, Stack, Tab, Tabs, Typography } from '@mui/material';
+import TeacherLessonView from '../components/TeacherLessonView';
+import StudentLessonView from '../components/StudentLessonView';
 
 type GenerateProps = {
   addLesson: (lesson: Lesson) => void;
@@ -12,10 +13,10 @@ type GenerateProps = {
 }
 
 export default function GenerateLesson({ addLesson, editLesson }: GenerateProps) {
-
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(false);
+  const [tab, setTab] = useState<'teacher' | 'student'>('teacher');
 
   function handleLessonGenerated(newLesson: Lesson) {
     setLesson(newLesson);
@@ -38,7 +39,7 @@ export default function GenerateLesson({ addLesson, editLesson }: GenerateProps)
 
   return (
     <Box component="main" sx={{ py: { xs: 4, md: 7 } }}>
-      <Container maxWidth="md">
+      <Container maxWidth="xl">
         <Stack spacing={1} sx={{ mb: 4 }}>
           <Typography variant="overline" color="primary.main" sx={{ fontWeight: 800, letterSpacing: ".14em" }}>Lesson studio</Typography>
           <Typography variant="h1" sx={{ fontSize: { xs: "2.6rem", md: "4rem" } }}>Generate Lesson</Typography>
@@ -59,8 +60,27 @@ export default function GenerateLesson({ addLesson, editLesson }: GenerateProps)
 
         {lesson && !editing && (
           <>
-            <LessonCard lesson={lesson} />
-            <Button variant="contained" onClick={() => setEditing(true)} sx={{ mt: 2 }}>Edit Lesson</Button>
+            <Tabs
+              value={tab}
+              onChange={(_, nextTab) => setTab(nextTab)}
+              sx={{
+                mt: 3,
+                mb: 2,
+                borderBottom: "1px solid",
+                borderColor: "divider",
+                '& .MuiTabs-indicator': { backgroundColor: "primary.main" },
+              }}
+            >
+              <Tab label="Teacher View" value="teacher" />
+              <Tab label="Student View" value="student" />
+            </Tabs>
+
+            <Button variant="contained" onClick={() => setEditing(true)} sx={{ mb: 2 }}>
+              Edit Lesson
+            </Button>
+
+            {tab === "teacher" && <TeacherLessonView lesson={lesson} />}
+            {tab === "student" && <StudentLessonView lesson={lesson} />}
           </>
         )}
       </Container>

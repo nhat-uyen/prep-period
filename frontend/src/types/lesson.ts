@@ -1,7 +1,24 @@
+export type Problem = {
+  question: string;
+  instructions: string;
+  answer: string;
+  explanation: string;
+  skills: string[];
+  difficulty?: string | null;
+  problem_type?: string | null;
+};
+
 export type Activity = {
   name: string;
   duration_minutes: number;
-  instructions: string
+
+  teacher_actions: string[];
+  teacher_prompts: string[];
+  look_fors: string[];
+  teacher_notes_prompts: string[];
+
+  student_instructions: string;
+  problems: Problem[];
 };
 
 export type Lesson = {

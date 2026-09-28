@@ -104,7 +104,7 @@ export default function LessonReflection({ lesson, onReflectionChange }: LessonR
                       <Typography variant="h6">{activity.name}</Typography>
                       <Chip size="small" label={`${activity.duration_minutes} min`} color="primary" variant="outlined" />
                     </Stack>
-                    <Typography color="text.secondary">{activity.instructions}</Typography>
+                    <Typography color="text.secondary">{activity.student_instructions}</Typography>
                     <TextField
                       fullWidth
                       multiline

@@ -30,14 +30,16 @@ class Activity(Base):
     student_instructions = Column(String, nullable=True)
 
 class Problem(Base):
-    __tablename__="problems"
+    __tablename__ = "problems"
 
     id = Column(Integer, primary_key=True)
-    question = Column(String, nullable=True)
-    instructions = Column(String, nullable=True)
-    answer = Column(String, nullable=True)
-    explanation = Column(String, nullable=True)
-    skills = Column(JSON)
+    question = Column(String, nullable=False)
+    instructions = Column(String, nullable=False)
+    answer = Column(String, nullable=False)
+    explanation = Column(String, nullable=False)
+    skills = Column(JSON, nullable=False, default=list)
+    difficulty = Column(String, nullable=True)
+    problem_type = Column(String, nullable=True)
 
 # this table contains all the reflections
 class Reflection(Base):

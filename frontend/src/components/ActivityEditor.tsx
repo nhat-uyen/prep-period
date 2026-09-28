@@ -36,8 +36,8 @@ export default function ActivityEditor({ activity, onChange }: ActivityProp) {
       <TextField
         fullWidth
         label="Instructions"
-        value={activity.instructions}
-        onChange={e => onChange({ ...activity, instructions: e.target.value })}
+        value={activity.student_instructions}
+        onChange={e => onChange({ ...activity, student_instructions: e.target.value })}
       />
     </Stack>
   )

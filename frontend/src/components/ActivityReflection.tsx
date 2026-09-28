@@ -13,7 +13,7 @@ export default function ActivityReflection({ activity, reflection }: ActivityRef
         <Typography variant="h6">{activity.name}</Typography>
         <Chip size="small" label={`${activity.duration_minutes} min`} color="primary" variant="outlined" />
       </Stack>
-      <Typography color="text.secondary">{activity.instructions}</Typography>
+      <Typography color="text.secondary">{activity.student_instructions}</Typography>
       <Divider />
       <Typography variant="subtitle2">Notes</Typography>
       <Typography>{reflection.notes || "No notes recorded."}</Typography>

@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.llm.ollama_client import generate_response
 from app.llm.lesson_prompt import build_prompt
 from app.models.lesson import LessonRequest, LessonResponse
-from app.database.models import Activity as ActivityRecord, Lesson as LessonRecord
+from app.database.models import Lesson as LessonRecord
 from app.database import lesson_crud
 
 
@@ -43,24 +43,13 @@ def generate_lesson_using_ai_service(request: LessonRequest, db: Session):
         logger.exception("AI returned JSON that does not match the LessonResponse schema.")
         raise HTTPException(status_code=500, detail=f"Validation error: {e}")
 
-def lesson_form_in_database(lesson: LessonRecord, activities: list[ActivityRecord]):
+def lesson_form_in_database(lesson: LessonRecord):
     return {"id": lesson.id,
             "subject": lesson.subject,
             "topic": lesson.topic,
             "grade": lesson.grade,
             "duration_minutes": lesson.duration_minutes,
             **lesson.lesson_json,
-            "activities": [
-                           {
-                               "id": activity.id,
-                               "lesson_id": activity.lesson_id,
-                               "name": activity.name,
-                               "duration_minutes": activity.duration_minutes,
-                               "teacher_notes_prompts": activity.teacher_notes_prompts,
-                               "student_instructions": activity.student_instructions
-                           }
-                           for activity in activities
-                       ],      
                  }
 
 def save_lesson_to_databse(db: Session, request: LessonRequest, lesson: LessonResponse):
@@ -74,8 +63,7 @@ def save_lesson_to_databse(db: Session, request: LessonRequest, lesson: LessonRe
                        lesson_json=lesson.model_dump()  # converts the Pydantic model into a dictionary
     )
 
-    activities = lesson_crud.get_activities(db=db, lesson_id=saved_lesson.id)
-    return lesson_form_in_database(saved_lesson, activities)
+    return lesson_form_in_database(saved_lesson)
 
 def save_streamed_lesson(db: Session, full_response: str, request: LessonRequest):
   try:
@@ -94,5 +82,4 @@ def get_lesson(db: Session, lesson_id: int):
     if not lesson:
         raise HTTPException(status_code=404, detail="Lesson not found")
 
-    activities = lesson_crud.get_activities(db=db, lesson_id=lesson_id)
-    return lesson_form_in_database(lesson, activities)
+    return lesson_form_in_database(lesson)

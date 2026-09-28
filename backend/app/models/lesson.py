@@ -11,21 +11,23 @@ class Problem(BaseModel):
     instructions: str
     answer: str
     explanation: str
-    skills: list[str]
+    skills: list[str] = Field(default_factory=list)
+    difficulty: str | None = None
+    problem_type: str | None = None
 
 class Activity(BaseModel):
     name: str
     duration_minutes: int
 
-    # Teacher
-    teacher_actions: list[str]
-    teacher_prompts: list[str]
-    look_fors: list[str]
-    teacher_notes_prompts: list[str]
+    # Teacher facing
+    teacher_actions: list[str] = Field(default_factory=list)
+    teacher_prompts: list[str] = Field(default_factory=list)
+    look_fors: list[str] = Field(default_factory=list)
+    teacher_notes_prompts: list[str] = Field(default_factory=list)
 
-    # Student
+    # Student facing
     student_instructions: str
-    problems: list[Problem]
+    problems: list[Problem] = Field(default_factory=list)
 
 class ActivityCreate(BaseModel):
     lesson_id: int | None = None
