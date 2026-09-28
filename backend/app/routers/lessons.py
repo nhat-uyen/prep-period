@@ -1,3 +1,4 @@
+from builtins import int
 import json
 import logging
 
@@ -6,9 +7,9 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.models.lesson import LessonRequest, UpdateLesson
-from app.services.lesson_service import generate_lesson_using_ai_service, save_streamed_lesson
+from app.services.lesson_service import generate_lesson_using_ai_service, save_streamed_lesson, get_lesson
 from app.services.reflection_service import get_reflection
-from app.database import crud
+from app.database import lesson_crud
 from app.database.database import get_db
 from app.llm.lesson_prompt import build_prompt
 from app.llm.ollama_client import generate_streaming_response
@@ -40,10 +41,10 @@ def stream_lesson_plan(request: LessonRequest, db: Session = Depends(get_db)):
     )
 
     def stream():
-        full_repsonse = "" 
+        full_response = "" 
         for chunk in generate_streaming_response(prompt):
-            # each chunk produced is saved in full_repsonse
-            full_repsonse += chunk
+            # each chunk produced is saved in full_response
+            full_response += chunk
             # when Ollama produces chunk of respsonse, this send chunk to React
             yield json.dumps({
                 "type": "chunk",
@@ -51,7 +52,7 @@ def stream_lesson_plan(request: LessonRequest, db: Session = Depends(get_db)):
             }) + "\n"
 
         # happen when Ollama finishes streaming the repsonse
-        lesson_with_id = save_streamed_lesson(db, full_repsonse, request)
+        lesson_with_id = save_streamed_lesson(db, full_response, request)
         logger.info(lesson_with_id)
 
         # Send the database version with id to React
@@ -65,18 +66,11 @@ def stream_lesson_plan(request: LessonRequest, db: Session = Depends(get_db)):
 # GET: retrive all saved lessons
 @router.get("/all")
 def get_saved_lessons(db: Session = Depends(get_db)):
-    lessons = crud.get_lessons(db)
+    lessons = lesson_crud.get_lessons(db)
     all_lessons = []
 
     for lesson in lessons:
-        lesson_by_id = {
-        "id": lesson.id,
-        "subject": lesson.subject,
-        "topic": lesson.topic,
-        "grade": lesson.grade,
-        "duration_minutes": lesson.duration_minutes,
-        **lesson.lesson_json
-        }
+        lesson_by_id = get_lesson(db, lesson.id)
         reflection = get_reflection(db, lesson.id, raise_if_missing=False)
         lesson_by_id["reflection"] = reflection
 
@@ -86,19 +80,12 @@ def get_saved_lessons(db: Session = Depends(get_db)):
 
 @router.get("/{lesson_id}")
 def get_one_lesson(lesson_id: int, db: Session = Depends(get_db)):
-    lesson = crud.get_lesson_by_id(db, lesson_id)
+    lesson = lesson_crud.get_lesson_by_id(db, lesson_id)
 
     if lesson is None:
         raise HTTPException(status_code=404, detail="Lesson not found")
 
-    lesson_by_id = {
-        "id": lesson.id,
-        "subject": lesson.subject,
-        "topic": lesson.topic,
-        "grade": lesson.grade,
-        "duration_minutes": lesson.duration_minutes,
-        **lesson.lesson_json
-    }
+    lesson_by_id = get_lesson(db, lesson.id)
 
     reflection = get_reflection(db, lesson.id, raise_if_missing=False)
 
@@ -108,18 +95,18 @@ def get_one_lesson(lesson_id: int, db: Session = Depends(get_db)):
 
 @router.delete("/clear")
 def clear_lessons(db: Session = Depends(get_db)):
-    crud.clear_history(db=db)
+    lesson_crud.clear_history(db=db)
     return {"message": "Lesson history cleared"}
 
 @router.delete("/{lesson_id}")
 def delete_lesson(lesson_id: int, db: Session = Depends(get_db)):
-    lesson = crud.delete_lesson(db, lesson_id)
+    lesson = lesson_crud.delete_lesson(db, lesson_id)
 
     if lesson is None:
         raise HTTPException(status_code=404, detail="Lesson not found")
 
     return { "message": "Lesson deleted successfully" }
-
+# This needs to be changed for the new direction of Prep-Period
 @router.put("/{lesson_id}")
 def update_lesson(lesson_id: int, update: UpdateLesson, db: Session= Depends(get_db)):
     lesson_data = {
@@ -135,7 +122,7 @@ def update_lesson(lesson_id: int, update: UpdateLesson, db: Session= Depends(get
             "activities": [activity.model_dump() for activity in update.activities]
         }
     }
-    updated_lesson = crud.update_lesson(db=db, lesson_id=lesson_id,
+    updated_lesson = lesson_crud.update_lesson(db=db, lesson_id=lesson_id,
                                         lesson_data=lesson_data)
     
     if updated_lesson is None:

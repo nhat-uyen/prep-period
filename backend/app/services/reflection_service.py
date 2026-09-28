@@ -1,12 +1,12 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.database import crud
+from app.database import reflection_crud
 from app.models.reflection import RelfectionRequest
 
 
 def create_reflection(db: Session, reflection_request : RelfectionRequest):
-    return crud.create_reflection(db=db, lesson_id=reflection_request.lesson_id,
+    return reflection_crud.create_reflection(db=db, lesson_id=reflection_request.lesson_id,
                                         objectives_rating=reflection_request.objectives_rating,
                                         objectives_notes=reflection_request.objectives_notes,
                                         prior_knowledge_rating=reflection_request.prior_knowledge_rating,
@@ -18,7 +18,7 @@ def create_reflection(db: Session, reflection_request : RelfectionRequest):
                                         change_notes=reflection_request.change_notes)
 
 def get_reflection(db: Session, lesson_id: int, raise_if_missing: bool = True):
-    reflection = crud.get_reflection(db, lesson_id)
+    reflection = reflection_crud.get_reflection(db, lesson_id)
     
     if reflection is None and raise_if_missing:
         raise HTTPException(status_code=404, detail="Reflection not found")
@@ -26,7 +26,7 @@ def get_reflection(db: Session, lesson_id: int, raise_if_missing: bool = True):
     if reflection is None:
         return None
     
-    acvitivies = crud.get_activityReflections(db, reflection.id)
+    acvitivies = reflection_crud.get_activity_reflections(db, reflection.id)
     
     reflection_by_id = {
             "id": reflection.id,

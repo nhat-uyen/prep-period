@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.database.database import get_db
 from app.models.reflection import RelfectionRequest
 from app.services.reflection_service import create_reflection
-from app.database import crud
+from app.database import reflection_crud
 
 router = APIRouter(prefix="/reflections", tags=["reflections"])
 
@@ -12,11 +12,11 @@ router = APIRouter(prefix="/reflections", tags=["reflections"])
 @router.post("")
 def create_or_update_reflection(reflection_request: RelfectionRequest, db: Session = Depends(get_db),
 ):
-    reflection = crud.get_reflection(db, reflection_request.lesson_id)
+    reflection = reflection_crud.get_reflection(db, reflection_request.lesson_id)
     if reflection is None:
         return create_reflection(db, reflection_request)
 
-    crud.update_reflection(db, reflection.id, {
+    reflection_crud.update_reflection(db, reflection.id, {
         "objectives_rating": reflection_request.objectives_rating,
         "objectives_notes": reflection_request.objectives_notes,
         "prior_knowledge_rating": reflection_request.prior_knowledge_rating,
@@ -26,7 +26,7 @@ def create_or_update_reflection(reflection_request: RelfectionRequest, db: Sessi
         "keep_notes": reflection_request.keep_notes,
         "change_notes": reflection_request.change_notes,
     })
-    crud.update_activity_reflection(db, reflection.id, reflection_request.activities)
+    reflection_crud.update_activity_reflection(db, reflection.id, reflection_request.activities)
 
     db.refresh(reflection)
     return {"message": "reflection updated successfully", "reflection_id": reflection.id}

@@ -17,6 +17,28 @@ class Lesson(Base):
     lesson_json = Column(JSON)
     created_at = Column(DateTime, default=datetime.now(timezone.utc).astimezone)
 
+class Activity(Base):
+    __tablename__ = "activities"
+
+    id = Column(Integer, primary_key=True)
+    lesson_id = Column(Integer, nullable=True)
+
+    name = Column(String, nullable=True)
+    duration_minutes = Column(Integer, nullable=True)
+
+    teacher_notes_prompts= Column(JSON, nullable=True)
+    student_instructions = Column(String, nullable=True)
+
+class Problem(Base):
+    __tablename__="problems"
+
+    id = Column(Integer, primary_key=True)
+    question = Column(String, nullable=True)
+    instructions = Column(String, nullable=True)
+    answer = Column(String, nullable=True)
+    explanation = Column(String, nullable=True)
+    skills = Column(JSON)
+
 # this table contains all the reflections
 class Reflection(Base):
     __tablename__ = "reflections"

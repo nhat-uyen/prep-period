@@ -1,0 +1,172 @@
+from sqlalchemy.orm import Session
+
+from app.database.models import Activity as ActivityRecord, ActivityReflection, Lesson, Reflection
+from app.models.lesson import Activity as LessonActivity
+
+#  ActivityRecord is the database model for activities
+#  LessonActivity is the pydantic model for activities within a lesson
+#  lessoon_json does not contain activity data
+
+def _add_activity(
+    db: Session,
+    lesson_id: int | None,
+    name: str,
+    duration_minutes: int,
+    teacher_notes_prompts: list[str],
+    student_instructions: str,
+) -> ActivityRecord:
+    activity = ActivityRecord(
+        lesson_id=lesson_id,
+        name=name,
+        duration_minutes=duration_minutes,
+        teacher_notes_prompts=teacher_notes_prompts,
+        student_instructions=student_instructions,
+    )
+    db.add(activity)
+    return activity
+
+
+def create_activity(
+    db: Session,
+    name: str,
+    duration_minutes: int,
+    teacher_notes_prompts: list[str],
+    student_instructions: str,
+    lesson_id: int | None = None,
+) -> ActivityRecord:
+    activity = _add_activity(
+        db=db,
+        lesson_id=lesson_id,
+        name=name,
+        duration_minutes=duration_minutes,
+        teacher_notes_prompts=teacher_notes_prompts,
+        student_instructions=student_instructions,
+    )
+    db.commit()
+    db.refresh(activity)
+    return activity
+
+
+def create_lesson(
+    db: Session,
+    subject: str,
+    topic: str,
+    grade: int,
+    duration_minutes: int,
+    lesson_json: dict,
+    activities: list[LessonActivity]
+) -> Lesson:
+    lesson = Lesson(
+        subject=subject,
+        topic=topic,
+        grade=grade,
+        duration_minutes=duration_minutes,
+        lesson_json=lesson_json,
+    )
+    db.add(lesson)
+    db.flush()
+
+    for activity in activities:
+        _add_activity(
+            db=db,
+            lesson_id=lesson.id,
+            name=activity.name,
+            duration_minutes=activity.duration_minutes,
+            teacher_notes_prompts=activity.teacher_notes_prompts,
+            student_instructions=activity.student_instructions,
+        )
+
+    db.commit()
+    db.refresh(lesson)
+    return lesson
+
+
+def get_activities(
+    db: Session,
+    lesson_id: int | None = None,
+    independent_only: bool = False,
+) -> list[ActivityRecord]:
+    query = db.query(ActivityRecord)
+    if independent_only:
+        query = query.filter(ActivityRecord.lesson_id.is_(None))
+    elif lesson_id is not None:
+        query = query.filter(ActivityRecord.lesson_id == lesson_id)
+    return query.order_by(ActivityRecord.id.desc()).all()
+
+
+def get_activity_by_id(db: Session, activity_id: int) -> ActivityRecord | None:
+    return db.query(ActivityRecord).filter(ActivityRecord.id == activity_id).first()
+
+
+def update_activity(
+    db: Session,
+    activity_id: int,
+    activity_data: dict,
+) -> ActivityRecord | None:
+    activity = get_activity_by_id(db, activity_id)
+    if activity is None:
+        return None
+
+    for field, value in activity_data.items():
+        setattr(activity, field, value)
+
+    db.commit()
+    db.refresh(activity)
+    return activity
+
+
+def delete_activity(db: Session, activity_id: int) -> ActivityRecord | None:
+    activity = get_activity_by_id(db, activity_id)
+    if activity is None:
+        return None
+
+    db.delete(activity)
+    db.commit()
+    return activity
+
+
+def get_lessons(db: Session) -> list[Lesson]:
+    return db.query(Lesson).order_by(Lesson.id.desc()).all()
+
+
+def get_lesson_by_id(db: Session, lesson_id: int) -> Lesson | None:
+    return db.query(Lesson).filter(Lesson.id == lesson_id).first()
+
+
+def delete_lesson(db: Session, lesson_id: int) -> Lesson | None:
+    lesson = get_lesson_by_id(db, lesson_id)
+    if lesson is None:
+        return None
+
+    db.query(ActivityRecord).filter(ActivityRecord.lesson_id == lesson_id).update(
+        {ActivityRecord.lesson_id: None}, synchronize_session=False
+    )
+    db.delete(lesson)
+    db.commit()
+    return lesson
+
+
+def update_lesson(db: Session, lesson_id: int, lesson_data: dict) -> Lesson | None:
+    lesson = get_lesson_by_id(db, lesson_id)
+    if lesson is None:
+        return None
+
+    lesson.subject = lesson_data["subject"]
+    lesson.topic = lesson_data["topic"]
+    lesson.grade = lesson_data["grade"]
+    lesson.duration_minutes = lesson_data["duration_minutes"]
+    lesson.lesson_json = lesson_data["lesson_json"]
+
+    db.commit()
+    db.refresh(lesson)
+    return lesson
+
+
+def clear_history(db: Session) -> None:
+    db.query(ActivityReflection).delete()
+    db.query(Reflection).delete()
+    db.query(ActivityRecord).filter(ActivityRecord.lesson_id.is_not(None)).update(
+        {ActivityRecord.lesson_id: None}, synchronize_session=False
+    )
+    db.query(Lesson).delete()
+    db.commit()
