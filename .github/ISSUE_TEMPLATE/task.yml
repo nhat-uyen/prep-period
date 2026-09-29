@@ -8,14 +8,16 @@ body:
     attributes:
       value: |
         Use this template for smaller implementation tasks that are good for contributors to pick up.
+
   - type: textarea
-    id: task
+    id: task_description
     attributes:
       label: Task description
       description: What needs to be built or fixed?
       placeholder: Add a UI for filtering saved problems by topic and skill.
     validations:
       required: true
+
   - type: textarea
     id: context
     attributes:
@@ -24,16 +26,19 @@ body:
       placeholder: Based on the product workflow and current lesson generation flow.
     validations:
       required: true
+
   - type: dropdown
     id: complexity
     attributes:
       label: Complexity
+      description: How large is this task?
       options:
         - Small
         - Medium
         - Large
     validations:
       required: true
+
   - type: textarea
     id: scope
     attributes:
@@ -46,6 +51,7 @@ body:
         - Minimal validation
     validations:
       required: true
+
   - type: textarea
     id: acceptance
     attributes:
@@ -57,6 +63,7 @@ body:
         - Relevant tests or manual validation completed
     validations:
       required: false
+
   - type: textarea
     id: notes
     attributes:
