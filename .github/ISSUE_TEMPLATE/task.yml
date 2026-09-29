@@ -1,0 +1,74 @@
+name: Contributor task
+about: Propose a scoped engineering task or implementation item
+title: ""
+labels: ["help wanted"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for smaller implementation tasks that are good for contributors to pick up.
+
+  - type: textarea
+    id: task_description
+    attributes:
+      label: Task description
+      description: What needs to be built or fixed?
+      placeholder: Add a UI for filtering saved problems by topic and skill.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context_background
+    attributes:
+      label: Context or background
+      description: Include any relevant architecture, files, or prior decisions.
+      placeholder: Based on the product workflow and current lesson generation flow.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: task_complexity
+    attributes:
+      label: Complexity
+      description: How large is this task?
+      options:
+        - Small
+        - Medium
+        - Large
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope_deliverables
+    attributes:
+      label: Scope and deliverables
+      description: What should be included in a complete solution?
+      placeholder: |
+        - UI for filtering
+        - API support if needed
+        - Type updates
+        - Minimal validation
+    validations:
+      required: true
+
+  - type: textarea
+    id: definition_of_done
+    attributes:
+      label: Definition of done
+      description: How will we know the task is complete?
+      placeholder: |
+        - Feature works in the browser
+        - Frontend build passes
+        - Relevant tests or manual validation completed
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional_notes
+    attributes:
+      label: Additional notes
+      description: Add dependencies, blockers, or links.
+      placeholder: See AGENTS.md and docs/product-workflow.md.
+    validations:
+      required: false
