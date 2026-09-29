@@ -12,8 +12,12 @@ def create_problem(
     skills: list[str] | None = None,
     difficulty: str | None = None,
     problem_type: str | None = None,
+    activity_id: int | None = None,
+    lesson_id: int | None = None,
 ) -> Problem:
     problem = Problem(
+        lesson_id=lesson_id,
+        activity_id=activity_id,
         question=question,
         instructions=instructions,
         answer=answer,
@@ -29,7 +33,17 @@ def create_problem(
 
 
 def get_problems(db: Session) -> list[Problem]:
-    return db.query(Problem).all()
+    return db.query(Problem).order_by(Problem.id.desc()).all()
+
+
+def get_problems_by_activity(db: Session, activity_id: int) -> list[Problem]:
+    return (db.query(Problem).filter(Problem.activity_id == activity_id)
+            .order_by(Problem.id.asc()).all())
+
+
+def get_problems_by_lesson(db: Session, lesson_id: int) -> list[Problem]:
+    return db.query(Problem).filter(Problem.lesson_id == lesson_id).all()
+
 
 def get_problem_by_id(db: Session, problem_id: int) -> Problem | None:
     return db.query(Problem).filter(Problem.id == problem_id).first()

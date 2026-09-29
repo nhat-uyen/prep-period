@@ -26,6 +26,9 @@ class Activity(Base):
     name = Column(String, nullable=True)
     duration_minutes = Column(Integer, nullable=True)
 
+    teacher_actions = Column(JSON, nullable=False, default=list)
+    teacher_prompts = Column(JSON, nullable=False, default=list)
+    look_fors = Column(JSON, nullable=False, default=list)
     teacher_notes_prompts= Column(JSON, nullable=True)
     student_instructions = Column(String, nullable=True)
 
@@ -33,6 +36,8 @@ class Problem(Base):
     __tablename__ = "problems"
 
     id = Column(Integer, primary_key=True)
+    lesson_id = Column(Integer, nullable=True, index=True)
+    activity_id = Column(Integer, nullable=True)
     question = Column(String, nullable=False)
     instructions = Column(String, nullable=False)
     answer = Column(String, nullable=False)

@@ -6,6 +6,7 @@ import GenerateLesson from "./pages/GenerateLesson";
 import { historyReducer, initialHistory } from "./reducers/historyReducer";
 import Home from "./pages/Home";
 import Reflection from "./pages/Reflection";
+import SkillsLibrary from "./pages/SkillsLibrary";
 
 function App() {
   const [history, dispatch] = useReducer(historyReducer, initialHistory);
@@ -43,6 +44,7 @@ function App() {
           clearHistory={clearHistory} />}
         />
         <Route path="/reflection" element={<Reflection />} />
+        <Route path="/skills" element={<SkillsLibrary />} />
       </Routes>
     </BrowserRouter>
 

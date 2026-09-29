@@ -1,4 +1,7 @@
 export type Problem = {
+  id?: number;
+  lesson_id?: number | null;
+  activity_id?: number | null;
   question: string;
   instructions: string;
   answer: string;

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 class LessonRequest(BaseModel):
     subject: str
@@ -14,6 +14,15 @@ class Problem(BaseModel):
     skills: list[str] = Field(default_factory=list)
     difficulty: str | None = None
     problem_type: str | None = None
+
+class ProblemCreate(Problem):
+    pass
+
+class ProblemResponse(Problem):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    lesson_id: int | None = None
+    activity_id: int | None = None
 
 class Activity(BaseModel):
     name: str
@@ -33,23 +42,35 @@ class ActivityCreate(BaseModel):
     lesson_id: int | None = None
     name: str
     duration_minutes: int
+    teacher_actions: list[str] = Field(default_factory=list)
+    teacher_prompts: list[str] = Field(default_factory=list)
+    look_fors: list[str] = Field(default_factory=list)
     teacher_notes_prompts: list[str] = Field(default_factory=list)
     student_instructions: str
+    problems: list[Problem] = Field(default_factory=list)
 
 class ActivityUpdate(BaseModel):
     lesson_id: int | None = None
     name: str | None = None
     duration_minutes: int | None = None
+    teacher_actions: list[str] | None = None
+    teacher_prompts: list[str] | None = None
+    look_fors: list[str] | None = None
     teacher_notes_prompts: list[str] | None = None
     student_instructions: str | None = None
+    problems: list[Problem] | None = None
 
 class ActivityResponse(BaseModel):
     id: int
     lesson_id: int | None
     name: str | None
     duration_minutes: int | None
+    teacher_actions: list[str] = Field(default_factory=list)
+    teacher_prompts: list[str] = Field(default_factory=list)
+    look_fors: list[str] = Field(default_factory=list)
     teacher_notes_prompts: list[str] | None
     student_instructions: str | None
+    problems: list[ProblemResponse] = Field(default_factory=list)
 
 class LessonResponse(BaseModel):
     title: str

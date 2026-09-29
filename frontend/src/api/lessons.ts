@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { Lesson, LessonRequest } from "../types/lesson"
+import type { Lesson, LessonRequest, Problem } from "../types/lesson"
 import type { Reflection } from "../types/lesson";
 /*
 Connect to the backend API using Axios with a base URL of "http://localhost:5173". 
@@ -34,6 +34,18 @@ export async function updateLesson(id: number, lesson: Lesson): Promise<Lesson> 
 
 export async function clearLessons() {
   await api.delete("/lessons/clear");
+}
+
+export type ProblemInput = Omit<Problem, "id" | "lesson_id" | "activity_id">;
+
+export async function getProblems(skill?: string): Promise<Problem[]> {
+  const response = await api.get<Problem[]>("/problems", { params: skill ? { skill } : {} });
+  return response.data;
+}
+
+export async function createProblem(problem: ProblemInput): Promise<Problem> {
+  const response = await api.post<Problem>("/problems", problem);
+  return response.data;
 }
 
 export async function createReflection(reflection: Reflection): Promise<Reflection> {

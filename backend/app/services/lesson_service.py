@@ -1,5 +1,6 @@
 import json
 import logging
+from copy import deepcopy
 
 from fastapi import HTTPException
 from pydantic_core import ValidationError
@@ -9,7 +10,7 @@ from app.llm.ollama_client import generate_response
 from app.llm.lesson_prompt import build_prompt
 from app.models.lesson import LessonRequest, LessonResponse
 from app.database.models import Lesson as LessonRecord
-from app.database import lesson_crud
+from app.database import lesson_crud, problem_crud
 
 
 logger = logging.getLogger(__name__)
@@ -43,14 +44,26 @@ def generate_lesson_using_ai_service(request: LessonRequest, db: Session):
         logger.exception("AI returned JSON that does not match the LessonResponse schema.")
         raise HTTPException(status_code=500, detail=f"Validation error: {e}")
 
-def lesson_form_in_database(lesson: LessonRecord):
-    return {"id": lesson.id,
-            "subject": lesson.subject,
-            "topic": lesson.topic,
-            "grade": lesson.grade,
-            "duration_minutes": lesson.duration_minutes,
-            **lesson.lesson_json,
-                 }
+def lesson_form_in_database(db: Session, lesson: LessonRecord):
+    lesson_data = {
+        "id": lesson.id,
+        "subject": lesson.subject,
+        "topic": lesson.topic,
+        "grade": lesson.grade,
+        "duration_minutes": lesson.duration_minutes,
+        **deepcopy(lesson.lesson_json),
+    }
+    activities = list(reversed(lesson_crud.get_activities(db, lesson_id=lesson.id)))
+    for activity_index, activity_data in enumerate(lesson_data.get("activities", [])):
+        if activity_index >= len(activities):
+            continue
+        saved_problems = problem_crud.get_problems_by_activity(
+            db, activities[activity_index].id
+        )
+        for problem_index, problem_data in enumerate(activity_data.get("problems", [])):
+            if problem_index < len(saved_problems):
+                problem_data["id"] = saved_problems[problem_index].id
+    return lesson_data
 
 def save_lesson_to_databse(db: Session, request: LessonRequest, lesson: LessonResponse):
     # TODO: add options to whether or not to save lesson to databse
@@ -63,7 +76,7 @@ def save_lesson_to_databse(db: Session, request: LessonRequest, lesson: LessonRe
                        lesson_json=lesson.model_dump()  # converts the Pydantic model into a dictionary
     )
 
-    return lesson_form_in_database(saved_lesson)
+    return lesson_form_in_database(db, saved_lesson)
 
 def save_streamed_lesson(db: Session, full_response: str, request: LessonRequest):
   try:
@@ -82,4 +95,4 @@ def get_lesson(db: Session, lesson_id: int):
     if not lesson:
         raise HTTPException(status_code=404, detail="Lesson not found")
 
-    return lesson_form_in_database(lesson)
+    return lesson_form_in_database(db, lesson)
