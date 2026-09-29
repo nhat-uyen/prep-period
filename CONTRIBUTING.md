@@ -1,3 +1,7 @@
+# Notes from the main author of this project
+
+Hello, thank you for looking at this project. I am making this project as a way to learn and improving my coding knowledge. If there are anything you thought would be beneficial or to improve this project, PLEASE feel free to comment and suggest! ^^
+
 # Contributing to Prep-Period
 
 Thank you for your interest in contributing to Prep-Period! This guide will help you get started.
