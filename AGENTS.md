@@ -1,561 +1,353 @@
-# Prep-Period — Codex Instructions
+# Prep-Period — Project Guidance
 
-## 1. Project Overview
+## 1. Project overview
 
-Prep-Period is an AI-powered lesson planning application for teachers.
+Prep-Period is an AI-assisted lesson planning app for secondary teachers, focused on math instruction. The current product direction is not a general-purpose lesson generator; it is specifically built around generating math lessons with teacher-facing guidance and student-facing tasks.
 
-The project is currently being pivoted from a general lesson-plan generator into a **math-focused lesson planning and teaching assistant**.
+The app currently includes:
 
-The application should eventually generate a complete math lesson that includes both:
+- lesson generation from subject, topic, grade, and duration
+- teacher/student lesson views
+- saved lesson history
+- lesson reflection
+- a reusable skills/problem library
+- structured math problems stored as data instead of only free-form text
 
-* Teacher-facing guidance
-* Student-facing math work
-
-The goal is to build a useful application while also keeping the codebase understandable and maintainable as a learning/portfolio project.
-
----
-
-# 2. Current Technology Stack
-
-## Frontend
-
-* React
-* TypeScript
-* Vite
-* Axios
-* MUI for UI components
-
-## Backend
-
-* Python
-* FastAPI
-* Pydantic
-* SQLAlchemy
-* SQLite
-
-## AI
-
-* Ollama
-* Local LLM inference
-
-The backend communicates with the local Ollama installation to generate structured lesson content.
+This repository is a learning-focused portfolio project, so changes should stay understandable, modular, and close to the current architecture.
 
 ---
 
-# 3. Existing Architecture
+## 2. Current technology stack
 
-The current application generally follows this flow:
+### Frontend
+
+- React
+- TypeScript
+- Vite
+- Axios
+- MUI
+- React Router
+
+### Backend
+
+- Python
+- FastAPI
+- Pydantic
+- SQLAlchemy
+- SQLite
+
+### AI layer
+
+- Ollama
+- local LLM inference
+- structured JSON lesson output
+
+The backend uses Ollama to generate a structured lesson payload and then persists it in SQLite.
+
+---
+
+## 3. Current repository structure
 
 ```text
-React Frontend
-      ↓
-Axios
-      ↓
-FastAPI
-      ↓
-Lesson API / Services
-      ↓
-Prompt Builder
-      ↓
-Ollama
-      ↓
-Structured Lesson Response
-      ↓
-SQLite
+prep-period/
+├── AGENTS.md
+├── README.md
+├── docs/
+│   └── product-workflow.md
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── config.py
+│   │   ├── main.py
+│   │   ├── database/
+│   │   │   ├── crud.py
+│   │   │   ├── database.py
+│   │   │   ├── lesson_crud.py
+│   │   │   ├── problem_crud.py
+│   │   │   ├── reflection_crud.py
+│   │   │   └── models.py
+│   │   ├── llm/
+│   │   │   ├── lesson_prompt.py
+│   │   │   ├── ollama_client.py
+│   │   │   └── schemas.py
+│   │   ├── models/
+│   │   │   ├── lesson.py
+│   │   │   └── reflection.py
+│   │   ├── routers/
+│   │   │   ├── activities.py
+│   │   │   ├── lessons.py
+│   │   │   ├── problems.py
+│   │   │   └── reflections.py
+│   │   └── services/
+│   │       ├── lesson_service.py
+│   │       └── reflection_service.py
+│   └── tests/
+│       └── test_activities.py
+├── frontend/
+│   ├── package.json
+│   ├── src/
+│   │   ├── App.tsx
+│   │   ├── main.tsx
+│   │   ├── theme.ts
+│   │   ├── api/
+│   │   │   └── lessons.ts
+│   │   ├── components/
+│   │   │   ├── ActivityEditor.tsx
+│   │   │   ├── ActivityReflection.tsx
+│   │   │   ├── LessonCardReflection.tsx
+│   │   │   ├── LessonEditor.tsx
+│   │   │   ├── LessonForm.tsx
+│   │   │   ├── LessonHistory.tsx
+│   │   │   ├── LessonReflection.tsx
+│   │   │   ├── StudentLessonView.tsx
+│   │   │   └── TeacherLessonView.tsx
+│   │   ├── pages/
+│   │   │   ├── GenerateLesson.tsx
+│   │   │   ├── History.tsx
+│   │   │   ├── Home.tsx
+│   │   │   ├── Reflection.tsx
+│   │   │   └── SkillsLibrary.tsx
+│   │   ├── reducers/
+│   │   │   └── historyReducer.tsx
+│   │   └── types/
+│   │       └── lesson.ts
+│   └── vite.config.ts
+└── package.json
 ```
 
-The frontend is responsible for displaying and editing lesson information.
+---
+
+## 4. What the app does today
+
+### Lesson generation
+
+The app generates a structured lesson using the teacher inputs:
+
+- subject
+- topic
+- grade
+- duration
+
+The main backend route is `POST /lessons`, with a streaming version at `POST /lessons/stream` for incremental AI response handling.
+
+### Lesson data model
+
+The stored lesson shape is already math-oriented and includes:
+
+- `title`
+- `objectives`
+- `prior_knowledge`
+- `materials`
+- `activities`
+
+Each activity contains:
+
+- name
+- duration
+- teacher actions
+- teacher prompts
+- look-fors
+- teacher notes prompts
+- student instructions
+- problems
+
+Each problem contains:
+
+- question
+- instructions
+- answer
+- explanation
+- skills
+- optional difficulty and problem type
+
+This is already closer to a real math lesson model than the original generic lessons and should remain the foundation for future work.
+
+### Teacher and student views
+
+The frontend supports separate views for the same generated lesson:
+
+- `TeacherLessonView` for teacher instructions and guidance
+- `StudentLessonView` for student instructions and work
+
+The lesson editor keeps a single lesson object and updates it through the API instead of creating duplicate lesson sources.
+
+### Lesson history and management
+
+The app saves lessons and exposes history to the user:
+
+- list saved lessons
+- select an individual lesson
+- delete one lesson
+- clear the full lesson history
+- view lesson details with reflection data when present
+
+### Reflection workflow
+
+The app has a first-class reflection system:
+
+- rate lesson elements
+- add notes on objectives, prior knowledge, and materials
+- rate activity performance
+- save reflection records back to the backend
+
+### Skills/problem library
+
+There is a reusable problem library with:
+
+- add problem form
+- browse by skill tag
+- search by skill or problem text
+- keep problem metadata such as skills and instructions
+
+This is a meaningful step toward future reuse of high-quality math problems.
+
+---
+
+## 5. How the code is organized
+
+### Frontend responsibilities
+
+The frontend is responsible for:
+
+- collecting user inputs
+- rendering generated lessons
+- managing lesson history state
+- allowing lesson editing
+- presenting reflection workflows
+- browsing reusable math problems
+
+Important files:
+
+- [frontend/src/App.tsx](frontend/src/App.tsx)
+- [frontend/src/pages/GenerateLesson.tsx](frontend/src/pages/GenerateLesson.tsx)
+- [frontend/src/pages/History.tsx](frontend/src/pages/History.tsx)
+- [frontend/src/pages/Reflection.tsx](frontend/src/pages/Reflection.tsx)
+- [frontend/src/pages/SkillsLibrary.tsx](frontend/src/pages/SkillsLibrary.tsx)
+- [frontend/src/types/lesson.ts](frontend/src/types/lesson.ts)
+
+### Backend responsibilities
 
 The backend is responsible for:
 
-* API endpoints
-* validation
-* lesson generation
-* database persistence
-* communication with Ollama
+- FastAPI routes
+- lesson generation orchestration
+- database persistence
+- validation with Pydantic
+- instruction prompt construction for Ollama
+- reflection and problem storage
 
-Keep frontend and backend responsibilities separate.
+Important files:
 
----
-
-# 4. Important Existing Functionality
-
-The project already has working functionality that should be preserved unless a change is explicitly required.
-
-Existing functionality includes:
-
-* Lesson generation
-* FastAPI API endpoints
-* Ollama integration
-* Structured AI output
-* Pydantic validation
-* SQLite persistence
-* Saving generated lessons
-* Retrieving lesson history
-* Updating lessons
-* Deleting lessons
-* React lesson display
-* Lesson editing
-* Lesson history
-* Lesson reflection functionality
-
-Do not rewrite working functionality unnecessarily.
-
-Before changing an existing feature, inspect how it currently works.
+- [backend/app/main.py](backend/app/main.py)
+- [backend/app/routers/lessons.py](backend/app/routers/lessons.py)
+- [backend/app/services/lesson_service.py](backend/app/services/lesson_service.py)
+- [backend/app/models/lesson.py](backend/app/models/lesson.py)
+- [backend/app/database/models.py](backend/app/database/models.py)
+- [backend/app/llm/lesson_prompt.py](backend/app/llm/lesson_prompt.py)
+- [backend/app/llm/ollama_client.py](backend/app/llm/ollama_client.py)
 
 ---
 
-# 5. Current Product Direction
+## 6. Current product direction
 
-Prep-Period is now **math-only**.
+Prep-Period should remain math-first.
 
-Do not design new features around generic subjects such as:
+Do not design new features around unrelated subjects such as:
 
-* English
-* Science
-* History
-* Social Studies
+- English
+- Science
+- History
+- Social Studies
 
-unless the user explicitly requests a broader subject system.
+unless a user explicitly requests broader subject support.
 
-The main purpose of the application is to generate useful math lessons that contain actual mathematical problems.
+The product should keep moving toward:
 
-The generated lesson should eventually support:
+1. stronger structured math problem generation
+2. teacher/student lesson parity from one shared lesson model
+3. more reliable problem validation
+4. reusable problem bank workflows
+5. better teacher reflection and lesson improvement
+
+---
+
+## 7. Data and architecture guidelines
+
+### Keep math problems structural
+
+Problems are core data, not just embedded text. Keep them as typed objects with clear fields such as:
+
+- question
+- instructions
+- answer
+- explanation
+- skills
+- optional difficulty and problem type
+
+Add new fields only when they clearly support the current feature.
+
+### Shared lesson model over duplicated data
+
+Teacher and student lesson views should come from the same underlying lesson structure. Avoid creating separate lesson models for the same lesson unless a strong reason exists.
+
+### Preserve working features
+
+Before changing behavior, inspect the current implementation in the relevant route, service, component, or model. Do not rewrite working functionality just to simplify the code.
+
+### Keep frontend and backend aligned
+
+When a backend response changes, update the corresponding frontend TypeScript types and consumers. API changes should not be made in isolation.
+
+### Use the existing MUI patterns
+
+Prefer the current MUI component structure and styling conventions instead of introducing a new UI stack or a large custom CSS system.
+
+---
+
+## 8. Coding standards for this repo
+
+- Prefer small, focused changes.
+- Keep routes thin and move business logic into services.
+- Use Pydantic models for backend validation.
+- Use TypeScript types instead of `any` when a meaningful type exists.
+- Avoid duplicate sources of truth in React state.
+- Keep the app math-focused and teacher-centered.
+- Keep the database and API layers consistent.
+- Do not add full validation systems unless the feature specifically requires it.
+
+---
+
+## 9. Testing and verification
+
+When making code changes:
+
+- run the relevant tests if available
+- run the frontend build for TypeScript/UI changes
+- check API routes affected by the change
+- verify the lesson generation flow still works
+- verify reflection, history, and problem-library flows still work
+
+This project is not just a prototype; the key workflows are already in place and should be preserved as features are extended.
+
+---
+
+## 10. Current implementation summary
+
+The current structure already reflects the project’s real direction:
 
 ```text
-Math Lesson
-│
-├── Objectives
-├── Prior Knowledge
-├── Materials
-│
-├── Activities
-│   │
-│   ├── Teacher Instructions
-│   ├── Student Instructions
-│   │
-│   └── Math Problems
-│       ├── Question
-│       ├── Answer
-│       └── Explanation
-│
-└── Assessment Problems
+React frontend
+  -> lesson generation
+  -> teacher/student lesson views
+  -> reflection and lesson history
+  -> skills library
+  -> saved math problems
+
+FastAPI backend
+  -> AI lesson generation via Ollama
+  -> structured lesson schema validation
+  -> SQLite persistence
+  -> problem and reflection storage
 ```
 
----
-
-# 6. Math Problems Are Core Data
-
-Math problems should eventually be treated as structured data rather than plain text embedded inside activity instructions.
-
-A problem should conceptually contain information such as:
-
-```text
-Problem
-├── question
-├── answer
-└── explanation
-```
-
-Additional fields may be added when they are useful, such as:
-
-* variable
-* difficulty
-* problem type
-* student instructions
-* worked solution
-
-Do not add fields simply because they seem useful.
-
-Prefer the smallest data model that supports the current feature.
-
----
-
-# 7. Mathematical Correctness
-
-An important future direction is independently validating AI-generated math answers.
-
-Do not assume that an LLM-generated answer is mathematically correct.
-
-The eventual architecture should allow something like:
-
-```text
-LLM generates problem + answer
-             ↓
-       Math Validator
-             ↓
-       ┌─────┴─────┐
-       ↓           ↓
-    Correct     Incorrect
-       ↓           ↓
-     Keep       Regenerate
-```
-
-When implementing mathematical validation, prefer deterministic mathematical logic or established mathematical libraries where appropriate rather than asking the LLM to verify itself.
-
-Do not implement a full validation system unless the user specifically asks for it.
-
----
-
-# 8. Teacher Version vs Student Version
-
-The long-term product direction is to generate two views of the same lesson.
-
-## Teacher Version
-
-May contain:
-
-* Teacher actions
-* Teacher prompts
-* Look-fors
-* Teacher notes
-* Activity instructions
-* Suggested questions
-
-## Student Version
-
-May contain:
-
-* Student instructions
-* Math problems
-* Workspace
-* Answers or answer space where appropriate
-
-These should represent the same underlying lesson rather than being independent lessons.
-
-Prefer shared structured data over duplicating lesson information.
-
----
-
-# 9. Frontend Guidelines
-
-Use TypeScript properly.
-
-Avoid:
-
-```tsx
-any
-```
-
-when a meaningful type can be created.
-
-Centralize shared lesson types when practical.
-
-For example:
-
-```text
-frontend/
-└── src/
-    └── types/
-        └── lesson.ts
-```
-
-Prefer importing shared types rather than redefining the same `Lesson`, `Activity`, or `Problem` types in multiple components.
-
-Keep components focused.
-
-For example:
-
-```text
-LessonForm
-LessonCard
-ActivityList
-ActivityEditor
-LessonEditor
-History
-Reflection
-```
-
-Do not combine unrelated responsibilities into one large component unless there is a good reason.
-
----
-
-# 10. React State
-
-Be careful about duplicate sources of truth.
-
-If state is owned by `App`, do not create another independent copy of the same state in a child component without a clear reason.
-
-For example, lesson history should not have two independent reducers managing the same history.
-
-Prefer:
-
-```text
-App
- ↓
-history state
- ↓
-History component
-```
-
-over:
-
-```text
-App
- ↓
-history state A
-
-History
- ↓
-history state B
-```
-
-When introducing shared state, consider the simplest appropriate solution first.
-
-Do not introduce Context, Redux, Zustand, or another state-management library unless the current architecture actually needs it.
-
----
-
-# 11. Backend Guidelines
-
-Keep FastAPI routes relatively thin.
-
-Business logic should preferably live in services or appropriate backend modules rather than becoming embedded inside route handlers.
-
-Use Pydantic models for API request and response validation.
-
-Keep database operations separate from API routing when practical.
-
-Existing backend organization may include:
-
-```text
-backend/
-├── routers/
-├── models/
-├── services/
-└── ...
-```
-
-Preserve the existing organization unless there is a clear reason to change it.
-
----
-
-# 12. API Consistency
-
-Frontend TypeScript types and backend Pydantic models should describe the same data structure.
-
-When changing a backend response:
-
-1. Inspect the corresponding frontend API code.
-2. Inspect the TypeScript types.
-3. Update all affected consumers.
-4. Run the frontend build.
-5. Run relevant backend tests.
-
-Do not make an API change without checking its frontend consumers.
-
----
-
-# 13. Database Changes
-
-Treat SQLite data as persistent application state.
-
-Do not assume that changing a TypeScript interface changes the database.
-
-When changing database models:
-
-* Inspect existing database models.
-* Determine whether existing data is affected.
-* Avoid destructive changes unless explicitly requested.
-* Explain migration implications before making significant schema changes.
-
-For destructive operations such as deleting all lessons, ensure the backend and frontend remain consistent.
-
----
-
-# 14. UI / Styling
-
-The project uses MUI as the primary UI component library.
-
-Prefer existing MUI components before writing custom CSS.
-
-Examples include:
-
-* Button
-* TextField
-* Select
-* Card
-* Dialog
-* Rating
-* Drawer
-* List
-* ListItem
-* Chip
-
-Avoid creating large CSS files when an existing MUI component or simple component styling can accomplish the same result.
-
-Keep the UI consistent across:
-
-* Lesson generation
-* Generated lessons
-* Lesson history
-* Lesson editing
-* Reflection
-
-Do not introduce another major UI framework without discussing it first.
-
----
-
-# 15. Working With Existing Code
-
-Before modifying code:
-
-1. Inspect the relevant files.
-2. Understand the existing implementation.
-3. Identify dependencies and consumers.
-4. Make the smallest reasonable change.
-5. Test the change.
-
-Do not rewrite an entire component simply to make a small modification.
-
-Preserve existing working behavior.
-
----
-
-# 16. Error Handling
-
-Do not silently swallow errors.
-
-Prefer clear error handling such as:
-
-```python
-try:
-    ...
-except Exception as error:
-    logger.error(...)
-    ...
-```
-
-Frontend errors should provide useful feedback to the user.
-
-Backend errors should return appropriate HTTP responses rather than exposing unnecessary implementation details.
-
----
-
-# 17. Testing
-
-When modifying functionality:
-
-* Run existing tests when available.
-* Run the frontend build after significant TypeScript changes.
-* Test affected API endpoints.
-* Check browser console errors.
-* Check FastAPI logs when debugging backend issues.
-
-Do not claim that something works without testing it when testing is available.
-
----
-
-# 18. Git Practices
-
-Make focused changes.
-
-Prefer commits such as:
-
-```text
-Add math problem model
-Update lesson generation schema
-Add problem validation
-Add student lesson view
-Style lesson form
-```
-
-over large commits such as:
-
-```text
-Fix everything
-```
-
-Do not modify unrelated files.
-
-Do not remove working functionality simply to simplify the implementation.
-
----
-
-# 19. Codex Behavior
-
-When asked to implement something:
-
-### First
-
-Inspect the existing code relevant to the request.
-
-### Then
-
-Briefly explain:
-
-* what you found
-* what you intend to change
-* which files will be affected
-
-### Then
-
-Make the change.
-
-### Finally
-
-Report:
-
-* files changed
-* important implementation details
-* tests/builds run
-* any remaining issues
-
-Do not make large architectural changes without explaining why they are necessary.
-
----
-
-# 20. Learning-Friendly Explanations
-
-This project is also being used as a software-development learning project.
-
-When introducing a new concept, briefly explain the reason behind the implementation.
-
-For example, when introducing:
-
-* React state
-* reducers
-* API services
-* Pydantic models
-* database relationships
-* async code
-* TypeScript types
-* validation
-
-explain the concept in practical terms before or alongside the implementation.
-
-Do not overwhelm the user with unnecessary theory.
-
----
-
-# 21. When Requirements Are Ambiguous
-
-If a requested change could reasonably be implemented in multiple substantially different ways, ask before making a major architectural decision.
-
-For small implementation details, choose the simplest approach consistent with the existing architecture.
-
-Do not invent requirements.
-
----
-
-# 22. Current Priority
-
-The immediate product direction is:
-
-```text
-Math-focused lesson generation
-        ↓
-Structured math problems
-        ↓
-Teacher + student lesson views
-        ↓
-Math problem validation
-        ↓
-Problem library
-        ↓
-Useful teacher reflection
-```
-
-Build incrementally.
-
-Do not attempt to implement the entire roadmap at once.
+This file should be treated as the current project context for future work. Keep future changes aligned with this actual architecture and feature set.
