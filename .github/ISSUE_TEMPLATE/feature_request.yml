@@ -1,78 +1,21 @@
 name: Feature request
-about: Suggest a new capability or product improvement for Prep-Period
+about: Suggest an improvement or new feature
 title: ""
 labels: ["enhancement"]
 assignees: []
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Thanks for suggesting an improvement. We’d love to understand the problem, the target user, and the expected outcome.
   - type: textarea
-    id: problem
+    id: idea
     attributes:
-      label: Problem / opportunity
-      description: What user need or product gap are you trying to solve?
-      placeholder: Teachers need a faster way to generate and reuse high-quality math practice problems.
+      label: What would you like to improve?
+      description: What need would this address?
+      placeholder: Describe the idea and who it would help.
     validations:
       required: true
   - type: textarea
-    id: proposal
+    id: context
     attributes:
-      label: Proposed solution
-      description: Describe the feature or workflow you’d like to add.
-      placeholder: Add a problem bank where teachers can save and reuse generated problems by topic and skill.
-    validations:
-      required: true
-  - type: textarea
-    id: user
-    attributes:
-      label: Who would benefit?
-      description: Who is the primary user and how does this help them?
-      placeholder: Secondary math teachers creating lesson plans for grades 6–10.
-    validations:
-      required: true
-  - type: dropdown
-    id: area
-    attributes:
-      label: Area
-      description: Which part of the product does this affect?
-      options:
-        - Lesson generation
-        - Teacher version
-        - Student version
-        - Problem bank
-        - Reflection
-        - UI / UX
-        - API / backend
-        - Documentation
-        - Other
-    validations:
-      required: true
-  - type: textarea
-    id: alternatives
-    attributes:
-      label: Alternatives considered
-      description: Is there another way to solve this today?
-      placeholder: We could manually copy problems from previous lessons, but this is inefficient.
-    validations:
-      required: false
-  - type: textarea
-    id: acceptance
-    attributes:
-      label: Acceptance criteria
-      description: What does success look like?
-      placeholder: |
-        - Teachers can save problems to a reusable library
-        - Problems can be filtered by topic and skill
-        - Generated lesson includes linked saved problems
-    validations:
-      required: false
-  - type: textarea
-    id: notes
-    attributes:
-      label: Additional context
-      description: Add screenshots, references, or notes.
-      placeholder: Link to product workflow or examples if helpful.
+      label: Extra details (optional)
+      description: Add examples, alternatives, or screenshots if useful.
     validations:
       required: false
