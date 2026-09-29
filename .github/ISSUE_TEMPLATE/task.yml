@@ -19,7 +19,7 @@ body:
       required: true
 
   - type: textarea
-    id: context
+    id: context_background
     attributes:
       label: Context or background
       description: Include any relevant architecture, files, or prior decisions.
@@ -28,7 +28,7 @@ body:
       required: true
 
   - type: dropdown
-    id: complexity
+    id: task_complexity
     attributes:
       label: Complexity
       description: How large is this task?
@@ -40,7 +40,7 @@ body:
       required: true
 
   - type: textarea
-    id: scope
+    id: scope_deliverables
     attributes:
       label: Scope and deliverables
       description: What should be included in a complete solution?
@@ -53,7 +53,7 @@ body:
       required: true
 
   - type: textarea
-    id: acceptance
+    id: definition_of_done
     attributes:
       label: Definition of done
       description: How will we know the task is complete?
@@ -65,7 +65,7 @@ body:
       required: false
 
   - type: textarea
-    id: notes
+    id: additional_notes
     attributes:
       label: Additional notes
       description: Add dependencies, blockers, or links.
