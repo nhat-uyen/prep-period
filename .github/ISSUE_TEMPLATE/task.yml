@@ -1,6 +1,6 @@
 name: Contributor task
 description: Suggest a small, scoped task for contributors
-title: "[Task]: "
+title: "Task: "
 labels: ["help wanted"]
 assignees: []
 body:

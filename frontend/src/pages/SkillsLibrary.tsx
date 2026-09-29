@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { Link } from "react-router";
+import SkillProblemsView from "../components/SkillProblemsView";
 import {
   Alert,
   Box,
   Button,
   Card,
   CardContent,
-  Chip,
   Container,
+  Link,
   Stack,
   Tab,
   Tabs,
@@ -31,6 +31,7 @@ export default function SkillsLibrary() {
   const [form, setForm] = useState(emptyProblem);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"add" | "browse" | "search">("add");
+  const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -73,7 +74,7 @@ export default function SkillsLibrary() {
 
   const searchResultsBySkill = useMemo(() => {
     const query = searchQuery.trim().toLocaleLowerCase();
-    if (!query) return problemsBySkill;
+    if (!query) return [];
 
     return problemsBySkill
       .map(([skill, skillProblems]) => [skill, skillProblems.filter((problem) => [
@@ -147,30 +148,30 @@ export default function SkillsLibrary() {
         )}
 
         {activeTab === "browse" && (
-          <Stack spacing={2}>
-            {loading ? <Typography color="text.secondary">Loading skills…</Typography>
-              : problemsBySkill.length === 0 ? <Typography color="text.secondary">No skills yet. Add a problem with skill tags to start the library.</Typography>
-                : problemsBySkill.map(([skill, skillProblems]) => (
-                  <Box key={skill} sx={{ pb: 1.5, borderBottom: "1px solid", borderColor: "divider" }}>
-                    <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 0.5 }}>{skill}</Typography>
-                    <Stack spacing={0.25} sx={{ alignItems: "flex-start" }}>
-                      {skillProblems.map((problem) => (
-                        <Button
-                          key={`${skill}-${problem.id ?? problem.question}`}
-                          variant="text"
-                          onClick={() => {
-                            setSearchQuery(skill === "Untagged" ? problem.instructions : skill);
-                            setActiveTab("search");
-                          }}
-                          sx={{ textAlign: "left", textTransform: "none", justifyContent: "flex-start" }}
-                        >
-                          {problem.question}
-                        </Button>
-                      ))}
-                    </Stack>
-                  </Box>
-                ))}
-          </Stack>
+          selectedSkill ? (
+            <SkillProblemsView
+              skill={selectedSkill}
+              problems={problemsBySkill.find(([skill]) => skill === selectedSkill)?.[1] ?? []}
+              onBack={() => setSelectedSkill(null)}
+            />
+          ) : (
+            <Stack spacing={1}>
+              {loading ? <Typography color="text.secondary">Loading skills…</Typography>
+                : problemsBySkill.length === 0 ? <Typography color="text.secondary">No skills yet. Add a problem with skill tags to start the library.</Typography>
+                  : problemsBySkill.map(([skill]) => (
+                    <Link
+                      key={skill}
+                      component="button"
+                      type="button"
+                      underline="hover"
+                      onClick={() => setSelectedSkill(skill)}
+                      sx={{ alignSelf: "flex-start", fontSize: "1.05rem" }}
+                    >
+                      {skill}
+                    </Link>
+                  ))}
+            </Stack>
+          )
         )}
 
         {activeTab === "search" && (
@@ -183,32 +184,13 @@ export default function SkillsLibrary() {
               onChange={(event) => setSearchQuery(event.target.value)}
             />
 
-            {loading ? <Typography color="text.secondary">Loading problems…</Typography>
+            {!searchQuery.trim() ? <Typography color="text.secondary">Enter a skill or problem detail to search.</Typography>
+              : loading ? <Typography color="text.secondary">Loading problems…</Typography>
               : problems.length === 0 ? <Typography color="text.secondary">No problems yet. Add one above or generate a lesson with problems.</Typography>
                 : searchResultsBySkill.length === 0
                   ? <Typography color="text.secondary">No problems match that search.</Typography>
                   : searchResultsBySkill.map(([skill, skillProblems]) => (
-                    <Box key={skill}>
-                      <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 1 }}>{skill}</Typography>
-                      <Stack spacing={1.5}>
-                        {skillProblems.map((problem) => (
-                          <Card key={`${skill}-${problem.id ?? problem.question}`} variant="outlined">
-                            <CardContent>
-                              <Stack spacing={1.25}>
-                                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{problem.question}</Typography>
-                                <Typography color="text.secondary">{problem.instructions}</Typography>
-                                <Typography><strong>Answer:</strong> {problem.answer}</Typography>
-                                <Typography><strong>Explanation:</strong> {problem.explanation}</Typography>
-                                <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1 }}>
-                                  {(problem.skills ?? []).map((tag) => <Chip key={tag} size="small" label={tag} variant="outlined" />)}
-                                  {problem.lesson_id != null && <Chip size="small" label={`Lesson #${problem.lesson_id}`} component={Link} to="/history" clickable color="primary" />}
-                                </Stack>
-                              </Stack>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </Stack>
-                    </Box>
+                    <SkillProblemsView key={skill} skill={skill} problems={skillProblems} />
                   ))}
           </Stack>
         )}

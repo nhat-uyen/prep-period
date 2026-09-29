@@ -189,14 +189,11 @@ def delete_lesson(db: Session, lesson_id: int) -> Lesson | None:
     lesson = get_lesson_by_id(db, lesson_id)
     if lesson is None:
         return None
-
-    db.query(ActivityRecord).filter(ActivityRecord.lesson_id == lesson_id).update(
-        {ActivityRecord.lesson_id: None}, synchronize_session=False
-    )
-    db.query(ProblemRecord).filter(ProblemRecord.lesson_id == lesson_id).update(
-        {ProblemRecord.lesson_id: None, ProblemRecord.activity_id: None},
-        synchronize_session=False,
-    )
+    
+    if reflection := db.query(Reflection).filter(Reflection.lesson_id == lesson_id).first():
+        db.query(ActivityReflection).filter(ActivityReflection.reflection_id == reflection.id).delete(synchronize_session=False)
+        db.delete(reflection)
+  
     db.delete(lesson)
     db.commit()
     return lesson
@@ -221,12 +218,5 @@ def update_lesson(db: Session, lesson_id: int, lesson_data: dict) -> Lesson | No
 def clear_history(db: Session) -> None:
     db.query(ActivityReflection).delete()
     db.query(Reflection).delete()
-    db.query(ActivityRecord).filter(ActivityRecord.lesson_id.is_not(None)).update(
-        {ActivityRecord.lesson_id: None}, synchronize_session=False
-    )
-    db.query(ProblemRecord).filter(ProblemRecord.lesson_id.is_not(None)).update(
-        {ProblemRecord.lesson_id: None, ProblemRecord.activity_id: None},
-        synchronize_session=False,
-    )
     db.query(Lesson).delete()
     db.commit()

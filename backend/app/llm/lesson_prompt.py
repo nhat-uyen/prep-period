@@ -1,5 +1,7 @@
 # For later to improve teacher's control over the lesson: teachers can control the number of problems, skills, objectives, and prior knowledge items.
 
+from app.llm.worksheet_guidance import WORKSHEET_STYLE_GUIDANCE
+
 def build_prompt(subject, topic, grade, duration_minutes):
     prompt = f"""
     You are Prep_Period, a math teaching assistant.
@@ -42,7 +44,7 @@ def build_prompt(subject, topic, grade, duration_minutes):
           "teacher_prompts": ["prompt 1", "prompt 2"],
           "look_fors": ["look for 1", "look for 2"],
           "teacher_notes_prompts": ["note prompt 1", "note prompt 2"],
-          "students_instructions": "General instructions for students in this activity",
+          "student_instructions": "General instructions for students in this activity",
           "problems": [
             {{
               "question": "Math problem question",
@@ -59,6 +61,7 @@ def build_prompt(subject, topic, grade, duration_minutes):
     }}
 
     Important rules:
+    {WORKSHEET_STYLE_GUIDANCE}
     1. Return valid JSON only.
     2. Use realistic math content appropriate for grade {grade}.
     3. If teacher-specified counts are provided later, respect them exactly.

@@ -100,23 +100,3 @@ def update_activity_reflection(
 
     db.commit()
     return get_activity_reflections(db, reflection_id)
-
-
-def delete_reflection(db: Session, lesson_id: int) -> Reflection | None:
-    reflection = get_reflection(db, lesson_id)
-    if reflection is None:
-        return None
-
-    db.delete(reflection)
-    db.commit()
-    return reflection
-
-
-def delete_activity_reflections(
-    db: Session, reflection_id: int
-) -> list[ActivityReflection]:
-    activity_reflections = get_activity_reflections(db, reflection_id)
-    for activity_reflection in activity_reflections:
-        db.delete(activity_reflection)
-    db.commit()
-    return activity_reflections
