@@ -282,6 +282,7 @@ The product should keep moving toward:
 3. more reliable problem validation
 4. reusable problem bank workflows
 5. better teacher reflection and lesson improvement
+6. personalize lesson based on a class's profile and teacher's reflections
 
 ---
 

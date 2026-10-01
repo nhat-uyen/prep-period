@@ -35,11 +35,11 @@ def build_prompt(subject, topic, grade, duration_minutes):
       "activities": [
         {{
           "name": "Activity name",
-          "duration_minutes": 15,
-          "teacher_actions": ["teacher action 1", "teacher action 2"],
-          "teacher_prompts": ["prompt 1", "prompt 2"],
-          "look_fors": ["look for 1", "look for 2"],
-          "teacher_notes_prompts": ["note prompt 1", "note prompt 2"],
+          "duration_minutes": ...,
+          "teacher_actions": ["what teacher do during lesson 1", "what teacher do during lesson 2"],
+          "teacher_prompts": ["what teacher say during lesson 1", "what teacher say during lesson 2"],
+          "look_fors": ["what teacher look for 1", "what teacher look for 2"],
+          "teacher_notes_prompts": ["what teacher takes note of 1", "what teacher takes note of 2"],
           "student_instructions": "General instructions for students in this activity",
           "problems": [
             {{

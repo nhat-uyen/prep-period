@@ -46,10 +46,7 @@ def stream_lesson_plan(request: LessonRequest, db: Session = Depends(get_db)):
             # each chunk produced is saved in full_response
             full_response += chunk
             # when Ollama produces chunk of respsonse, this send chunk to React
-            yield json.dumps({
-                "type": "chunk",
-                "content": chunk
-            }) + "\n"
+            yield json.dumps({"type": "chunk", "content": chunk}) + "\n"
 
         # this happens when Ollama finishes streaming the repsonse
         lesson_with_id = save_streamed_lesson(db, full_response, request)

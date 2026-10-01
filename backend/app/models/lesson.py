@@ -29,10 +29,10 @@ class Activity(BaseModel):
     duration_minutes: int
 
     # Teacher facing
-    teacher_actions: list[str] = Field(default_factory=list)
-    teacher_prompts: list[str] = Field(default_factory=list)
-    look_fors: list[str] = Field(default_factory=list)
-    teacher_notes_prompts: list[str] = Field(default_factory=list)
+    teacher_actions: list[str] 
+    teacher_prompts: list[str] 
+    look_fors: list[str] 
+    teacher_notes_prompts: list[str]
 
     # Student facing
     student_instructions: str
