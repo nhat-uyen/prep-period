@@ -7,6 +7,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import MathText from "./MathText";
 
 type StudentLessonViewProps = {
   lesson: Lesson;
@@ -55,7 +56,7 @@ export default function StudentLessonView({ lesson }: StudentLessonViewProps) {
                   />
                 </Stack>
 
-                <Typography color="text.secondary">{activity.student_instructions}</Typography>
+                <Typography color="text.secondary"><MathText>{activity.student_instructions}</MathText></Typography>
 
                 {activity.problems.map((problem, index) => (
                   <Stack
@@ -72,12 +73,12 @@ export default function StudentLessonView({ lesson }: StudentLessonViewProps) {
                     <Typography variant="subtitle2" color="text.secondary">
                       Instructions
                     </Typography>
-                    <Typography>{problem.instructions}</Typography>
+                    <Typography><MathText>{problem.instructions}</MathText></Typography>
 
                     <Typography variant="subtitle2" color="text.secondary">
                       Problem {index + 1}
                     </Typography>
-                    <Typography sx={{ fontWeight: 500 }}>{problem.question}</Typography>
+                    <Typography sx={{ fontWeight: 500 }}><MathText>{problem.question}</MathText></Typography>
 
                     <TextField
                       label="Your work"

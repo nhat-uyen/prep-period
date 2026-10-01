@@ -7,10 +7,11 @@ from pydantic_core import ValidationError
 from sqlalchemy.orm import Session
 
 from app.llm.ollama_client import generate_response
-from app.llm.lesson_prompt import build_prompt
+from app.llm.prompts.lesson_prompt import build_prompt
 from app.models.lesson import LessonRequest, LessonResponse
 from app.database.models import Lesson as LessonRecord
 from app.database import lesson_crud, problem_crud
+from app.llm.json_repair import repair_latex_escapes
 
 
 logger = logging.getLogger(__name__)
@@ -80,7 +81,8 @@ def save_lesson_to_databse(db: Session, request: LessonRequest, lesson: LessonRe
 
 def save_streamed_lesson(db: Session, full_response: str, request: LessonRequest):
   try:
-    lesson_data = json.loads(full_response)
+
+    lesson_data = json.loads(repair_latex_escapes(full_response))
     lesson = LessonResponse(**lesson_data)
 
     lesson_with_id = save_lesson_to_databse(db, request, lesson)

@@ -11,7 +11,7 @@ from app.services.lesson_service import generate_lesson_using_ai_service, save_s
 from app.services.reflection_service import get_reflection
 from app.database import lesson_crud
 from app.database.database import get_db
-from app.llm.lesson_prompt import build_prompt
+from app.llm.prompts.lesson_prompt import build_prompt
 from app.llm.ollama_client import generate_streaming_response
 
 logger = logging.getLogger(__name__)
@@ -51,9 +51,8 @@ def stream_lesson_plan(request: LessonRequest, db: Session = Depends(get_db)):
                 "content": chunk
             }) + "\n"
 
-        # happen when Ollama finishes streaming the repsonse
+        # this happens when Ollama finishes streaming the repsonse
         lesson_with_id = save_streamed_lesson(db, full_response, request)
-        logger.info(lesson_with_id)
 
         # Send the database version with id to React
         yield json.dumps({

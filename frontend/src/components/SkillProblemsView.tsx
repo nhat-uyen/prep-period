@@ -1,5 +1,6 @@
 import { Button, Card, CardContent, Chip, Stack, Typography } from "@mui/material";
 import type { Problem } from "../types/lesson";
+import MathText from "./MathText";
 
 type SkillProblemsViewProps = {
   skill: string;
@@ -21,10 +22,10 @@ export default function SkillProblemsView({ skill, problems, onBack }: SkillProb
           <Card key={`${skill}-${problem.id ?? problem.question}`} variant="outlined">
             <CardContent>
               <Stack spacing={1.25}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{problem.question}</Typography>
-                <Typography color="text.secondary">{problem.instructions}</Typography>
-                <Typography><strong>Answer:</strong> {problem.answer}</Typography>
-                <Typography><strong>Explanation:</strong> {problem.explanation}</Typography>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}><MathText>{problem.question}</MathText></Typography>
+                <Typography color="text.secondary"><MathText>{problem.instructions}</MathText></Typography>
+                <Typography><strong>Answer: </strong><MathText>{problem.answer}</MathText></Typography>
+                <Typography><strong>Explanation:</strong><MathText>{problem.explanation}</MathText></Typography>
                 <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1 }}>
                   {(problem.skills ?? []).map((tag) => <Chip key={tag} size="small" label={tag} variant="outlined" />)}
                 </Stack>

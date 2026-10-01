@@ -44,6 +44,8 @@ This repository is a learning-focused portfolio project, so changes should stay 
 
 The backend uses Ollama to generate a structured lesson payload and then persists it in SQLite.
 
+The current lesson prompt is organized under `backend/app/llm/prompts/`: the lesson prompt composes reusable worksheet-style guidance and LaTeX formatting rules. The streamed lesson-save path repairs common unescaped LaTeX command backslashes before parsing the model response as JSON.
+
 ---
 
 ## 3. Current repository structure
@@ -67,9 +69,13 @@ prep-period/
 │   │   │   ├── reflection_crud.py
 │   │   │   └── models.py
 │   │   ├── llm/
-│   │   │   ├── lesson_prompt.py
+│   │   │   ├── json_repair.py
 │   │   │   ├── ollama_client.py
-│   │   │   └── schemas.py
+│   │   │   ├── schemas.py
+│   │   │   └── prompts/
+│   │   │       ├── latex_rules.py
+│   │   │       ├── lesson_prompt.py
+│   │   │       └── worksheet_guidance.py
 │   │   ├── models/
 │   │   │   ├── lesson.py
 │   │   │   └── reflection.py
@@ -99,6 +105,8 @@ prep-period/
 │   │   │   ├── LessonForm.tsx
 │   │   │   ├── LessonHistory.tsx
 │   │   │   ├── LessonReflection.tsx
+│   │   │   ├── MathText.tsx
+│   │   │   ├── SkillProblemsView.tsx
 │   │   │   ├── StudentLessonView.tsx
 │   │   │   └── TeacherLessonView.tsx
 │   │   ├── pages/
@@ -160,6 +168,8 @@ Each problem contains:
 - skills
 - optional difficulty and problem type
 
+Generated student-facing instructions and problem text may contain LaTeX math delimited with `$...$` or `$$...$$`. The frontend `MathText` component renders this content with `remark-math` and KaTeX in student and teacher lesson views and the skill problem view. Keep LaTeX prompt rules aligned with JSON escaping and backend repair behavior.
+
 This is already closer to a real math lesson model than the original generic lessons and should remain the foundation for future work.
 
 ### Teacher and student views
@@ -215,6 +225,7 @@ The frontend is responsible for:
 - allowing lesson editing
 - presenting reflection workflows
 - browsing reusable math problems
+- rendering inline and display math in lesson and problem text
 
 Important files:
 
@@ -224,6 +235,7 @@ Important files:
 - [frontend/src/pages/Reflection.tsx](frontend/src/pages/Reflection.tsx)
 - [frontend/src/pages/SkillsLibrary.tsx](frontend/src/pages/SkillsLibrary.tsx)
 - [frontend/src/types/lesson.ts](frontend/src/types/lesson.ts)
+- [frontend/src/components/MathText.tsx](frontend/src/components/MathText.tsx)
 
 ### Backend responsibilities
 
@@ -243,7 +255,9 @@ Important files:
 - [backend/app/services/lesson_service.py](backend/app/services/lesson_service.py)
 - [backend/app/models/lesson.py](backend/app/models/lesson.py)
 - [backend/app/database/models.py](backend/app/database/models.py)
-- [backend/app/llm/lesson_prompt.py](backend/app/llm/lesson_prompt.py)
+- [backend/app/llm/prompts/lesson_prompt.py](backend/app/llm/prompts/lesson_prompt.py)
+- [backend/app/llm/prompts/latex_rules.py](backend/app/llm/prompts/latex_rules.py)
+- [backend/app/llm/json_repair.py](backend/app/llm/json_repair.py)
 - [backend/app/llm/ollama_client.py](backend/app/llm/ollama_client.py)
 
 ---
@@ -349,5 +363,7 @@ FastAPI backend
   -> SQLite persistence
   -> problem and reflection storage
 ```
+
+Frontend math rendering uses React Markdown, `remark-math`, and KaTeX. Backend prompt modules separate lesson structure, worksheet guidance, and LaTeX output rules; `json_repair.py` handles common LaTeX escape issues on the streamed save path.
 
 This file should be treated as the current project context for future work. Keep future changes aligned with this actual architecture and feature set.

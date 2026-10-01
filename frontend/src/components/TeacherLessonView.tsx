@@ -17,6 +17,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import MathText from "./MathText";
 
 type TeacherLessonViewProps = {
   lesson: Lesson;
@@ -82,7 +83,7 @@ export default function TeacherLessonView({ lesson }: TeacherLessonViewProps) {
                   <Chip size="small" label={`${activity.duration_minutes} min`} color="primary" variant="outlined" />
                 </Stack>
 
-                <Typography color="text.secondary">{activity.student_instructions}</Typography>
+                <Typography color="text.secondary"><MathText>{activity.student_instructions}</MathText></Typography>
 
                 <Stack spacing={1}>
                   <Typography variant="subtitle2" color="text.secondary">Teacher actions</Typography>
@@ -116,10 +117,10 @@ export default function TeacherLessonView({ lesson }: TeacherLessonViewProps) {
                       }}
                     >
                       <Typography variant="subtitle2" color="text.secondary">Problem {index + 1}</Typography>
-                      <Typography><strong>Question:</strong> {problem.question}</Typography>
-                      <Typography><strong>Instructions:</strong> {problem.instructions}</Typography>
-                      <Typography><strong>Answer:</strong> {problem.answer}</Typography>
-                      <Typography><strong>Explanation:</strong> {problem.explanation}</Typography>
+                      <Typography><strong>Question:</strong>< MathText>{problem.question}</MathText></Typography>
+                      <Typography><strong>Instructions:</strong> <MathText>{problem.instructions}</MathText></Typography>
+                      <Typography><strong>Answer:</strong> <MathText>{problem.answer}</MathText></Typography>
+                      <Typography><strong>Explanation:</strong> <MathText>{` ${problem.explanation}`}</MathText></Typography>
                       <Typography><strong>Skills:</strong> {problem.skills.join(", ") || "—"}</Typography>
                     </Stack>
                   ))}

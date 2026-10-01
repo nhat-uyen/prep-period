@@ -1,6 +1,7 @@
 # For later to improve teacher's control over the lesson: teachers can control the number of problems, skills, objectives, and prior knowledge items.
 
-from app.llm.worksheet_guidance import WORKSHEET_STYLE_GUIDANCE
+from app.llm.prompts.latex_rules import LATEX_RULES
+from app.llm.prompts.worksheet_guidance import WORKSHEET_STYLE_GUIDANCE
 
 def build_prompt(subject, topic, grade, duration_minutes):
     prompt = f"""
@@ -14,11 +15,6 @@ def build_prompt(subject, topic, grade, duration_minutes):
     
     Teacher-controlled count placeholder:
     - If a teacher-specified problem count is provided later, use it.
-    - If no teacher-specified count is provided, use a reasonable default range:
-      - 2 to 4 problems per activity
-      - 2 to 3 skills per problem
-      - 2 to 3 objectives
-      - 2 to 3 prior knowledge items
 
     Your response must be valid JSON only.
 
@@ -61,6 +57,7 @@ def build_prompt(subject, topic, grade, duration_minutes):
     }}
 
     Important rules:
+    {LATEX_RULES}
     {WORKSHEET_STYLE_GUIDANCE}
     1. Return valid JSON only.
     2. Use realistic math content appropriate for grade {grade}.
