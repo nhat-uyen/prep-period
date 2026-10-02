@@ -1,5 +1,13 @@
 # Prep-Period Product Workflow
 
+> **Prep-Period** is an AI-powered math lesson generator that produces teacher and student versions, saves reusable problems to a searchable bank, and supports future lesson planning.
+>
+> **Quick start:** See [CONTRIBUTING.md](../CONTRIBUTING.md) for local setup instructions.
+>
+> **Tech stack:** Next.js · React · TypeScript · Tailwind CSS · Prisma
+>
+> **Contributing:** Check [CONTRIBUTING.md](../CONTRIBUTING.md) and look for `good first issue` labels.
+
 This diagram is the source workflow for the Prep-Period project.
 
 ```text
