@@ -13,8 +13,9 @@ from app.database.lesson_crud import (
     update_activity,
 )
 from app.database.problem_crud import get_problems_by_activity
-from app.models.lesson import Activity, ActivityCreate, Problem
+from app.models.lesson import Activity, ActivityCreate, LessonRequest, Problem
 from app.routers.activities import create_activity as create_activity_endpoint
+from app.services.lesson_service import lesson_form_in_database
 
 
 class ActivityAssociationTests(unittest.TestCase):
@@ -90,6 +91,7 @@ class ActivityAssociationTests(unittest.TestCase):
             teacher_actions=["Model combining quantities"],
             teacher_prompts=["Which operation fits?"],
             look_fors=["Identifies both addends"],
+            teacher_notes_prompts=[],
             student_instructions="Solve each problem.",
             problems=[
                 Problem(
@@ -116,6 +118,27 @@ class ActivityAssociationTests(unittest.TestCase):
         self.assertEqual(saved_problems[0].skills, ["addition"])
         self.assertEqual(saved_problems[0].difficulty, "easy")
         self.assertEqual(saved_problems[0].problem_type, "equation")
+
+    def test_lesson_grade_accepts_text(self):
+        request = LessonRequest(
+            subject="Math",
+            topic="Algebra",
+            grade="GED",
+            duration_minutes=45,
+        )
+        lesson = create_lesson(
+            self.db,
+            request.subject,
+            request.topic,
+            request.grade,
+            request.duration_minutes,
+            {"activities": []},
+            [],
+        )
+
+        saved_lesson = lesson_form_in_database(self.db, lesson)
+
+        self.assertEqual(saved_lesson["grade"], "GED")
 
     def test_activity_endpoint_saves_and_returns_complete_activity(self):
         activity = create_activity_endpoint(

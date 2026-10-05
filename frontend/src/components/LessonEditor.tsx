@@ -18,14 +18,12 @@ type LessonEditorProps = {
 
 export default function LessonEditor({ lesson, onCancel, onSaved }: LessonEditorProps) {
 
-  console.log("Lesson being edited", lesson);
-
   const [title, setTitle] = useState(lesson.title);
   const [subject, setSubject] = useState(lesson.subject);
   const [topic, setTopic] = useState(lesson.topic);
   const [grade, setGrade] = useState(lesson.grade);
   const [duration, setDuration] = useState(lesson.duration_minutes);
-  const [objectives, setObjecctives] = useState(lesson.objectives);
+  const [objectives, setObjectives] = useState(lesson.objectives);
   const [priorknowledge, setPriorknowledge] = useState(lesson.prior_knowledge);
   const [materials, setMaterials] = useState(lesson.materials);
   const [activities, setActivities] = useState(lesson.activities);
@@ -44,8 +42,22 @@ export default function LessonEditor({ lesson, onCancel, onSaved }: LessonEditor
       activities: activities.map((activity) => ({
         ...activity,
         name: activity.name.trim(),
-        instructions: activity.student_instructions.trim(),
-      })).filter((activity) => activity.name || activity.instructions),
+        student_instructions: activity.student_instructions.trim(),
+        teacher_actions: activity.teacher_actions.map((item) => item.trim()).filter(Boolean),
+        teacher_prompts: activity.teacher_prompts.map((item) => item.trim()).filter(Boolean),
+        look_fors: activity.look_fors.map((item) => item.trim()).filter(Boolean),
+        teacher_notes_prompts: activity.teacher_notes_prompts.map((item) => item.trim()).filter(Boolean),
+        problems: activity.problems.map((problem) => ({
+          ...problem,
+          question: problem.question.trim(),
+          instructions: problem.instructions.trim(),
+          answer: problem.answer.trim(),
+          explanation: problem.explanation.trim(),
+          skills: problem.skills.map((skill) => skill.trim()).filter(Boolean),
+          difficulty: problem.difficulty?.trim() || null,
+          problem_type: problem.problem_type?.trim() || null,
+        })),
+      })),
     };
     onSaved(updatedLesson)
   }
@@ -77,9 +89,9 @@ export default function LessonEditor({ lesson, onCancel, onSaved }: LessonEditor
                 onChange={e => setTopic(e.target.value)} />
               <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                 <TextField fullWidth label="Grade"
-                  type="number"
+                  type="text"
                   value={grade}
-                  onChange={e => setGrade(Number(e.target.value))} />
+                  onChange={e => setGrade(e.target.value)} />
                 <TextField fullWidth label="Duration (minutes)"
                   type="number"
                   value={duration}
@@ -93,15 +105,15 @@ export default function LessonEditor({ lesson, onCancel, onSaved }: LessonEditor
             <Typography color="text.secondary" sx={{ mb: 3 }}>What should students know or be able to do?</Typography>
             <Stack spacing={2}>
 
-              {objectives.map((objecctive, index) => (
+              {objectives.map((objective, index) => (
                 <TextField label={`Objective ${index + 1}`}
                   type="text"
                   key={index}
-                  value={objecctive}
+                  value={objective}
                   onChange={e => {
                     const updated = [...objectives];
                     updated[index] = e.target.value;
-                    setObjecctives(updated)
+                    setObjectives(updated)
                   }} />
               ))}
             </Stack>
@@ -153,6 +165,7 @@ export default function LessonEditor({ lesson, onCancel, onSaved }: LessonEditor
               <ActivityEditor
                 key={index}
                 activity={activity}
+                onRemove={() => setActivities(activities.filter((_, activityIndex) => activityIndex !== index))}
                 onChange={(updatedActivity) => {
                   const updatedActivities = [...activities];
                   updatedActivities[index] = updatedActivity;
@@ -160,6 +173,18 @@ export default function LessonEditor({ lesson, onCancel, onSaved }: LessonEditor
                 }}
               />
             ))}
+            <Button onClick={() => setActivities([...activities, {
+              name: "",
+              duration_minutes: 1,
+              teacher_actions: [],
+              teacher_prompts: [],
+              look_fors: [],
+              teacher_notes_prompts: [],
+              student_instructions: "",
+              problems: [],
+            }])}>
+              Add activity
+            </Button>
           </Paper>
 
           <Divider />

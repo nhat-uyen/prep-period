@@ -28,7 +28,7 @@ export type Lesson = {
   id: number;
   subject: string;
   topic: string;
-  grade: number;
+  grade: string;
   duration_minutes: number;
   title: string;
   objectives: string[];
@@ -42,7 +42,7 @@ export type Lesson = {
 export type LessonRequest = {
   subject: string;
   topic: string;
-  grade: number;
+  grade: string;
   duration_minutes: number
 }
 

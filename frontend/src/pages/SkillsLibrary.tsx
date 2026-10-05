@@ -8,7 +8,7 @@ import {
   Card,
   CardContent,
   Container,
-  Link,
+  Link as MuiLink,
   Stack,
   Tab,
   Tabs,
@@ -17,6 +17,8 @@ import {
 } from "@mui/material";
 import { createProblem, getProblems } from "../api/lessons";
 import type { Problem } from "../types/lesson";
+import { Link as RouterLink } from "react-router";
+import { ArrowBack } from "@mui/icons-material";
 
 const emptyProblem = {
   question: "",
@@ -111,6 +113,9 @@ export default function SkillsLibrary() {
     <Box component="main" sx={{ py: { xs: 4, md: 7 } }}>
       <Container maxWidth="xl">
         <Stack spacing={1} sx={{ mb: 4 }}>
+          <Button component={RouterLink} to="/" variant="outlined" color="primary" startIcon={<ArrowBack />} sx={{ alignSelf: "flex-start" }}>
+            Back to Home
+          </Button>
           <Typography variant="overline" color="primary.main" sx={{ fontWeight: 800 }}>Math resources</Typography>
           <Typography variant="h1" sx={{ fontSize: { xs: "2.6rem", md: "4rem" } }}>Skills Library</Typography>
           <Typography color="text.secondary">Browse saved lesson problems or add reusable problems, organized by skill.</Typography>
@@ -159,7 +164,7 @@ export default function SkillsLibrary() {
               {loading ? <Typography color="text.secondary">Loading skills…</Typography>
                 : problemsBySkill.length === 0 ? <Typography color="text.secondary">No skills yet. Add a problem with skill tags to start the library.</Typography>
                   : problemsBySkill.map(([skill]) => (
-                    <Link
+                    <MuiLink
                       key={skill}
                       component="button"
                       type="button"
@@ -168,7 +173,7 @@ export default function SkillsLibrary() {
                       sx={{ alignSelf: "flex-start", fontSize: "1.05rem" }}
                     >
                       {skill}
-                    </Link>
+                    </MuiLink>
                   ))}
             </Stack>
           )
@@ -186,12 +191,12 @@ export default function SkillsLibrary() {
 
             {!searchQuery.trim() ? <Typography color="text.secondary">Enter a skill or problem detail to search.</Typography>
               : loading ? <Typography color="text.secondary">Loading problems…</Typography>
-              : problems.length === 0 ? <Typography color="text.secondary">No problems yet. Add one above or generate a lesson with problems.</Typography>
-                : searchResultsBySkill.length === 0
-                  ? <Typography color="text.secondary">No problems match that search.</Typography>
-                  : searchResultsBySkill.map(([skill, skillProblems]) => (
-                    <SkillProblemsView key={skill} skill={skill} problems={skillProblems} />
-                  ))}
+                : problems.length === 0 ? <Typography color="text.secondary">No problems yet. Add one above or generate a lesson with problems.</Typography>
+                  : searchResultsBySkill.length === 0
+                    ? <Typography color="text.secondary">No problems match that search.</Typography>
+                    : searchResultsBySkill.map(([skill, skillProblems]) => (
+                      <SkillProblemsView key={skill} skill={skill} problems={skillProblems} />
+                    ))}
           </Stack>
         )}
       </Container>

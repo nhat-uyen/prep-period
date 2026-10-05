@@ -45,6 +45,12 @@ export const theme = createTheme({
           fontWeight: 700,
           letterSpacing: "-0.02em",
         },
+        '.katex': { fontSize: '1.13em' },
+        '.katex-display': {
+          overflowX: 'auto',
+          overflowY: 'hidden',
+          margin: '0.75em 0'
+        },
       },
     },
     MuiButton: {
