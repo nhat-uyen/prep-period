@@ -119,7 +119,7 @@ export default function TeacherLessonView({ lesson }: TeacherLessonViewProps) {
                       <Typography variant="subtitle2" color="text.secondary">Problem {index + 1}</Typography>
                       <Typography><strong>Question:</strong>< MathText>{problem.question}</MathText></Typography>
                       <Typography><strong>Instructions:</strong> <MathText>{problem.instructions}</MathText></Typography>
-                      <Typography><strong>Answer:</strong> <MathText>{problem.answer}</MathText></Typography>
+                      <Typography><strong>Answer:</strong> <MathText>{` ${problem.answer}`}</MathText></Typography>
                       <Typography><strong>Explanation:</strong> <MathText>{` ${problem.explanation}`}</MathText></Typography>
                       <Typography><strong>Skills:</strong> {problem.skills.join(", ") || "—"}</Typography>
                     </Stack>

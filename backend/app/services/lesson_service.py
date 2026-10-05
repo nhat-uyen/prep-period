@@ -50,7 +50,7 @@ def lesson_form_in_database(db: Session, lesson: LessonRecord):
         "id": lesson.id,
         "subject": lesson.subject,
         "topic": lesson.topic,
-        "grade": lesson.grade,
+        "grade": str(lesson.grade),
         "duration_minutes": lesson.duration_minutes,
         **deepcopy(lesson.lesson_json),
     }
@@ -88,9 +88,9 @@ def save_streamed_lesson(db: Session, full_response: str, request: LessonRequest
     lesson_with_id = save_lesson_to_databse(db, request, lesson)
     return lesson_with_id
   
-  except json.JSONDecodeError:
+  except (json.JSONDecodeError, ValidationError) as e:
           logger.exception("AI returned invalid JSON.")
-          raise HTTPException(status_code=500, detail="Invalid response from AI")
+          raise ValueError(f"Model returned an invalid lesson data: {e}") from e
 
 def get_lesson(db: Session, lesson_id: int):
     lesson = lesson_crud.get_lesson_by_id(db=db, lesson_id=lesson_id)

@@ -72,7 +72,7 @@ def create_lesson(
     db: Session,
     subject: str,
     topic: str,
-    grade: int,
+    grade: str,
     duration_minutes: int,
     lesson_json: dict,
     activities: list[LessonActivity]
@@ -193,6 +193,15 @@ def delete_lesson(db: Session, lesson_id: int) -> Lesson | None:
     if reflection := db.query(Reflection).filter(Reflection.lesson_id == lesson_id).first():
         db.query(ActivityReflection).filter(ActivityReflection.reflection_id == reflection.id).delete(synchronize_session=False)
         db.delete(reflection)
+
+    # Activities are reusable records, so keep them and their problem links
+    # when their parent lesson is removed.
+    db.query(ActivityRecord).filter(ActivityRecord.lesson_id == lesson_id).update(
+        {ActivityRecord.lesson_id: None}, synchronize_session=False
+    )
+    db.query(ProblemRecord).filter(ProblemRecord.lesson_id == lesson_id).update(
+        {ProblemRecord.lesson_id: None}, synchronize_session=False
+    )
   
     db.delete(lesson)
     db.commit()

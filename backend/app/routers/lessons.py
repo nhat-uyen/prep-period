@@ -128,7 +128,7 @@ def update_lesson(lesson_id: int, update: UpdateLesson, db: Session= Depends(get
         "id": updated_lesson.id,
         "subject": updated_lesson.subject,
         "topic": updated_lesson.topic,
-        "grade": updated_lesson.grade,
+        "grade": str(updated_lesson.grade),
         "duration_minutes": updated_lesson.duration_minutes,
         **updated_lesson.lesson_json
     }

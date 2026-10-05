@@ -6,6 +6,8 @@ import { updateLesson } from '../api/lessons';
 import { Alert, Box, Button, Container, Stack, Tab, Tabs, Typography } from '@mui/material';
 import TeacherLessonView from '../components/TeacherLessonView';
 import StudentLessonView from '../components/StudentLessonView';
+import { Link } from 'react-router';
+import { ArrowBack } from '@mui/icons-material';
 
 type GenerateProps = {
   addLesson: (lesson: Lesson) => void;
@@ -41,6 +43,16 @@ export default function GenerateLesson({ addLesson, editLesson }: GenerateProps)
     <Box component="main" sx={{ py: { xs: 4, md: 7 } }}>
       <Container maxWidth="xl">
         <Stack spacing={1} sx={{ mb: 4 }}>
+          <Button
+            component={Link}
+            to="/"
+            variant="outlined"
+            color="primary"
+            startIcon={<ArrowBack />}
+            sx={{ alignSelf: 'flex-start' }}
+          >
+            Back to Home
+          </Button>
           <Typography variant="overline" color="primary.main" sx={{ fontWeight: 800, letterSpacing: ".14em" }}>Lesson studio</Typography>
           <Typography variant="h1" sx={{ fontSize: { xs: "2.6rem", md: "4rem" } }}>Generate Lesson</Typography>
           <Typography color="text.secondary">Start with the shape of your class, then refine the plan once it is ready.</Typography>

@@ -3,7 +3,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class LessonRequest(BaseModel):
     subject: str
     topic: str
-    grade: int
+    grade: str
     duration_minutes: int
 
 class Problem(BaseModel):
@@ -29,9 +29,9 @@ class Activity(BaseModel):
     duration_minutes: int
 
     # Teacher facing
-    teacher_actions: list[str] 
-    teacher_prompts: list[str] 
-    look_fors: list[str] 
+    teacher_actions: list[str] = Field(default_factory=list)
+    teacher_prompts: list[str] = Field(default_factory=list)
+    look_fors: list[str] = Field(default_factory=list)
     teacher_notes_prompts: list[str]
 
     # Student facing
@@ -45,7 +45,7 @@ class ActivityCreate(BaseModel):
     teacher_actions: list[str] = Field(default_factory=list)
     teacher_prompts: list[str] = Field(default_factory=list)
     look_fors: list[str] = Field(default_factory=list)
-    teacher_notes_prompts: list[str] = Field(default_factory=list)
+    teacher_notes_prompts: list[str]
     student_instructions: str
     problems: list[Problem] = Field(default_factory=list)
 
@@ -83,7 +83,7 @@ class SavedLesson (BaseModel):
     id: int
     subject: str
     topic: str
-    grade: int
+    grade: str
     duration_minutes: int
     title: str
     objectives: list[str]
@@ -94,7 +94,7 @@ class SavedLesson (BaseModel):
 class UpdateLesson (BaseModel):
     subject: str
     topic: str
-    grade: int
+    grade: str
     duration_minutes: int
     title: str
     objectives: list[str]

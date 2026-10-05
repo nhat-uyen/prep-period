@@ -48,7 +48,7 @@ def build_prompt(subject, topic, grade, duration_minutes):
               "answer": "Correct final answer",
               "explanation": "Clear explanation of the answer",
               "skills": ["skill 1", "skill 2"],
-              "difficulty": "medium",
+              "difficulty": "...",
               "problem_type": "word problem"
             }}
           ]
@@ -73,11 +73,12 @@ def build_prompt(subject, topic, grade, duration_minutes):
        - answer
        - explanation
        - skills
-       - difficulty
-       - problem_type
-    6. The instructions field should help students recognize the problem type and explain how to approach it.
-    7. Make explanations clear and student-friendly.
-    8. Keep the lesson coherent, age-appropriate, and class-ready.
-    9. Do not include markdown fences or extra commentary outside the JSON.
+    6. The number of problems per activity should be align with the duration, take in consideration of the time for class management, such as transitions and wrap-up time.
+    7. The instructions field should help students recognize the problem type and explain how to approach it.
+    8. Make explanations clear and student-friendly.
+    9. Keep the lesson coherent, age-appropriate, and class-ready.
+    10. For the whole lesson, ensure at least one teacher action, teacher prompt, look-for, and teacher note prompt.
+    11. If I made an error, correct it without putting oops.
+    12. Do not include markdown fences or extra commentary outside the JSON.
     """
     return prompt
