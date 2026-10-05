@@ -6,6 +6,7 @@ import { Link } from "react-router";
 import LessonCardReflection from "../components/LessonCardReflection";
 import { Alert, Box, Button, Container, Divider, Paper, Stack, Typography } from "@mui/material";
 import TeacherLessonView from "../components/TeacherLessonView";
+import { ArrowBack } from "@mui/icons-material";
 
 // need to add Props when passing constant from one component to another
 type HistoryProps = {
@@ -84,6 +85,9 @@ function History({ history, setHistory, removeLesson, clearHistory }: HistoryPro
     <Box component="main" sx={{ py: { xs: 4, md: 7 } }}>
       <Container maxWidth="lg">
         <Stack spacing={1} sx={{ mb: 4 }}>
+          <Button component={Link} to="/" variant="outlined" color="primary" startIcon={<ArrowBack />} sx={{ alignSelf: "flex-start" }}>
+            Back to Home
+          </Button>
           <Typography variant="overline" color="primary.main" sx={{ fontWeight: 800, letterSpacing: ".14em" }}>Your workspace</Typography>
           <Typography variant="h1" sx={{ fontSize: { xs: "2.6rem", md: "4rem" } }}>History</Typography>
           <Typography color="text.secondary">Return to a lesson, review what happened, and keep improving your practice.</Typography>

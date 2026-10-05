@@ -10,7 +10,7 @@ class Lesson(Base):
 
     subject = Column(String)
     topic = Column(String)
-    grade = Column(Integer)
+    grade = Column(String)
     duration_minutes = Column(Integer)
 
     # Store the lesson content as JSON -> this gives the flexibility to modify the lesson structure in the future without needing to change the database schema.

@@ -4,6 +4,8 @@ import type { Lesson } from "../types/lesson";
 import type { Reflection } from "../types/lesson";
 import { createReflection, getLessonByID, getLessons } from "../api/lessons";
 import { Alert, Box, Button, Container, FormControl, InputLabel, MenuItem, Select, Stack, Typography } from "@mui/material";
+import { Link } from "react-router";
+import { ArrowBack } from "@mui/icons-material";
 
 
 
@@ -66,6 +68,9 @@ export default function Reflection() {
     <Box component="main" sx={{ py: { xs: 4, md: 7 } }}>
       <Container maxWidth="md">
         <Stack spacing={1} sx={{ mb: 4 }}>
+          <Button component={Link} to="/" variant="outlined" color="primary" startIcon={<ArrowBack />} sx={{ alignSelf: "flex-start" }}>
+            Back to Home
+          </Button>
           <Typography variant="overline" color="primary.main" sx={{ fontWeight: 800, letterSpacing: ".14em" }}>Look back</Typography>
           <Typography variant="h1" sx={{ fontSize: { xs: "2.6rem", md: "4rem" } }}>Lesson Reflection</Typography>
           <Typography color="text.secondary">Reflect on each part of your lesson.</Typography>

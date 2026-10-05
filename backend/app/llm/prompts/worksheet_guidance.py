@@ -1,5 +1,5 @@
 """Reusable guidance for generating student-facing, worksheet-style practice."""
-
+# TODO: improve this later by having specific instructions for the first few problemas then a general instruction for the rest
 WORKSHEET_STYLE_GUIDANCE = """
     Student-facing practice should follow a clear worksheet-style sequence:
     - Give concise directions that tell students what to find or do.

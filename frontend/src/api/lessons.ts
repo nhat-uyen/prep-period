@@ -59,7 +59,9 @@ export async function getReflection(lessonId: number): Promise<Reflection> {
 }
 
 // For streaming respsonse
-export async function streamLesson(request: LessonRequest, onChunk: (chunk: string) => void): Promise<Lesson> {
+export async function streamLesson(
+  request: LessonRequest,
+  onChunk: (chunk: string) => void): Promise<Lesson> {
   let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
 
   try {
@@ -101,7 +103,7 @@ export async function streamLesson(request: LessonRequest, onChunk: (chunk: stri
           const message = JSON.parse(line);
 
           if (message.type === "chunk") {
-            onChunk(message.data);
+            onChunk(message.content);
           }
 
           if (message.type === "complete") {

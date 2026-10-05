@@ -1,6 +1,7 @@
 # For later to improve teacher's control over the lesson: teachers can control the number of problems, skills, objectives, and prior knowledge items.
 
-from app.llm.worksheet_guidance import WORKSHEET_STYLE_GUIDANCE
+from app.llm.prompts.latex_rules import LATEX_RULES
+from app.llm.prompts.worksheet_guidance import WORKSHEET_STYLE_GUIDANCE
 
 def build_prompt(subject, topic, grade, duration_minutes):
     prompt = f"""
@@ -14,11 +15,6 @@ def build_prompt(subject, topic, grade, duration_minutes):
     
     Teacher-controlled count placeholder:
     - If a teacher-specified problem count is provided later, use it.
-    - If no teacher-specified count is provided, use a reasonable default range:
-      - 2 to 4 problems per activity
-      - 2 to 3 skills per problem
-      - 2 to 3 objectives
-      - 2 to 3 prior knowledge items
 
     Your response must be valid JSON only.
 
@@ -39,11 +35,11 @@ def build_prompt(subject, topic, grade, duration_minutes):
       "activities": [
         {{
           "name": "Activity name",
-          "duration_minutes": 15,
-          "teacher_actions": ["teacher action 1", "teacher action 2"],
-          "teacher_prompts": ["prompt 1", "prompt 2"],
-          "look_fors": ["look for 1", "look for 2"],
-          "teacher_notes_prompts": ["note prompt 1", "note prompt 2"],
+          "duration_minutes": ...,
+          "teacher_actions": ["what teacher do during lesson 1", "what teacher do during lesson 2"],
+          "teacher_prompts": ["what teacher say during lesson 1", "what teacher say during lesson 2"],
+          "look_fors": ["what teacher look for 1", "what teacher look for 2"],
+          "teacher_notes_prompts": ["what teacher takes note of 1", "what teacher takes note of 2"],
           "student_instructions": "General instructions for students in this activity",
           "problems": [
             {{
@@ -52,7 +48,7 @@ def build_prompt(subject, topic, grade, duration_minutes):
               "answer": "Correct final answer",
               "explanation": "Clear explanation of the answer",
               "skills": ["skill 1", "skill 2"],
-              "difficulty": "medium",
+              "difficulty": "...",
               "problem_type": "word problem"
             }}
           ]
@@ -61,6 +57,7 @@ def build_prompt(subject, topic, grade, duration_minutes):
     }}
 
     Important rules:
+    {LATEX_RULES}
     {WORKSHEET_STYLE_GUIDANCE}
     1. Return valid JSON only.
     2. Use realistic math content appropriate for grade {grade}.
@@ -76,11 +73,12 @@ def build_prompt(subject, topic, grade, duration_minutes):
        - answer
        - explanation
        - skills
-       - difficulty
-       - problem_type
-    6. The instructions field should help students recognize the problem type and explain how to approach it.
-    7. Make explanations clear and student-friendly.
-    8. Keep the lesson coherent, age-appropriate, and class-ready.
-    9. Do not include markdown fences or extra commentary outside the JSON.
+    6. The number of problems per activity should be align with the duration, take in consideration of the time for class management, such as transitions and wrap-up time.
+    7. The instructions field should help students recognize the problem type and explain how to approach it.
+    8. Make explanations clear and student-friendly.
+    9. Keep the lesson coherent, age-appropriate, and class-ready.
+    10. For the whole lesson, ensure at least one teacher action, teacher prompt, look-for, and teacher note prompt.
+    11. If I made an error, correct it without putting oops.
+    12. Do not include markdown fences or extra commentary outside the JSON.
     """
     return prompt

@@ -11,7 +11,7 @@ from app.services.lesson_service import generate_lesson_using_ai_service, save_s
 from app.services.reflection_service import get_reflection
 from app.database import lesson_crud
 from app.database.database import get_db
-from app.llm.lesson_prompt import build_prompt
+from app.llm.prompts.lesson_prompt import build_prompt
 from app.llm.ollama_client import generate_streaming_response
 
 logger = logging.getLogger(__name__)
@@ -46,14 +46,10 @@ def stream_lesson_plan(request: LessonRequest, db: Session = Depends(get_db)):
             # each chunk produced is saved in full_response
             full_response += chunk
             # when Ollama produces chunk of respsonse, this send chunk to React
-            yield json.dumps({
-                "type": "chunk",
-                "content": chunk
-            }) + "\n"
+            yield json.dumps({"type": "chunk", "content": chunk}) + "\n"
 
-        # happen when Ollama finishes streaming the repsonse
+        # this happens when Ollama finishes streaming the repsonse
         lesson_with_id = save_streamed_lesson(db, full_response, request)
-        logger.info(lesson_with_id)
 
         # Send the database version with id to React
         yield json.dumps({
@@ -132,7 +128,7 @@ def update_lesson(lesson_id: int, update: UpdateLesson, db: Session= Depends(get
         "id": updated_lesson.id,
         "subject": updated_lesson.subject,
         "topic": updated_lesson.topic,
-        "grade": updated_lesson.grade,
+        "grade": str(updated_lesson.grade),
         "duration_minutes": updated_lesson.duration_minutes,
         **updated_lesson.lesson_json
     }
