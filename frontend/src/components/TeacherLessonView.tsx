@@ -4,7 +4,7 @@
  * Displays the teacher-facing lesson plan with objectives, materials,
  * activity guidance, and answer keys.
  */
-import type { Lesson } from "../types/lesson";
+import type { LessonDraft } from "../types/lesson";
 import {
   Card,
   CardContent,
@@ -20,7 +20,7 @@ import {
 import MathText from "./MathText";
 
 type TeacherLessonViewProps = {
-  lesson: Lesson;
+  lesson: LessonDraft;
 };
 
 export default function TeacherLessonView({ lesson }: TeacherLessonViewProps) {
@@ -35,7 +35,7 @@ export default function TeacherLessonView({ lesson }: TeacherLessonViewProps) {
             {lesson.title}
           </Typography>
           <Typography color="text.secondary">
-            {lesson.subject} · Grade {lesson.grade} · {lesson.duration_minutes} minutes
+            Grade {lesson.grade} · {lesson.duration_minutes} minutes
           </Typography>
         </Stack>
 

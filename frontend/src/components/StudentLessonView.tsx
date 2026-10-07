@@ -1,4 +1,4 @@
-import type { Lesson } from "../types/lesson";
+import type { LessonDraft } from "../types/lesson";
 import {
   Card,
   CardContent,
@@ -10,7 +10,7 @@ import {
 import MathText from "./MathText";
 
 type StudentLessonViewProps = {
-  lesson: Lesson;
+  lesson: LessonDraft;
 };
 
 export default function StudentLessonView({ lesson }: StudentLessonViewProps) {
@@ -25,7 +25,7 @@ export default function StudentLessonView({ lesson }: StudentLessonViewProps) {
             {lesson.title}
           </Typography>
           <Typography color="text.secondary">
-            {lesson.subject} · Grade {lesson.grade} · {lesson.duration_minutes} minutes
+            Grade {lesson.grade} · {lesson.duration_minutes} minutes
           </Typography>
         </Stack>
 

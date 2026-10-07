@@ -8,7 +8,6 @@ class Lesson(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    subject = Column(String)
     topic = Column(String)
     grade = Column(String)
     duration_minutes = Column(Integer)

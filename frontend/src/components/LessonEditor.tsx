@@ -19,7 +19,6 @@ type LessonEditorProps = {
 export default function LessonEditor({ lesson, onCancel, onSaved }: LessonEditorProps) {
 
   const [title, setTitle] = useState(lesson.title);
-  const [subject, setSubject] = useState(lesson.subject);
   const [topic, setTopic] = useState(lesson.topic);
   const [grade, setGrade] = useState(lesson.grade);
   const [duration, setDuration] = useState(lesson.duration_minutes);
@@ -32,7 +31,6 @@ export default function LessonEditor({ lesson, onCancel, onSaved }: LessonEditor
     const updatedLesson: Lesson = {
       ...lesson,
       title,
-      subject,
       topic,
       grade,
       duration_minutes: duration,
@@ -79,10 +77,6 @@ export default function LessonEditor({ lesson, onCancel, onSaved }: LessonEditor
                 type="text"
                 value={title}
                 onChange={e => setTitle(e.target.value)} />
-              <TextField label="Subject"
-                type="text"
-                value={subject}
-                onChange={e => setSubject(e.target.value)} />
               <TextField label="Topic"
                 type="text"
                 value={topic}

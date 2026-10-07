@@ -11,6 +11,8 @@ export type Problem = {
   problem_type?: string | null;
 };
 
+export type ProblemInput = Omit<Problem, "id" | "lesson_id" | "activity_id">;
+
 export type Activity = {
   name: string;
   duration_minutes: number;
@@ -24,9 +26,9 @@ export type Activity = {
   problems: Problem[];
 };
 
+// lesson type once saved in database; Usage: retrieved from the database
 export type Lesson = {
   id: number;
-  subject: string;
   topic: string;
   grade: string;
   duration_minutes: number;
@@ -39,11 +41,16 @@ export type Lesson = {
   reflection?: Reflection | null;
 };
 
+// lesson type when first created (before saving)
+export type LessonDraft = Omit<Lesson, "id" | "reflection">;
+
+// lesson requests sending to the backend then frontend receives LessonDraft
 export type LessonRequest = {
-  subject: string;
   topic: string;
   grade: string;
   duration_minutes: number
+  learning_outcomes?: string[];
+  problem_ids?: number[];
 }
 
 export type ActivityReflection = {

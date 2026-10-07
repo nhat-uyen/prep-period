@@ -70,7 +70,6 @@ def create_activity(
 
 def create_lesson(
     db: Session,
-    subject: str,
     topic: str,
     grade: str,
     duration_minutes: int,
@@ -78,7 +77,6 @@ def create_lesson(
     activities: list[LessonActivity]
 ) -> Lesson:
     lesson = Lesson(
-        subject=subject,
         topic=topic,
         grade=grade,
         duration_minutes=duration_minutes,
@@ -117,11 +115,7 @@ def _add_problems_to_activity(db: Session, activity: ActivityRecord, problems: l
         ))
 
 
-def get_activities(
-    db: Session,
-    lesson_id: int | None = None,
-    independent_only: bool = False,
-) -> list[ActivityRecord]:
+def get_activities(db: Session,lesson_id: int | None = None,independent_only: bool = False,) -> list[ActivityRecord]:
     query = db.query(ActivityRecord)
     if independent_only:
         query = query.filter(ActivityRecord.lesson_id.is_(None))
@@ -134,11 +128,7 @@ def get_activity_by_id(db: Session, activity_id: int) -> ActivityRecord | None:
     return db.query(ActivityRecord).filter(ActivityRecord.id == activity_id).first()
 
 
-def update_activity(
-    db: Session,
-    activity_id: int,
-    activity_data: dict,
-) -> ActivityRecord | None:
+def update_activity(db: Session, activity_id: int, activity_data: dict,) -> ActivityRecord | None:
     activity = get_activity_by_id(db, activity_id)
     if activity is None:
         return None
@@ -213,7 +203,6 @@ def update_lesson(db: Session, lesson_id: int, lesson_data: dict) -> Lesson | No
     if lesson is None:
         return None
 
-    lesson.subject = lesson_data["subject"]
     lesson.topic = lesson_data["topic"]
     lesson.grade = lesson_data["grade"]
     lesson.duration_minutes = lesson_data["duration_minutes"]

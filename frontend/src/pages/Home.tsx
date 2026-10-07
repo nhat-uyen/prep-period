@@ -8,13 +8,13 @@ export default function Home() {
       <Container maxWidth="md">
         <Stack spacing={2} sx={{ mb: 6 }}>
           <Typography variant="overline" color="primary.main" sx={{ fontWeight: 800, letterSpacing: ".16em" }}>
-            Prep-Period
+            Prep-Period for Math
           </Typography>
-          <Typography variant="h1" sx={{ fontSize: { xs: "2.7rem", md: "4.5rem" }, lineHeight: 1.05 }}>
+          <Typography variant="h1" sx={{ fontSize: { xs: "2.7rem", md: "4rem" }, lineHeight: 1.05 }}>
             What would you like to do?
           </Typography>
-          <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400, maxWidth: 520 }}>
-            Plan, revisit, and improve your lessons in one place.
+          <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400, maxWidth: 550 }}>
+            Plan, revisit, and improve your math lessons in one place.
           </Typography>
         </Stack>
 

@@ -1,10 +1,10 @@
 import axios from "axios";
-import type { Lesson, LessonRequest, Problem } from "../types/lesson"
+import type { Lesson, LessonDraft, LessonRequest, Problem, ProblemInput } from "../types/lesson"
 import type { Reflection } from "../types/lesson";
 /*
 Connect to the backend API using Axios with a base URL of "http://localhost:5173". 
 This allows for making HTTP requests to the backend server for lesson-related operations. 
-The code also demonstrates how to send a POST request to create a new lesson with specific details such as subject, topic, grade, and duration. 
+The code also demonstrates how to send a POST request to create a new lesson with specific details such as topic, grade, and duration.
 The response from the server is logged to the console for verification.
 */
 
@@ -13,6 +13,7 @@ The response from the server is logged to the console for verification.
 const api = axios.create({ baseURL: "http://localhost:8000" });
 export default api
 
+// Lessons
 export async function getLessons(): Promise<Lesson[]> {
   const response = await api.get<Lesson[]>("/lessons/all");
   return response.data
@@ -32,11 +33,22 @@ export async function updateLesson(id: number, lesson: Lesson): Promise<Lesson> 
   return response.data
 }
 
+export async function saveLesson(draft: LessonDraft): Promise<Lesson> {
+  const { topic, grade, duration_minutes, title, objectives, prior_knowledge, materials, activities } = draft;
+  const response = await api.post<Lesson>("/lessons/save", {
+    topic,
+    grade,
+    duration_minutes,
+    lesson: { title, objectives, prior_knowledge, materials, activities },
+  });
+  return response.data;
+}
+
 export async function clearLessons() {
   await api.delete("/lessons/clear");
 }
 
-export type ProblemInput = Omit<Problem, "id" | "lesson_id" | "activity_id">;
+// Problems
 
 export async function getProblems(skill?: string): Promise<Problem[]> {
   const response = await api.get<Problem[]>("/problems", { params: skill ? { skill } : {} });
@@ -48,6 +60,16 @@ export async function createProblem(problem: ProblemInput): Promise<Problem> {
   return response.data;
 }
 
+export async function updateProblem(id: number, problem: ProblemInput): Promise<Problem> {
+  const response = await api.put<Problem>(`/problems/${id}`, problem);
+  return response.data;
+}
+
+export async function deleteProblem(id: number): Promise<void> {
+  await api.delete(`/problems/${id}`);
+}
+
+// Reflections
 export async function createReflection(reflection: Reflection): Promise<Reflection> {
   const response = await api.post<Reflection>("/reflections", reflection);
   return response.data;
@@ -61,7 +83,7 @@ export async function getReflection(lessonId: number): Promise<Reflection> {
 // For streaming respsonse
 export async function streamLesson(
   request: LessonRequest,
-  onChunk: (chunk: string) => void): Promise<Lesson> {
+  onChunk: (chunk: string) => void): Promise<LessonDraft> {
   let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
 
   try {

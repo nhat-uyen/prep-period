@@ -32,7 +32,7 @@ export default function LessonHistory({ lessons, onLessonSelected, onLessonDelet
         }>
           <ListItemButton onClick={() => onLessonSelected(lesson.id)} sx={{ borderRadius: 1, pr: 7 }}>
             <Visibility color="primary" sx={{ mr: 1.5 }} />
-            <ListItemText primary={lesson.title} secondary={`${lesson.subject} · Grade ${lesson.grade}`} />
+            <ListItemText primary={lesson.title} secondary={`Grade ${lesson.grade}`} />
           </ListItemButton>
         </ListItem>
       )

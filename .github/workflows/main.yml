@@ -38,4 +38,4 @@ jobs:
           cache-dependency-path: backend/requirements.txt
       - run: pip install -r requirements.txt
       - run: pip install pytest httpx
-      - run: pytest
+      - run: pytest 
