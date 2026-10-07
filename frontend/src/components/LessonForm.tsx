@@ -5,24 +5,24 @@
  * them to the lessons API. Calls `onLessonGenerated` with the created lesson
  * when the request succeeds.
  */
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { streamLesson } from "../api/lessons";
-import type { Lesson } from "../types/lesson";
+import type { LessonDraft } from "../types/lesson";
 import { Button, LinearProgress, Paper, Stack, TextField, Typography } from "@mui/material";
 
 
 type LessonFormProps = ({
-  onLessonGenerated: (lesson: Lesson) => void;
+  onLessonGenerated: (lessondraft: LessonDraft) => void;
   setError: (error: string) => void
 });
 
 export default function LessonForm({ setError, onLessonGenerated }: LessonFormProps) {
-  const [subject, setSubject] = useState("");
   const [topic, setTopic] = useState("");
   const [grade, setGrade] = useState("");
   const [duration, setDuration] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [receivedCharacters, setReceivedCharacters] = useState(0);
+  const lessonFormRef = useRef<HTMLFormElement>(null);
 
   async function handleSubmit(e: { preventDefault: () => void; }) {
     e.preventDefault();
@@ -32,7 +32,7 @@ export default function LessonForm({ setError, onLessonGenerated }: LessonFormPr
 
     try {
       const streamedLesson = await streamLesson(
-        { subject, topic, grade, duration_minutes: Number(duration) },
+        { topic, grade, duration_minutes: Number(duration) },
         chunk => setReceivedCharacters(previous => previous + chunk.length),
       );
 
@@ -50,17 +50,9 @@ export default function LessonForm({ setError, onLessonGenerated }: LessonFormPr
   }
 
   return (
-    <Paper component="form" onSubmit={handleSubmit} elevation={0} sx={{ p: { xs: 2, md: 3 }, backgroundColor: "background.paper" }}>
+    <Paper ref={lessonFormRef} component="form" onSubmit={handleSubmit} elevation={0} sx={{ p: { xs: 2, md: 3 }, backgroundColor: "background.paper" }}>
       <Stack spacing={2.5}>
         <Typography variant="h5">Set the lesson parameters</Typography>
-        <TextField
-          label="Subject"
-          id="lesson-subject"
-          name="subject"
-          placeholder="e.g. Fractions"
-          value={subject}
-          onChange={e => setSubject(e.target.value)}
-        />
         <TextField
           label="Topic"
           id="lesson-topic"

@@ -16,7 +16,7 @@ export default function LessonCardReflection({ lesson, reflection }: LessonCardR
         <Stack spacing={1} sx={{ mb: 3 }}>
           <Typography variant="overline" color="primary.main" sx={{ fontWeight: 800 }}>Lesson plan · Reflected</Typography>
           <Typography variant="h2" sx={{ fontSize: { xs: "2rem", md: "2.8rem" } }}>{lesson.title}</Typography>
-          <Typography color="text.secondary">{lesson.subject} · Grade {lesson.grade} · {lesson.duration_minutes} minutes</Typography>
+          <Typography color="text.secondary">Grade {lesson.grade} · {lesson.duration_minutes} minutes</Typography>
         </Stack>
 
         <Stack direction={{ xs: "column", md: "row" }} spacing={3} sx={{ mb: 3 }}>

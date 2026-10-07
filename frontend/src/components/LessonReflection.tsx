@@ -56,7 +56,7 @@ export default function LessonReflection({ lesson, onReflectionChange }: LessonR
       <CardContent sx={{ p: { xs: 2, md: 4 } }}>
         <Stack spacing={1} sx={{ mb: 4 }}>
           <Typography variant="h2" sx={{ fontSize: { xs: "2rem", md: "2.8rem" } }}>{lesson.title}</Typography>
-          <Typography color="text.secondary">{lesson.subject} · Grade {lesson.grade} · {lesson.duration_minutes} minutes</Typography>
+          <Typography color="text.secondary">Grade {lesson.grade} · {lesson.duration_minutes} minutes</Typography>
         </Stack>
 
         <Stack spacing={3}>

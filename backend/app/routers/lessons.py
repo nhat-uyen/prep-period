@@ -6,8 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
-from app.models.lesson import LessonRequest, UpdateLesson
-from app.services.lesson_service import generate_lesson_using_ai_service, save_streamed_lesson, get_lesson
+from app.models.lesson import LessonRequest, LessonSaveRequest, UpdateLesson
+from app.services.lesson_service import generate_lesson_using_ai_service, parse_streamed_lesson, save_lesson_to_databse, get_lesson
 from app.services.reflection_service import get_reflection
 from app.database import lesson_crud
 from app.database.database import get_db
@@ -30,11 +30,20 @@ def home():
 def create_lesson_plan(request: LessonRequest, db: Session = Depends(get_db)):
     return generate_lesson_using_ai_service(request, db)
 
+
+@router.post("/save", status_code=201)
+def save_generated_lesson(request: LessonSaveRequest, db: Session = Depends(get_db)):
+    generation_request = LessonRequest(
+        topic=request.topic,
+        grade=request.grade,
+        duration_minutes=request.duration_minutes,
+    )
+    return save_lesson_to_databse(db, generation_request, request.lesson)
+
 # Streaming endpoint
 @router.post('/stream')
-def stream_lesson_plan(request: LessonRequest, db: Session = Depends(get_db)):
+def stream_lesson_plan(request: LessonRequest):
     prompt = build_prompt(
-        subject=request.subject,
         topic=request.topic,
         grade=request.grade,
         duration_minutes=request.duration_minutes,
@@ -49,12 +58,18 @@ def stream_lesson_plan(request: LessonRequest, db: Session = Depends(get_db)):
             yield json.dumps({"type": "chunk", "content": chunk}) + "\n"
 
         # this happens when Ollama finishes streaming the repsonse
-        lesson_with_id = save_streamed_lesson(db, full_response, request)
+        lesson = parse_streamed_lesson(full_response)
+        lesson_draft = {
+            "topic": request.topic,
+            "grade": request.grade,
+            "duration_minutes": request.duration_minutes,
+            **lesson.model_dump(),
+        }
 
-        # Send the database version with id to React
+        # Send the validated lesson draft to React without saving it.
         yield json.dumps({
             "type": "complete",
-            "lesson": lesson_with_id
+            "lesson": lesson_draft
         }) + "\n"
 
     return StreamingResponse(stream(), media_type="application/x-ndjson")
@@ -106,7 +121,6 @@ def delete_lesson(lesson_id: int, db: Session = Depends(get_db)):
 @router.put("/{lesson_id}")
 def update_lesson(lesson_id: int, update: UpdateLesson, db: Session= Depends(get_db)):
     lesson_data = {
-        "subject": update.subject,
         "topic": update.topic,
         "grade": update.grade,
         "duration_minutes": update.duration_minutes,
@@ -126,7 +140,6 @@ def update_lesson(lesson_id: int, update: UpdateLesson, db: Session= Depends(get
 
     lesson = {
         "id": updated_lesson.id,
-        "subject": updated_lesson.subject,
         "topic": updated_lesson.topic,
         "grade": str(updated_lesson.grade),
         "duration_minutes": updated_lesson.duration_minutes,

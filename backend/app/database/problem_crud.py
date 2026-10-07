@@ -48,6 +48,25 @@ def get_problems_by_lesson(db: Session, lesson_id: int) -> list[Problem]:
 def get_problem_by_id(db: Session, problem_id: int) -> Problem | None:
     return db.query(Problem).filter(Problem.id == problem_id).first()
 
+
+def get_problems_by_ids(db: Session, problem_ids: list[int]) -> list[Problem]:
+    if not problem_ids:
+        return []
+    records = db.query(Problem).filter(Problem.id.in_(set(problem_ids))).all()
+    records_by_id = {record.id: record for record in records}
+    return [records_by_id[problem_id] for problem_id in problem_ids if problem_id in records_by_id]
+
+
+def update_problem(db: Session, problem_id: int, problem_data: dict) -> Problem | None:
+    problem = get_problem_by_id(db, problem_id)
+    if problem is None:
+        return None
+    for field, value in problem_data.items():
+        setattr(problem, field, value)
+    db.commit()
+    db.refresh(problem)
+    return problem
+
 def get_problem_by_skill(db: Session, skill: str) -> list[Problem]:
     return db.query(Problem).filter(Problem.skills.contains(skill)).all()
 

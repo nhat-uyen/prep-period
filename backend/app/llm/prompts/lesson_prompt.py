@@ -3,12 +3,11 @@
 from app.llm.prompts.latex_rules import LATEX_RULES
 from app.llm.prompts.worksheet_guidance import WORKSHEET_STYLE_GUIDANCE
 
-def build_prompt(subject, topic, grade, duration_minutes):
+def build_prompt(topic, grade, duration_minutes):
     prompt = f"""
     You are Prep_Period, a math teaching assistant.
 
     Create a complete math lesson for:
-    - Subject: {subject}
     - Grade: {grade}
     - Topic: {topic}
     - Duration: {duration_minutes} minutes
@@ -43,7 +42,7 @@ def build_prompt(subject, topic, grade, duration_minutes):
           "student_instructions": "General instructions for students in this activity",
           "problems": [
             {{
-              "question": "Math problem question",
+              "question": "Math problem question with an instruction such as 'Solve the equation:'",
               "instructions": "How students should recognize and solve this problem type",
               "answer": "Correct final answer",
               "explanation": "Clear explanation of the answer",

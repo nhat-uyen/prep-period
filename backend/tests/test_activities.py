@@ -35,7 +35,7 @@ class ActivityAssociationTests(unittest.TestCase):
         self.engine.dispose()
 
     def test_activities_can_be_standalone_or_linked_to_lessons(self):
-        lesson = create_lesson(self.db, "Math", "Fractions", 5, 45, {}, [])
+        lesson = create_lesson(self.db, "Fractions", 5, 45, {}, [])
         standalone = create_activity(
             self.db,
             name="Warm-up",
@@ -105,7 +105,7 @@ class ActivityAssociationTests(unittest.TestCase):
                 )
             ],
         )
-        lesson = create_lesson(self.db, "Math", "Addition", 2, 30, {}, [activity])
+        lesson = create_lesson(self.db, "Addition", 2, 30, {}, [activity])
         activity_record = get_activities(self.db, lesson_id=lesson.id)[0]
 
         saved_problems = get_problems_by_activity(self.db, activity_record.id)
@@ -121,14 +121,12 @@ class ActivityAssociationTests(unittest.TestCase):
 
     def test_lesson_grade_accepts_text(self):
         request = LessonRequest(
-            subject="Math",
             topic="Algebra",
             grade="GED",
             duration_minutes=45,
         )
         lesson = create_lesson(
             self.db,
-            request.subject,
             request.topic,
             request.grade,
             request.duration_minutes,

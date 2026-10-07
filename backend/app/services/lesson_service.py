@@ -17,10 +17,9 @@ from app.llm.json_repair import repair_latex_escapes
 logger = logging.getLogger(__name__)
 
 def generate_lesson_using_ai_service(request: LessonRequest, db: Session):
-    logger.info("Generating lesson | Subject: %s, Topic: %s, Grade: %s", request.subject, request.topic, request.grade)
+    logger.info("Generating lesson | Topic: %s, Grade: %s", request.topic, request.grade)
 
     prompt = build_prompt(
-        subject=request.subject,
         topic=request.topic,
         grade=request.grade,
         duration_minutes=request.duration_minutes,
@@ -48,7 +47,6 @@ def generate_lesson_using_ai_service(request: LessonRequest, db: Session):
 def lesson_form_in_database(db: Session, lesson: LessonRecord):
     lesson_data = {
         "id": lesson.id,
-        "subject": lesson.subject,
         "topic": lesson.topic,
         "grade": str(lesson.grade),
         "duration_minutes": lesson.duration_minutes,
@@ -69,7 +67,6 @@ def lesson_form_in_database(db: Session, lesson: LessonRecord):
 def save_lesson_to_databse(db: Session, request: LessonRequest, lesson: LessonResponse):
     # TODO: add options to whether or not to save lesson to databse
     saved_lesson = lesson_crud.create_lesson(db=db,
-                       subject=request.subject,
                        topic=request.topic,
                        grade=request.grade,
                        duration_minutes= request.duration_minutes,
@@ -79,14 +76,10 @@ def save_lesson_to_databse(db: Session, request: LessonRequest, lesson: LessonRe
 
     return lesson_form_in_database(db, saved_lesson)
 
-def save_streamed_lesson(db: Session, full_response: str, request: LessonRequest):
+def parse_streamed_lesson(full_response: str) -> LessonResponse:
   try:
-
     lesson_data = json.loads(repair_latex_escapes(full_response))
-    lesson = LessonResponse(**lesson_data)
-
-    lesson_with_id = save_lesson_to_databse(db, request, lesson)
-    return lesson_with_id
+    return LessonResponse(**lesson_data)
   
   except (json.JSONDecodeError, ValidationError) as e:
           logger.exception("AI returned invalid JSON.")
