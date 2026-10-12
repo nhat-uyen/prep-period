@@ -16,9 +16,12 @@ from app.database.problem_crud import (
     update_problem,
     delete_problem,
 )
-from app.models.lesson import ProblemUpdate
+from app.models.lesson import LessonRequest, ProblemCreate, ProblemUpdate
+from app.routers.problems import create_problem as create_problem_endpoint
 from app.routers.problems import delete_problem as delete_problem_endpoint
+from app.routers.problems import get_problems as get_problems_endpoint
 from app.routers.problems import update_problem as update_problem_endpoint
+from app.services.lesson_service import build_lesson_generation_prompt
 
 
 class ProblemAssociationTests(unittest.TestCase):
@@ -107,6 +110,87 @@ class ProblemAssociationTests(unittest.TestCase):
         self.assertIsNone(delete_problem(self.db, problem_id))
         self.assertEqual(get_problems_by_ids(self.db, [problem_id]), [])
         self.assertIsNone(get_problem_by_id(self.db, problem_id))
+
+    def test_library_problem_lifecycle_updates_browse_and_selection(self):
+        created_problem = create_problem_endpoint(
+            ProblemCreate(
+                question="What is 2/3 + 1/6?",
+                instructions="Add and simplify the fractions.",
+                answer="5/6",
+                explanation="Rewrite 2/3 as 4/6, then add.",
+                skills=["Adding Fractions"],
+            ),
+            self.db,
+        )
+        problem_id = created_problem.id
+
+        self.assertIn(
+            problem_id,
+            [problem.id for problem in get_problems_endpoint(None, self.db)],
+        )
+
+        updated_problem = update_problem_endpoint(
+            problem_id,
+            ProblemUpdate(
+                question="What is 2/3 + 1/3?",
+                instructions="Add and simplify the fractions.",
+                answer="1",
+                explanation="The fractions have a common denominator.",
+                skills=["Adding Fractions"],
+            ),
+            self.db,
+        )
+        browsed_problem = next(
+            problem
+            for problem in get_problems_endpoint(None, self.db)
+            if problem.id == problem_id
+        )
+        self.assertEqual(browsed_problem.question, updated_problem.question)
+        self.assertEqual(browsed_problem.answer, "1")
+        self.assertEqual(get_problems_by_ids(self.db, [problem_id])[0].question, "What is 2/3 + 1/3?")
+
+        delete_problem_endpoint(problem_id, self.db)
+
+        self.assertNotIn(
+            problem_id,
+            [problem.id for problem in get_problems_endpoint(None, self.db)],
+        )
+        self.assertEqual(get_problems_by_ids(self.db, [problem_id]), [])
+
+    def test_selected_saved_problems_are_in_generation_prompt(self):
+        problem = create_problem(
+            self.db,
+            question="What is 2/3 + 1/6?",
+            instructions="Add and simplify the fractions.",
+            answer="5/6",
+            explanation="Rewrite 2/3 as 4/6, then add.",
+            skills=["Adding Fractions"],
+        )
+        request = LessonRequest(
+            topic="Adding fractions",
+            grade="5",
+            duration_minutes=45,
+            problem_ids=[problem.id],
+        )
+
+        prompt = build_lesson_generation_prompt(request, self.db)
+
+        self.assertIn(problem.question, prompt)
+        self.assertIn(problem.answer, prompt)
+        self.assertIn("Include every selected problem exactly once", prompt)
+
+    def test_generation_rejects_missing_selected_problem_ids(self):
+        request = LessonRequest(
+            topic="Adding fractions",
+            grade="5",
+            duration_minutes=45,
+            problem_ids=[999],
+        )
+
+        with self.assertRaises(HTTPException) as error:
+            build_lesson_generation_prompt(request, self.db)
+
+        self.assertEqual(error.exception.status_code, 422)
 
     def test_problem_routes_return_404_when_problem_is_missing(self):
         update_request = ProblemUpdate(

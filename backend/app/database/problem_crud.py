@@ -67,9 +67,6 @@ def update_problem(db: Session, problem_id: int, problem_data: dict) -> Problem 
     db.refresh(problem)
     return problem
 
-def get_problem_by_skill(db: Session, skill: str) -> list[Problem]:
-    return db.query(Problem).filter(Problem.skills.contains(skill)).all()
-
 def delete_problem(db: Session, problem_id: int) -> Problem | None:
     problem = get_problem_by_id(db, problem_id)
     if problem is None:
@@ -78,3 +75,7 @@ def delete_problem(db: Session, problem_id: int) -> Problem | None:
     db.delete(problem)
     db.commit()
     return problem
+
+def delete_all_problems(db: Session) -> None:
+    db.query(Problem).delete()
+    db.commit()

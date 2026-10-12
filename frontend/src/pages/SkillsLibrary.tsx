@@ -1,26 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useReducer, useState } from "react";
 
-import SkillProblemsView from "../components/SkillProblemsView";
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Container,
-  Link as MuiLink,
-  Stack,
-  Tab,
-  Tabs,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { createProblem, getProblems } from "../api/lessons";
+import AddProblemTab, { type NewProblemForm } from "../components/AddProblemTab";
+import BrowseSkillsTab from "../components/BrowseSkillsTab";
+import SearchProblemsTab from "../components/SearchProblemsTab";
+import { Alert, Box, Button, Container, Stack, Tab, Tabs, Typography, } from "@mui/material";
+import { createProblem, getProblems, updateProblem, deleteProblem } from "../api/problems";
 import type { Problem } from "../types/lesson";
 import { Link as RouterLink } from "react-router";
 import { ArrowBack } from "@mui/icons-material";
+import { problemsReducer, initialProblemsState } from "../reducers/problemsReducer";
 
-const emptyProblem = {
+const emptyProblem: NewProblemForm = {
   question: "",
   instructions: "",
   answer: "",
@@ -29,12 +19,9 @@ const emptyProblem = {
 };
 
 export default function SkillsLibrary() {
-  const [problems, setProblems] = useState<Problem[]>([]);
+  const [problems, dispatch] = useReducer(problemsReducer, initialProblemsState);
   const [form, setForm] = useState(emptyProblem);
-  const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"add" | "browse" | "search">("add");
-  const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
-  const [refreshKey, setRefreshKey] = useState(0);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -44,7 +31,7 @@ export default function SkillsLibrary() {
     getProblems()
       .then((savedProblems) => {
         if (cancelled) return;
-        setProblems(savedProblems);
+        dispatch({ type: "SET_PROBLEMS", problems: savedProblems });
         setError("");
       })
       .catch((loadError: unknown) => {
@@ -59,53 +46,75 @@ export default function SkillsLibrary() {
     return () => {
       cancelled = true;
     };
-  }, [refreshKey]);
+  }, []);
 
   const problemsBySkill = useMemo(() => {
-    const grouped = new Map<string, Problem[]>();
-    for (const problem of problems) {
-      const skills = [...new Set((problem.skills ?? []).map((skill) => skill.trim()).filter(Boolean))];
-      for (const skill of skills.length ? skills : ["Untagged"]) {
-        const group = grouped.get(skill) ?? [];
-        group.push(problem);
-        grouped.set(skill, group);
+    return problems.reduce((acc, problem) => {
+      const skill = problem.skills[0]; // Assuming each problem has at least one skill
+      if (!acc.some(([s]) => s === skill)) {
+        acc.push([skill, []]);
       }
-    }
-    return [...grouped.entries()].sort(([a], [b]) => a.localeCompare(b));
+      const skillGroup = acc.find(([s]) => s === skill);
+      if (skillGroup) {
+        skillGroup[1].push(problem);
+      }
+      return acc;
+    }, [] as [string, Problem[]][]);
   }, [problems]);
-
-  const searchResultsBySkill = useMemo(() => {
-    const query = searchQuery.trim().toLocaleLowerCase();
-    if (!query) return [];
-
-    return problemsBySkill
-      .map(([skill, skillProblems]) => [skill, skillProblems.filter((problem) => [
-        skill,
-        problem.question,
-        problem.instructions,
-      ].some((text) => text.toLocaleLowerCase().includes(query))),
-      ] as [string, Problem[]])
-      .filter(([, skillProblems]) => skillProblems.length > 0);
-  }, [problemsBySkill, searchQuery]);
 
   async function handleSubmit(e: { preventDefault: () => void; }) {
     e.preventDefault();
     try {
       setError("");
-      await createProblem({
+      const savedProblem = await createProblem({
         question: form.question.trim(),
         instructions: form.instructions.trim(),
         answer: form.answer.trim(),
         explanation: form.explanation.trim(),
         skills: [...new Set(form.skills.split(",").map((skill) => skill.trim()).filter(Boolean))],
       });
+      dispatch({ type: "ADD_PROBLEM", problem: savedProblem });
       setForm(emptyProblem);
-      setLoading(true);
-      setRefreshKey((currentKey) => currentKey + 1);
       setActiveTab("browse");
     } catch (saveError) {
       console.error("Failed to save problem", saveError);
       setError("Could not save the problem. Please try again.");
+    }
+  }
+
+  async function handleDeleteProblem(problem: Problem) {
+    if (problem.id === undefined) return;
+
+    try {
+      setError("");
+      await deleteProblem(problem.id);
+      dispatch({ type: "DELETE_PROBLEM", id: problem.id });
+    } catch (error) {
+      console.error("Failed to delete problem", error);
+      setError("Could not delete the problem. Please try again.");
+    }
+  }
+
+  const handleEditProblem = async (problem: Problem): Promise<boolean> => {
+    if (problem.id === undefined) return false;
+
+    try {
+      setError("");
+      const updatedProblem = await updateProblem(problem.id, {
+        question: problem.question,
+        instructions: problem.instructions,
+        answer: problem.answer,
+        explanation: problem.explanation,
+        skills: problem.skills,
+        difficulty: problem.difficulty,
+        problem_type: problem.problem_type,
+      });
+      dispatch({ type: "UPDATE_PROBLEM", problem: updatedProblem });
+      return true;
+    } catch (error) {
+      console.error("Failed to update problem", error);
+      setError("Could not update the problem. Please try again.");
+      return false;
     }
   }
 
@@ -136,69 +145,29 @@ export default function SkillsLibrary() {
           <Tab label="Search Skills or Problems" value="search" />
         </Tabs>
 
-        {activeTab === "add" && (
-          <Card elevation={0} sx={{ maxWidth: 760 }}>
-            <CardContent>
-              <Typography variant="h5" sx={{ mb: 2 }}>Add an independent problem</Typography>
-              <Stack component="form" spacing={2} onSubmit={handleSubmit}>
-                <TextField required label="Question" value={form.question} onChange={(event) => setForm({ ...form, question: event.target.value })} />
-                <TextField required label="Student instructions" value={form.instructions} onChange={(event) => setForm({ ...form, instructions: event.target.value })} />
-                <TextField required label="Answer" value={form.answer} onChange={(event) => setForm({ ...form, answer: event.target.value })} />
-                <TextField required multiline minRows={2} label="Explanation" value={form.explanation} onChange={(event) => setForm({ ...form, explanation: event.target.value })} />
-                <TextField required label="Skills (comma separated)" placeholder="e.g. equivalent fractions, multiplication" value={form.skills} onChange={(event) => setForm({ ...form, skills: event.target.value })} />
-                <Button type="submit" variant="contained" sx={{ alignSelf: "flex-start" }}>Save Problem</Button>
-              </Stack>
-            </CardContent>
-          </Card>
-        )}
-
-        {activeTab === "browse" && (
-          selectedSkill ? (
-            <SkillProblemsView
-              skill={selectedSkill}
-              problems={problemsBySkill.find(([skill]) => skill === selectedSkill)?.[1] ?? []}
-              onBack={() => setSelectedSkill(null)}
-            />
-          ) : (
-            <Stack spacing={1}>
-              {loading ? <Typography color="text.secondary">Loading skills…</Typography>
-                : problemsBySkill.length === 0 ? <Typography color="text.secondary">No skills yet. Add a problem with skill tags to start the library.</Typography>
-                  : problemsBySkill.map(([skill]) => (
-                    <MuiLink
-                      key={skill}
-                      component="button"
-                      type="button"
-                      underline="hover"
-                      onClick={() => setSelectedSkill(skill)}
-                      sx={{ alignSelf: "flex-start", fontSize: "1.05rem" }}
-                    >
-                      {skill}
-                    </MuiLink>
-                  ))}
-            </Stack>
-          )
-        )}
-
-        {activeTab === "search" && (
-          <Stack spacing={2}>
-            <TextField
-              fullWidth
-              label="Search by skill or problem instructions"
-              placeholder="e.g. equivalent fractions or find a common denominator"
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-            />
-
-            {!searchQuery.trim() ? <Typography color="text.secondary">Enter a skill or problem detail to search.</Typography>
-              : loading ? <Typography color="text.secondary">Loading problems…</Typography>
-                : problems.length === 0 ? <Typography color="text.secondary">No problems yet. Add one above or generate a lesson with problems.</Typography>
-                  : searchResultsBySkill.length === 0
-                    ? <Typography color="text.secondary">No problems match that search.</Typography>
-                    : searchResultsBySkill.map(([skill, skillProblems]) => (
-                      <SkillProblemsView key={skill} skill={skill} problems={skillProblems} />
-                    ))}
-          </Stack>
-        )}
+        <Box hidden={activeTab !== "add"}>
+          <AddProblemTab
+            form={form}
+            onChange={(field, value) => setForm((currentForm) => ({ ...currentForm, [field]: value }))}
+            onSubmit={handleSubmit}
+          />
+        </Box>
+        <Box hidden={activeTab !== "browse"}>
+          <BrowseSkillsTab
+            problemsBySkill={problemsBySkill}
+            loading={loading}
+            onEdit={handleEditProblem}
+            onDelete={handleDeleteProblem}
+          />
+        </Box>
+        <Box hidden={activeTab !== "search"}>
+          <SearchProblemsTab
+            problemsBySkill={problemsBySkill}
+            loading={loading}
+            onEdit={handleEditProblem}
+            onDelete={handleDeleteProblem}
+          />
+        </Box>
       </Container>
     </Box>
   );

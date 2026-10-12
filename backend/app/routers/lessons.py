@@ -6,12 +6,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
-from app.models.lesson import LessonRequest, LessonSaveRequest, UpdateLesson
-from app.services.lesson_service import generate_lesson_using_ai_service, parse_streamed_lesson, save_lesson_to_databse, get_lesson
+from app.models.lesson import LessonRequest, LessonSaveRequest, LessonUpdate
+from app.services.lesson_service import build_lesson_generation_prompt, generate_lesson_using_ai_service, parse_streamed_lesson, save_lesson_to_databse, get_lesson
 from app.services.reflection_service import get_reflection
 from app.database import lesson_crud
 from app.database.database import get_db
-from app.llm.prompts.lesson_prompt import build_prompt
 from app.llm.ollama_client import generate_streaming_response
 
 logger = logging.getLogger(__name__)
@@ -42,12 +41,8 @@ def save_generated_lesson(request: LessonSaveRequest, db: Session = Depends(get_
 
 # Streaming endpoint
 @router.post('/stream')
-def stream_lesson_plan(request: LessonRequest):
-    prompt = build_prompt(
-        topic=request.topic,
-        grade=request.grade,
-        duration_minutes=request.duration_minutes,
-    )
+def stream_lesson_plan(request: LessonRequest, db: Session = Depends(get_db)):
+    prompt = build_lesson_generation_prompt(request, db)
 
     def stream():
         full_response = "" 
@@ -119,7 +114,7 @@ def delete_lesson(lesson_id: int, db: Session = Depends(get_db)):
     return { "message": "Lesson deleted successfully" }
 # This needs to be changed for the new direction of Prep-Period
 @router.put("/{lesson_id}")
-def update_lesson(lesson_id: int, update: UpdateLesson, db: Session= Depends(get_db)):
+def update_lesson(lesson_id: int, update: LessonUpdate, db: Session= Depends(get_db)):
     lesson_data = {
         "topic": update.topic,
         "grade": update.grade,
