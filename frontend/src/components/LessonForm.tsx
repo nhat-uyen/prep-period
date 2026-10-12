@@ -5,10 +5,11 @@
  * them to the lessons API. Calls `onLessonGenerated` with the created lesson
  * when the request succeeds.
  */
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Autocomplete, Button, LinearProgress, Paper, Stack, TextField, Typography } from "@mui/material";
+import { getProblems } from "../api/problems";
 import { streamLesson } from "../api/lessons";
-import type { LessonDraft } from "../types/lesson";
-import { Button, LinearProgress, Paper, Stack, TextField, Typography } from "@mui/material";
+import type { LessonDraft, Problem } from "../types/lesson";
 
 
 type LessonFormProps = ({
@@ -20,9 +21,34 @@ export default function LessonForm({ setError, onLessonGenerated }: LessonFormPr
   const [topic, setTopic] = useState("");
   const [grade, setGrade] = useState("");
   const [duration, setDuration] = useState("");
+  const [savedProblems, setSavedProblems] = useState<Problem[]>([]);
+  const [selectedProblems, setSelectedProblems] = useState<Problem[]>([]);
+  const [isLoadingProblems, setIsLoadingProblems] = useState(true);
+  const [problemLoadError, setProblemLoadError] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [receivedCharacters, setReceivedCharacters] = useState(0);
   const lessonFormRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getProblems()
+      .then((problems) => {
+        if (!cancelled) setSavedProblems(problems);
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return;
+        console.error("Failed to load saved problems", error);
+        setProblemLoadError("Saved problems could not be loaded.");
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingProblems(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function handleSubmit(e: { preventDefault: () => void; }) {
     e.preventDefault();
@@ -32,7 +58,14 @@ export default function LessonForm({ setError, onLessonGenerated }: LessonFormPr
 
     try {
       const streamedLesson = await streamLesson(
-        { topic, grade, duration_minutes: Number(duration) },
+        {
+          topic,
+          grade,
+          duration_minutes: Number(duration),
+          problem_ids: selectedProblems.flatMap((problem) =>
+            problem.id === undefined ? [] : [problem.id],
+          ),
+        },
         chunk => setReceivedCharacters(previous => previous + chunk.length),
       );
 
@@ -83,6 +116,24 @@ export default function LessonForm({ setError, onLessonGenerated }: LessonFormPr
             onChange={e => setDuration(e.target.value)}
           />
         </Stack>
+        <Autocomplete
+          multiple
+          options={savedProblems}
+          value={selectedProblems}
+          onChange={(_, selected) => setSelectedProblems(selected)}
+          getOptionLabel={(problem) => problem.question}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          loading={isLoadingProblems}
+          disabled={isLoadingProblems || savedProblems.length === 0}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Saved problems (optional)"
+              placeholder={savedProblems.length ? "Search and select problems" : "No saved problems available"}
+              helperText={problemLoadError || (isLoadingProblems ? "Loading saved problems…" : "Selected problems will be included in the generated lesson.")}
+            />
+          )}
+        />
         {isGenerating && (
           <Stack spacing={1} aria-live="polite">
             <Typography variant="body2" color="text.secondary">

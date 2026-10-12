@@ -1,4 +1,5 @@
-from sqlalchemy import Column, DateTime, Integer, String, Text, JSON
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text, JSON
+from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 from app.database.database import Base
 
@@ -45,6 +46,8 @@ class Problem(Base):
     difficulty = Column(String, nullable=True)
     problem_type = Column(String, nullable=True)
 
+    skill_links = relationship("ProblemSkill", back_populates="problem", cascade="all, delete-orphan")
+
 # this table contains all the reflections
 class Reflection(Base):
     __tablename__ = "reflections"
@@ -73,3 +76,25 @@ class ActivityReflection(Base):
     activity_index = Column(Integer, nullable=True)
     rating = Column(Integer, nullable=True)
     notes = Column(Text, nullable=True)
+
+class Skill(Base):
+    __tablename__ = "skills"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    normalized_name = Column(String, nullable=False, unique=True, index=True)
+
+    problem_links = relationship("ProblemSkill", back_populates="skill", cascade="all, delete-orphan")
+
+class ProblemSkill(Base):
+    __tablename__ = "problem_skills"
+
+    problem_id = Column(Integer, 
+                        ForeignKey("problems.id", ondelete="CASCADE"),
+                        primary_key=True)
+    skill_id = Column(Integer, 
+                      ForeignKey("skills.id", ondelete="CASCADE"),
+                      primary_key=True)
+    # These relationships link problems and skills, names need to be matched back_populates in Problem and Skill
+    problem = relationship("Problem", back_populates="skill_links")
+    skill = relationship("Skill", back_populates="problem_links")

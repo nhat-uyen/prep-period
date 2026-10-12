@@ -1,12 +1,6 @@
 from pydantic import BaseModel, ConfigDict, Field
 
-class LessonRequest(BaseModel):
-    topic: str
-    grade: str
-    duration_minutes: int
-    learning_outcomes: list[str] = Field(default_factory=list)
-    problem_ids: list[int] = Field(default_factory=list)
-
+# -------- Problem Models --------
 class Problem(BaseModel):
     question: str
     instructions: str
@@ -28,6 +22,7 @@ class ProblemResponse(Problem):
     lesson_id: int | None = None
     activity_id: int | None = None
 
+# -------- Activity Models --------
 class Activity(BaseModel):
     name: str
     duration_minutes: int
@@ -76,6 +71,14 @@ class ActivityResponse(BaseModel):
     student_instructions: str | None
     problems: list[ProblemResponse] = Field(default_factory=list)
 
+# -------- Lesson Models --------
+class LessonRequest(BaseModel):
+    topic: str
+    grade: str
+    duration_minutes: int
+    learning_outcomes: list[str] = Field(default_factory=list)
+    problem_ids: list[int] = Field(default_factory=list)
+
 # for all lesson repsonse before saving
 class LessonResponse(BaseModel):
     title: str
@@ -91,7 +94,7 @@ class LessonSaveRequest(BaseModel):
     duration_minutes: int
     lesson: LessonResponse
 
-class UpdateLesson (BaseModel):
+class LessonUpdate (BaseModel):
     topic: str
     grade: str
     duration_minutes: int

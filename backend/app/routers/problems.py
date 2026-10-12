@@ -39,3 +39,7 @@ def get_problems(skill: str | None = None, db: Session = Depends(get_db)):
             if any(tag.strip().casefold() == normalized_skill for tag in (problem.skills or []))
         ]
     return problems
+
+@router.delete("", status_code=204)
+def delete_all_problems(db: Session = Depends(get_db)):
+    problem_crud.delete_all_problems(db)

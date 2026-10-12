@@ -16,14 +16,43 @@ from app.llm.json_repair import repair_latex_escapes
 
 logger = logging.getLogger(__name__)
 
-def generate_lesson_using_ai_service(request: LessonRequest, db: Session):
-    logger.info("Generating lesson | Topic: %s, Grade: %s", request.topic, request.grade)
+def build_lesson_generation_prompt(request: LessonRequest, db: Session) -> str:
+    problem_ids = list(dict.fromkeys(request.problem_ids))
+    selected_problems = problem_crud.get_problems_by_ids(db, problem_ids)
+    found_ids = {problem.id for problem in selected_problems}
+    missing_ids = [problem_id for problem_id in problem_ids if problem_id not in found_ids]
 
-    prompt = build_prompt(
+    if missing_ids:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Selected problems were not found: {', '.join(map(str, missing_ids))}",
+        )
+
+    selected_problem_data = [
+        {
+            "question": problem.question,
+            "instructions": problem.instructions,
+            "answer": problem.answer,
+            "explanation": problem.explanation,
+            "skills": problem.skills or [],
+            "difficulty": problem.difficulty,
+            "problem_type": problem.problem_type,
+        }
+        for problem in selected_problems
+    ]
+
+    return build_prompt(
         topic=request.topic,
         grade=request.grade,
         duration_minutes=request.duration_minutes,
+        selected_problems=selected_problem_data,
     )
+
+
+def generate_lesson_using_ai_service(request: LessonRequest, db: Session):
+    logger.info("Generating lesson | Topic: %s, Grade: %s", request.topic, request.grade)
+
+    prompt = build_lesson_generation_prompt(request, db)
     
     try:
         lesson_data= json.loads(generate_response(prompt))

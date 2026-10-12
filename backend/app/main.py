@@ -6,12 +6,13 @@ from app.routers.lessons import home_router, router
 from app.routers.reflections import router as reflections_router
 from app.routers.activities import router as activities_router
 from app.routers.problems import router as problems_router
-from app.database.database import Base, engine, migrate_activity_schema, migrate_problem_schema
+from app.database.database import Base, engine, migrate_activity_schema, migrate_problem_schema, migrate_problem_skills
 
 
 Base.metadata.create_all(bind=engine)
 migrate_problem_schema()
 migrate_activity_schema()
+migrate_problem_skills()
 
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(levelname)s %(name)s - %(message)s")
