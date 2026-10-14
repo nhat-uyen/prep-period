@@ -75,3 +75,9 @@ export type Reflection = {
   keep_notes: string;
   change_notes: string;
 }
+
+export type Skill = {
+  id: number;
+  name: string;
+  normalized_name: string;
+};

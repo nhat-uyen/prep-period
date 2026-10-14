@@ -7,6 +7,7 @@ from app.database.models import (
     Problem as ProblemRecord,
     Reflection,
 )
+from app.database.problem_crud import sync_problem_skills
 from app.models.lesson import Activity as LessonActivity, Problem as LessonProblem
 
 #  ActivityRecord is the database model for activities
@@ -108,11 +109,17 @@ def create_lesson(
 
 def _add_problems_to_activity(db: Session, activity: ActivityRecord, problems: list[LessonProblem],) -> None:
     for problem in problems:
-        db.add(ProblemRecord(
+        problem_data = problem.model_dump()
+        skill_names = problem_data.pop("skills", [])
+        problem_record = ProblemRecord(
             lesson_id=activity.lesson_id,
             activity_id=activity.id,
-            **problem.model_dump(),
-        ))
+            skills=[],
+            **problem_data,
+        )
+        db.add(problem_record)
+        db.flush()
+        sync_problem_skills(db, problem_record, skill_names)
 
 
 def get_activities(db: Session,lesson_id: int | None = None,independent_only: bool = False,) -> list[ActivityRecord]:
@@ -143,9 +150,11 @@ def update_activity(db: Session, activity_id: int, activity_data: dict,) -> Acti
             synchronize_session=False,
         )
     elif problems is not None:
-        db.query(ProblemRecord).filter(ProblemRecord.activity_id == activity_id).delete(
-            synchronize_session=False
-        )
+        old_problems = db.query(ProblemRecord).filter(
+            ProblemRecord.activity_id == activity_id
+        ).all()
+        for old_problem in old_problems:
+            db.delete(old_problem)
         _add_problems_to_activity(db, activity, problems)
 
     db.commit()

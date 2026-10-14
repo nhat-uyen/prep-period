@@ -30,10 +30,10 @@ def delete_problem(problem_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("", response_model=list[ProblemResponse])
-def get_problems(skill: str | None = None, db: Session = Depends(get_db)):
+def get_problems(skill_name: str | None = None, db: Session = Depends(get_db)):
     problems = problem_crud.get_problems(db)
-    if skill:
-        normalized_skill = skill.strip().casefold()
+    if skill_name:
+        normalized_skill = skill_name.strip().casefold()
         problems = [
             problem for problem in problems
             if any(tag.strip().casefold() == normalized_skill for tag in (problem.skills or []))

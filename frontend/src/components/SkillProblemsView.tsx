@@ -1,5 +1,5 @@
 import { Button, Card, CardContent, Chip, Stack, Typography, IconButton, Tooltip, } from "@mui/material";
-import type { Problem } from "../types/lesson";
+import type { Problem, Skill } from "../types/lesson";
 import MathText from "./MathText";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
@@ -7,7 +7,7 @@ import { useState } from "react";
 import ProblemEditor from "./ProblemEditor";
 
 type SkillProblemsViewProps = {
-  skill: string;
+  skill: Pick<Skill, "name">;
   problems: Problem[];
   onBack?: () => void;
   onEdit?: (problem: Problem) => Promise<boolean>;
@@ -21,13 +21,13 @@ export default function SkillProblemsView({ skill, problems, onBack, onEdit, onD
     <Stack spacing={2}>
       {onBack && (
         <Button onClick={onBack} variant="text" sx={{ alignSelf: "flex-start" }}>
-          ← All skills
+          Back to all skills
         </Button>
       )}
-      <Typography variant="h2" sx={{ fontSize: { xs: "1.8rem", md: "2.4rem" } }}>{skill}</Typography>
+      <Typography variant="h2" sx={{ fontSize: { xs: "1.8rem", md: "2.4rem" } }}>{skill.name}</Typography>
       {problems.length === 0 ? <Typography color="text.secondary">No problems found for this skill.</Typography>
         : problems.map((problem) => (
-          <Card key={`${skill}-${problem.id ?? problem.question}`} variant="outlined">
+          <Card key={problem.id ?? problem.question} variant="outlined">
             <CardContent>
               <Stack spacing={2.5} direction="row" sx={{ justifyContent: "flex-end" }}>
                 {onEdit && (
