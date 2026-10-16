@@ -1,7 +1,9 @@
 from sqlalchemy.orm import Session
+from typing import cast
 
 from app.database.models import Problem, ProblemSkill, Skill
 from app.database import skill_crud
+from app.models.pagination_helper import paginate_query
 
 
 def create_problem(
@@ -38,32 +40,32 @@ def create_problem(
         db.rollback()
         raise
 
+# This is not needed anymore since we want to get problems by lessons or skills
+# def get_problems(db: Session) -> list[Problem]:
+#     return db.query(Problem).order_by(Problem.id.desc()).all()
 
-def get_problems(db: Session) -> list[Problem]:
-    return db.query(Problem).order_by(Problem.id.desc()).all()
-
-
+# Uses in lesson_form_in_datbase
 def get_problems_by_activity(db: Session, activity_id: int) -> list[Problem]:
     return (db.query(Problem).filter(Problem.activity_id == activity_id)
             .order_by(Problem.id.asc()).all())
 
-
+# currently not in used except for testing 
 def get_problems_by_lesson(db: Session, lesson_id: int) -> list[Problem]:
     return db.query(Problem).filter(Problem.lesson_id == lesson_id).all()
 
-
+# fetch one problem by its id
 def get_problem_by_id(db: Session, problem_id: int) -> Problem | None:
     return db.query(Problem).filter(Problem.id == problem_id).first()
 
-
+# uses in lesson_prompt to fetch selected problems for the prompt
 def get_problems_by_ids(db: Session, problem_ids: list[int]) -> list[Problem]:
     if not problem_ids:
         return []
     records = db.query(Problem).filter(Problem.id.in_(set(problem_ids))).all()
-    records_by_id = {record.id: record for record in records}
+    records_by_id: dict[int, Problem] = {cast(int, record.id): record for record in records}
     return [records_by_id[problem_id] for problem_id in problem_ids if problem_id in records_by_id]
 
-def update_problem(db: Session, problem_id: int, problem_data: dict) -> Problem | None:
+def update_problem(db: Session, problem_id: int, problem_data: dict[str, object]) -> Problem | None:
     problem = get_problem_by_id(db, problem_id)
     if problem is None:
         return None
@@ -75,7 +77,7 @@ def update_problem(db: Session, problem_id: int, problem_data: dict) -> Problem 
                 setattr(problem, field, value)
 
         if skills is not None:
-            sync_problem_skills(db, problem, skills)
+            sync_problem_skills(db, problem, cast(list[str], skills))
 
         db.commit()
         db.refresh(problem)
@@ -97,7 +99,7 @@ def sync_problem_skills(db: Session, problem: Problem, skill_names: list[str]) -
             names_by_normalized.setdefault(name.casefold(), name)
 
     # create a list of just the value, from example above, ["Algebra", "Geometry"]
-    problem.skills = list(names_by_normalized.values())
+    setattr(problem, "skills", list(names_by_normalized.values()))
 
     # from the above example, ["algebra", "geometry"]
     normalized_names = list(names_by_normalized)
@@ -105,10 +107,7 @@ def sync_problem_skills(db: Session, problem: Problem, skill_names: list[str]) -
     if normalized_names:
         skills_by_name = skill_crud.get_skills_by_names(db, normalized_names)
         # from the above example, {"algebra": Skill(id=1, name="add"), "geometry": Skill(id=2, name="triangle")}
-        skills_by_normalized = {
-            skill.normalized_name: skill
-            for skill in skills_by_name
-        }
+        skills_by_normalized = {str(skill.normalized_name): skill for skill in skills_by_name}
 
     for normalized_name, display_name in names_by_normalized.items():
         if normalized_name not in skills_by_normalized:
@@ -129,14 +128,17 @@ def sync_problem_skills(db: Session, problem: Problem, skill_names: list[str]) -
         if skill.id not in linked_skill_ids:
             problem.skill_links.append(ProblemSkill(skill=skill))
 
-def get_problem_by_skill_id(db: Session, skill_id: int) -> list[Problem]:
-    return (db.query(Problem)
+# uses for fetching problems of the selected skill in the Browse Skills Tab
+def get_problem_by_skill_id(db: Session, skill_id: int, limit: int, offset: int) -> tuple[list[Problem], bool]:
+    query = (db.query(Problem)
             .join(ProblemSkill, ProblemSkill.problem_id == Problem.id)
             .filter(ProblemSkill.skill_id == skill_id)
-            .order_by(Problem.id.desc()).all())
+            .order_by(Problem.id.desc()))
+    return paginate_query(query, limit=limit, offset=offset)
 
-
-def get_problems_by_skill_ids(db: Session, skill_ids: list[int]) -> dict[int, list[Problem]]:
+# used for fetching problems from the skill search in the Browse Skills Tab
+# need to limit the skills display
+def get_problems_by_skill_ids(db: Session, skill_ids: list[int],) -> dict[int, list[Problem]]:
     if not skill_ids:
         return {}
 
@@ -145,6 +147,7 @@ def get_problems_by_skill_ids(db: Session, skill_ids: list[int]) -> dict[int, li
             .join(Problem, Problem.id == ProblemSkill.problem_id)
             .filter(ProblemSkill.skill_id.in_(skill_ids))
             .order_by(Problem.id.desc()).all())
+
     for skill_id, problem in rows:
         results[skill_id].append(problem)
     return results

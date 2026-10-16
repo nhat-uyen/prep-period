@@ -18,8 +18,10 @@ def create_skill(db: Session, name: str) -> Skill:
         normalized_name = name.strip().casefold()
         skill = Skill(name=name, normalized_name=normalized_name)
         db.add(skill)
-        db.commit()
-        db.refresh(skill)
+        # Flush assigns the ID while leaving commit/rollback to the caller.
+        # Problem creation/editing can then persist its skill rows and links
+        # atomically with the problem record.
+        db.flush()
         return skill
 
 # get multiple skills by their names
@@ -32,8 +34,8 @@ def update_skill(db: Session, skill_id: int, new_name: str) -> Skill | None:
     if skill is None:
         return None
     normalized_name = new_name.strip().casefold()
-    skill.name = new_name
-    skill.normalized_name = normalized_name
+    setattr(skill, "name", new_name)
+    setattr(skill, "normalized_name", normalized_name)
     db.commit()
     db.refresh(skill)
     return skill

@@ -1,15 +1,15 @@
-import { useState } from "react";
-import { Alert, Box, Button, Card, CardActionArea, CardContent, CircularProgress, Grid, Stack, Typography, } from "@mui/material";
+import { useMemo, useRef, useState } from "react";
+import { Alert, Box, Button, Card, CardActionArea, CardContent, CircularProgress, FormControl, Grid, InputLabel, MenuItem, Select, Stack, Typography, } from "@mui/material";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
-import type { Problem, Skill } from "../types/lesson";
+import type { Page, Problem, Skill } from "../types/lesson";
 import SkillProblemsView from "./SkillProblemsView";
 
 type BrowseSkillsTabProps = {
   skills: Skill[];
   problemsBySkill: Problem[];
   loading: boolean;
-  onSkillSelected: (skillId: number) => Promise<void>;
+  onSkillSelected: (skillId: number, offset: number) => Promise<Page<Problem> | null>;
   onEdit: (problem: Problem) => Promise<boolean>;
   onDelete: (problem: Problem) => void;
 };
@@ -17,6 +17,29 @@ type BrowseSkillsTabProps = {
 export default function BrowseSkillsTab({ skills, problemsBySkill, loading, onSkillSelected, onEdit, onDelete, }: BrowseSkillsTabProps) {
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
   const [loadingProblems, setLoadingProblems] = useState(false);
+  const [pageInfo, setPageInfo] = useState<Pick<Page<Problem>, "limit" | "offset" | "has_more"> | null>(null);
+  const problemPageRequestId = useRef(0);
+  const [skillSort, setSkillSort] = useState<"default" | "alphabetical">("default");
+  const displayedSkills = useMemo(() => skillSort === "alphabetical"
+    ? [...skills].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }))
+    : skills,
+    [skills, skillSort],
+  );
+
+  async function loadSkillProblems(skillId: number, offset: number) {
+    const requestId = ++problemPageRequestId.current;
+    setLoadingProblems(true);
+    try {
+      const page = await onSkillSelected(skillId, offset);
+      if (requestId === problemPageRequestId.current) {
+        setPageInfo(page);
+      }
+    } finally {
+      if (requestId === problemPageRequestId.current) {
+        setLoadingProblems(false);
+      }
+    }
+  }
 
   if (selectedSkill) {
     if (loadingProblems) {
@@ -37,7 +60,13 @@ export default function BrowseSkillsTab({ skills, problemsBySkill, loading, onSk
       <SkillProblemsView
         skill={selectedSkill}
         problems={problemsBySkill}
-        onBack={() => setSelectedSkill(null)}
+        pagination={pageInfo ?? undefined}
+        onPageChange={(offset) => void loadSkillProblems(selectedSkill.id, offset)}
+        onBack={() => {
+          problemPageRequestId.current += 1;
+          setSelectedSkill(null);
+          setPageInfo(null);
+        }}
         onEdit={onEdit}
         onDelete={onDelete}
       />
@@ -65,30 +94,45 @@ export default function BrowseSkillsTab({ skills, problemsBySkill, loading, onSk
           No skills yet. Add a problem with skill tags to start building your library.
         </Alert>
       ) : (
-        <Grid container spacing={2}>
-          {skills.map((skill) => (
-            <Grid key={skill.id} size={{ xs: 12, sm: 6, md: 4 }}>
-              <Card variant="outlined" sx={{ height: "100%", transition: "border-color 160ms, transform 160ms", "&:hover": { borderColor: "primary.main", transform: "translateY(-2px)" } }}>
-                <CardActionArea
-                  onClick={() => {
-                    setSelectedSkill(skill);
-                    setLoadingProblems(true);
-                    void onSkillSelected(skill.id).finally(() => setLoadingProblems(false));
-                  }}
-                  aria-label={`Browse problems for ${skill.name}`}
-                  sx={{ height: "100%" }}
-                >
-                  <CardContent sx={{ display: "flex", alignItems: "center", gap: 2, minHeight: 92 }}>
-                    <Typography variant="h3" sx={{ fontSize: "1.05rem", flexGrow: 1 }}>
-                      {skill.name}
-                    </Typography>
-                    <ArrowForwardRoundedIcon color="action" fontSize="small" />
-                  </CardContent>
-                </CardActionArea>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+        <>
+          <FormControl size="small" sx={{ minWidth: 200, alignSelf: "flex-start" }}>
+            <InputLabel id="skill-sort-label">Sort skills</InputLabel>
+            <Select
+              labelId="skill-sort-label"
+              id="skill-sort"
+              value={skillSort}
+              label="Sort skills"
+              onChange={(event) => setSkillSort(event.target.value as "default" | "alphabetical")}
+            >
+              <MenuItem value="default">Default order</MenuItem>
+              <MenuItem value="alphabetical">Alphabetical (A to Z)</MenuItem>
+            </Select>
+          </FormControl>
+          <Grid container spacing={2}>
+            {displayedSkills.map((skill) => (
+              <Grid key={skill.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                <Card variant="outlined" sx={{ height: "100%", transition: "border-color 160ms, transform 160ms", "&:hover": { borderColor: "primary.main", transform: "translateY(-2px)" } }}>
+                  <CardActionArea
+                    onClick={() => {
+                      setSelectedSkill(skill);
+                      setPageInfo(null);
+                      void loadSkillProblems(skill.id, 0);
+                    }}
+                    aria-label={`Browse problems for ${skill.name}`}
+                    sx={{ height: "100%" }}
+                  >
+                    <CardContent sx={{ display: "flex", alignItems: "center", gap: 2, minHeight: 92 }}>
+                      <Typography variant="h3" sx={{ fontSize: "1.05rem", flexGrow: 1 }}>
+                        {skill.name}
+                      </Typography>
+                      <ArrowForwardRoundedIcon color="action" fontSize="small" />
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </>
       )}
     </Stack>
   );

@@ -179,6 +179,18 @@ class ProblemAssociationTests(unittest.TestCase):
         self.assertIn(problem.answer, prompt)
         self.assertIn("Include every selected problem exactly once", prompt)
 
+    def test_generation_prompt_is_built_without_selected_problems(self):
+        request = LessonRequest(
+            topic="Linear equations",
+            grade="8",
+            duration_minutes=45,
+        )
+
+        prompt = build_lesson_generation_prompt(request, self.db)
+
+        self.assertIn("Topic: Linear equations", prompt)
+        self.assertIn("You are Prep_Period, a math teaching assistant.", prompt)
+
     def test_generation_rejects_missing_selected_problem_ids(self):
         request = LessonRequest(
             topic="Adding fractions",

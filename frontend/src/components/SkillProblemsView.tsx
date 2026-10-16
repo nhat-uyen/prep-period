@@ -5,16 +5,19 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import { useState } from "react";
 import ProblemEditor from "./ProblemEditor";
+import type { Page } from "../types/lesson";
 
 type SkillProblemsViewProps = {
   skill: Pick<Skill, "name">;
   problems: Problem[];
+  pagination?: Pick<Page<Problem>, "limit" | "offset" | "has_more">;
+  onPageChange?: (offset: number) => void;
   onBack?: () => void;
   onEdit?: (problem: Problem) => Promise<boolean>;
   onDelete?: (problem: Problem) => void;
 };
 
-export default function SkillProblemsView({ skill, problems, onBack, onEdit, onDelete }: SkillProblemsViewProps) {
+export default function SkillProblemsView({ skill, problems, pagination, onPageChange, onBack, onEdit, onDelete }: SkillProblemsViewProps) {
   const [editProblem, setEditProblem] = useState<Problem | null>(null);
 
   return (
@@ -81,6 +84,27 @@ export default function SkillProblemsView({ skill, problems, onBack, onEdit, onD
           </Card>
         ))
       }
+      {pagination && onPageChange && (
+        <Stack direction="row" spacing={1} sx={{ alignItems: "center", justifyContent: "flex-end" }}>
+          <Typography color="text.secondary" sx={{ mr: "auto" }}>
+            {problems.length === 0
+              ? "No problems on this page"
+              : `Showing ${pagination.offset + 1}-${pagination.offset + problems.length}`}
+          </Typography>
+          <Button
+            disabled={pagination.offset === 0}
+            onClick={() => onPageChange(Math.max(0, pagination.offset - pagination.limit))}
+          >
+            Previous
+          </Button>
+          <Button
+            disabled={!pagination.has_more}
+            onClick={() => onPageChange(pagination.offset + pagination.limit)}
+          >
+            Next
+          </Button>
+        </Stack>
+      )}
     </Stack >
   );
 }

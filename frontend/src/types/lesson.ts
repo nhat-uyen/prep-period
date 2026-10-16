@@ -81,3 +81,10 @@ export type Skill = {
   name: string;
   normalized_name: string;
 };
+
+export type Page<T> = {
+  items: T[];
+  limit: number;
+  offset: number;
+  has_more: boolean;
+}

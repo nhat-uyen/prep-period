@@ -1,11 +1,11 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 
 import AddProblemTab, { type NewProblemForm } from "../components/AddProblemTab";
 import BrowseSkillsTab from "../components/BrowseSkillsTab";
 import SearchProblemsTab from "../components/SearchProblemsTab";
 import { Alert, Box, Button, Container, Stack, Tab, Tabs, Typography, } from "@mui/material";
 import { createProblem, updateProblem, deleteProblem, getSkills, getProblemsBySkillId } from "../api/problems";
-import type { Problem, Skill } from "../types/lesson";
+import type { Page, Problem, Skill } from "../types/lesson";
 import { Link as RouterLink } from "react-router";
 import { ArrowBack } from "@mui/icons-material";
 import { problemsReducer, initialProblemsState } from "../reducers/problemsReducer";
@@ -32,6 +32,7 @@ export default function SkillsLibrary() {
   const [activeTab, setActiveTab] = useState<"add" | "browse" | "search">("add");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const skillProblemsRequestId = useRef(0);
 
   // Load all skills for the Browse Problems tab
   useEffect(() => {
@@ -52,18 +53,23 @@ export default function SkillsLibrary() {
 
   // Handle selection of a skill in the Browse Problems tab 
   // When this is called, the problems list will be updated to show only problems related to the selected skill.
-  async function handleSkillSelected(skillId: number) {
+  async function handleSkillSelected(skillId: number, offset: number): Promise<Page<Problem> | null> {
+    const requestId = ++skillProblemsRequestId.current;
+    dispatch({ type: "SET_PROBLEMS", problems: [] });
+    setError("");
     try {
-      setError("");
-      // the api call already take care of looking up skillid whether it exists or not
-      const problemsBySkill = await getProblemsBySkillId(skillId);
-      dispatch({ type: "SET_PROBLEMS", problems: problemsBySkill });
-      if (problemsBySkill.length === 0) {
-        setError("No problems found for the selected skill.");
+      const problemPage = await getProblemsBySkillId(skillId, 5, offset);
+      if (requestId !== skillProblemsRequestId.current) {
+        return null;
       }
+      dispatch({ type: "SET_PROBLEMS", problems: problemPage.items });
+      return problemPage;
     } catch (error) {
       console.error("Failed to load problems for skill", error);
-      setError("Failed to load problems for the selected skill.");
+      if (requestId === skillProblemsRequestId.current) {
+        setError("Failed to load problems for the selected skill.");
+      }
+      return null;
     }
   }
   // Handle form submission for adding a new problem in the Add Problem tab
@@ -112,17 +118,24 @@ export default function SkillsLibrary() {
 
     try {
       setError("");
-      const updatedProblem = await updateProblem(problem.id, {
-        question: problem.question,
-        instructions: problem.instructions,
-        answer: problem.answer,
-        explanation: problem.explanation,
-        skills: problem.skills,
-        difficulty: problem.difficulty,
-        problem_type: problem.problem_type,
-      });
+      //  checking for missing skills in the all skills list is already handled in the updateProblem function
+      const updatedProblem = await updateProblem(
+        problem.id,
+        {
+          question: problem.question,
+          instructions: problem.instructions,
+          answer: problem.answer,
+          explanation: problem.explanation,
+          skills: problem.skills,
+          difficulty: problem.difficulty,
+          problem_type: problem.problem_type,
+        },
+      );
       dispatch({ type: "UPDATE_PROBLEM", problem: updatedProblem });
       await queryClient.invalidateQueries({ queryKey: ["searchResultsBySkill"] });
+      // need to refresh the skills list after updating the problem
+      const updatedSkills = await getSkills();
+      setSkills(updatedSkills);
       return true;
     } catch (error) {
       console.error("Failed to update problem", error);
