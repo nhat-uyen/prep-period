@@ -1,6 +1,7 @@
 from builtins import int
 import json
 import logging
+from typing import cast
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
@@ -76,8 +77,8 @@ def get_saved_lessons(db: Session = Depends(get_db)):
     all_lessons = []
 
     for lesson in lessons:
-        lesson_by_id = get_lesson(db, lesson.id)
-        reflection = get_reflection(db, lesson.id, raise_if_missing=False)
+        lesson_by_id = get_lesson(db, cast(int, lesson.id))
+        reflection = get_reflection(db, cast(int, lesson.id), raise_if_missing=False)
         lesson_by_id["reflection"] = reflection
 
         all_lessons.append(lesson_by_id)
@@ -91,9 +92,9 @@ def get_one_lesson(lesson_id: int, db: Session = Depends(get_db)):
     if lesson is None:
         raise HTTPException(status_code=404, detail="Lesson not found")
 
-    lesson_by_id = get_lesson(db, lesson.id)
+    lesson_by_id = get_lesson(db, cast(int, lesson.id))
 
-    reflection = get_reflection(db, lesson.id, raise_if_missing=False)
+    reflection = get_reflection(db, cast(int, lesson.id), raise_if_missing=False)
 
     lesson_by_id["reflection"] = reflection
 
@@ -138,6 +139,6 @@ def update_lesson(lesson_id: int, update: LessonUpdate, db: Session= Depends(get
         "topic": updated_lesson.topic,
         "grade": str(updated_lesson.grade),
         "duration_minutes": updated_lesson.duration_minutes,
-        **updated_lesson.lesson_json
+        **cast(dict[str, object], updated_lesson.lesson_json)
     }
     return lesson

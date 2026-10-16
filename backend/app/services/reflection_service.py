@@ -1,3 +1,5 @@
+from typing import cast
+
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
@@ -26,7 +28,7 @@ def get_reflection(db: Session, lesson_id: int, raise_if_missing: bool = True):
     if reflection is None:
         return None
     
-    acvitivies = reflection_crud.get_activity_reflections(db, reflection.id)
+    acvitivies = reflection_crud.get_activity_reflections(db, cast(int, reflection.id))
     
     reflection_by_id = {
             "id": reflection.id,

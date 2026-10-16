@@ -1,3 +1,5 @@
+from typing import cast
+
 from sqlalchemy.orm import Session
 
 from app.database.models import (
@@ -89,7 +91,7 @@ def create_lesson(
     for activity in activities:
         activity_record = _add_activity(
             db=db,
-            lesson_id=lesson.id,
+            lesson_id=cast(int, lesson.id),
             name=activity.name,
             duration_minutes=activity.duration_minutes,
             teacher_notes_prompts=activity.teacher_notes_prompts,

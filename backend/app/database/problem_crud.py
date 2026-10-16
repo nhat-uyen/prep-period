@@ -40,10 +40,6 @@ def create_problem(
         db.rollback()
         raise
 
-# This is not needed anymore since we want to get problems by lessons or skills
-# def get_problems(db: Session) -> list[Problem]:
-#     return db.query(Problem).order_by(Problem.id.desc()).all()
-
 # Uses in lesson_form_in_datbase
 def get_problems_by_activity(db: Session, activity_id: int) -> list[Problem]:
     return (db.query(Problem).filter(Problem.activity_id == activity_id)

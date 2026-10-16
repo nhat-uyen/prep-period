@@ -1,3 +1,5 @@
+from typing import cast
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -16,7 +18,7 @@ def create_or_update_reflection(reflection_request: RelfectionRequest, db: Sessi
     if reflection is None:
         return create_reflection(db, reflection_request)
 
-    reflection_crud.update_reflection(db, reflection.id, {
+    reflection_crud.update_reflection(db, cast(int, reflection.id), {
         "objectives_rating": reflection_request.objectives_rating,
         "objectives_notes": reflection_request.objectives_notes,
         "prior_knowledge_rating": reflection_request.prior_knowledge_rating,
@@ -26,7 +28,7 @@ def create_or_update_reflection(reflection_request: RelfectionRequest, db: Sessi
         "keep_notes": reflection_request.keep_notes,
         "change_notes": reflection_request.change_notes,
     })
-    reflection_crud.update_activity_reflection(db, reflection.id, reflection_request.activities)
+    reflection_crud.update_activity_reflection(db, cast(int, reflection.id), reflection_request.activities)
 
     db.refresh(reflection)
     return {"message": "reflection updated successfully", "reflection_id": reflection.id}

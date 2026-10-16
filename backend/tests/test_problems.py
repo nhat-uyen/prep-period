@@ -19,8 +19,9 @@ from app.database.problem_crud import (
 from app.models.lesson import LessonRequest, ProblemCreate, ProblemUpdate
 from app.routers.problems import create_problem as create_problem_endpoint
 from app.routers.problems import delete_problem as delete_problem_endpoint
-from app.routers.problems import get_problems as get_problems_endpoint
 from app.routers.problems import update_problem as update_problem_endpoint
+from app.routers.skills import get_problems_by_skill as get_problems_by_skill_endpoint
+from app.database.skill_crud import get_skills_by_name
 from app.services.lesson_service import build_lesson_generation_prompt
 
 
@@ -124,10 +125,9 @@ class ProblemAssociationTests(unittest.TestCase):
         )
         problem_id = created_problem.id
 
-        self.assertIn(
-            problem_id,
-            [problem.id for problem in get_problems_endpoint(None, self.db)],
-        )
+        skill = get_skills_by_name(self.db, "adding fractions")[0]
+        first_page = get_problems_by_skill_endpoint(skill.id, 5, 0, self.db)
+        self.assertIn(problem_id, [problem.id for problem in first_page.items])
 
         updated_problem = update_problem_endpoint(
             problem_id,
@@ -140,21 +140,14 @@ class ProblemAssociationTests(unittest.TestCase):
             ),
             self.db,
         )
-        browsed_problem = next(
-            problem
-            for problem in get_problems_endpoint(None, self.db)
-            if problem.id == problem_id
-        )
+        browsed_problem = get_problems_by_skill_endpoint(skill.id, 5, 0, self.db).items[0]
         self.assertEqual(browsed_problem.question, updated_problem.question)
         self.assertEqual(browsed_problem.answer, "1")
         self.assertEqual(get_problems_by_ids(self.db, [problem_id])[0].question, "What is 2/3 + 1/3?")
 
         delete_problem_endpoint(problem_id, self.db)
 
-        self.assertNotIn(
-            problem_id,
-            [problem.id for problem in get_problems_endpoint(None, self.db)],
-        )
+        self.assertEqual(get_problems_by_skill_endpoint(skill.id, 5, 0, self.db).items, [])
         self.assertEqual(get_problems_by_ids(self.db, [problem_id]), [])
 
     def test_selected_saved_problems_are_in_generation_prompt(self):
