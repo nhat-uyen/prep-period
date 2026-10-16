@@ -9,17 +9,21 @@ type ProblemEditorProps = {
 };
 
 export default function ProblemEditor({ problem, onSave, onCancel }: ProblemEditorProps) {
-  const [form, setForm] = useState(problem);
+  const [question, setQuestion] = useState(problem.question);
+  const [instructions, setInstructions] = useState(problem.instructions);
+  const [answer, setAnswer] = useState(problem.answer);
+  const [explanation, setExplanation] = useState(problem.explanation);
+  const [skills, setSkills] = useState(problem.skills.join(", "));
 
   async function handleSave(e: { preventDefault: () => void; }) {
     e.preventDefault();
     const editingProblem: Problem = {
       ...problem,
-      question: form.question.trim(),
-      instructions: form.instructions.trim(),
-      answer: form.answer.trim(),
-      explanation: form.explanation.trim(),
-      skills: [...new Set(form.skills.map((skill) => skill.trim()).filter(Boolean))],
+      question: question.trim(),
+      instructions: instructions.trim(),
+      answer: answer.trim(),
+      explanation: explanation.trim(),
+      skills: [...new Set(skills.split(",").map((skill) => skill.trim()).filter(Boolean))],
     };
     await onSave(editingProblem);
   }
@@ -29,40 +33,40 @@ export default function ProblemEditor({ problem, onSave, onCancel }: ProblemEdit
       <TextField
         required
         label="Question"
-        value={form.question}
-        onChange={(e) => setForm({ ...form, question: e.target.value })}
+        value={question}
+        onChange={(e) => setQuestion(e.target.value)}
         fullWidth
         margin="normal"
       />
       <TextField
         required
         label="Instructions"
-        value={form.instructions}
-        onChange={(e) => setForm({ ...form, instructions: e.target.value })}
+        value={instructions}
+        onChange={(e) => setInstructions(e.target.value)}
         fullWidth
         margin="normal"
       />
       <TextField
         required
         label="Answer"
-        value={form.answer}
-        onChange={(e) => setForm({ ...form, answer: e.target.value })}
+        value={answer}
+        onChange={(e) => setAnswer(e.target.value)}
         fullWidth
         margin="normal"
       />
       <TextField
         required
         label="Explanation"
-        value={form.explanation}
-        onChange={(e) => setForm({ ...form, explanation: e.target.value })}
+        value={explanation}
+        onChange={(e) => setExplanation(e.target.value)}
         fullWidth
         margin="normal"
       />
       <TextField
         required
         label="Skills"
-        value={form.skills.join(", ")}
-        onChange={(e) => setForm({ ...form, skills: e.target.value.split(",").map((s) => s.trim()) })}
+        value={skills}
+        onChange={(e) => setSkills(e.target.value)}
         fullWidth
         margin="normal"
       />

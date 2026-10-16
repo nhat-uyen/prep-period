@@ -15,7 +15,7 @@ def create_reflection(
     activities: list,
     keep_notes: str | None,
     change_notes: str | None,
-) -> Reflection:
+) -> dict[str, object]:
     reflection = Reflection(
         lesson_id=lesson_id,
         objectives_rating=objectives_rating,

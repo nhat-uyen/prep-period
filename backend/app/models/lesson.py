@@ -22,6 +22,22 @@ class ProblemResponse(Problem):
     lesson_id: int | None = None
     activity_id: int | None = None
 
+class ProblemPage(BaseModel):
+    items: list[ProblemResponse]
+    limit: int
+    offset: int
+    has_more: bool
+
+class SkillProblemMatch(BaseModel):
+    skill_name: str
+    problem:ProblemResponse
+
+class SkillProblemMatchPage(BaseModel):
+    items: list[SkillProblemMatch]
+    limit: int
+    offset: int
+    has_more: bool
+
 # -------- Activity Models --------
 class Activity(BaseModel):
     name: str
@@ -31,7 +47,7 @@ class Activity(BaseModel):
     teacher_actions: list[str] = Field(default_factory=list)
     teacher_prompts: list[str] = Field(default_factory=list)
     look_fors: list[str] = Field(default_factory=list)
-    teacher_notes_prompts: list[str]
+    teacher_notes_prompts: list[str] = Field(default_factory=list)
 
     # Student facing
     student_instructions: str
@@ -44,7 +60,7 @@ class ActivityCreate(BaseModel):
     teacher_actions: list[str] = Field(default_factory=list)
     teacher_prompts: list[str] = Field(default_factory=list)
     look_fors: list[str] = Field(default_factory=list)
-    teacher_notes_prompts: list[str]
+    teacher_notes_prompts: list[str] = Field(default_factory=list)
     student_instructions: str
     problems: list[Problem] = Field(default_factory=list)
 
@@ -67,7 +83,7 @@ class ActivityResponse(BaseModel):
     teacher_actions: list[str] = Field(default_factory=list)
     teacher_prompts: list[str] = Field(default_factory=list)
     look_fors: list[str] = Field(default_factory=list)
-    teacher_notes_prompts: list[str] | None
+    teacher_notes_prompts: list[str] = Field(default_factory=list)
     student_instructions: str | None
     problems: list[ProblemResponse] = Field(default_factory=list)
 

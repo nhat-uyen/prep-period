@@ -61,14 +61,14 @@ class ActivityAssociationTests(unittest.TestCase):
             duration_minutes=10,
             teacher_notes_prompts=["Watch for misconceptions."],
             student_instructions="Solve the examples.",
-            lesson_id=lesson.id,
+            lesson_id=lesson.id, # type: ignore
         )
 
         self.assertIsNone(standalone.lesson_id)
         self.assertEqual(standalone.teacher_actions, ["Model a fraction"])
         self.assertEqual(standalone.teacher_prompts, ["What does the denominator tell us?"])
         self.assertEqual(standalone.look_fors, ["Labels the parts"])
-        self.assertEqual(len(get_problems_by_activity(self.db, standalone.id)), 1)
+        self.assertEqual(len(get_problems_by_activity(self.db, standalone.id)), 1) # type: ignore
         self.assertEqual(
             [activity.id for activity in get_activities(self.db, independent_only=True)],
             [standalone.id],

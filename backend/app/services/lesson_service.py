@@ -1,6 +1,7 @@
 import json
 import logging
 from copy import deepcopy
+from typing import cast
 
 from fastapi import HTTPException
 from pydantic_core import ValidationError
@@ -74,19 +75,27 @@ def generate_lesson_using_ai_service(request: LessonRequest, db: Session):
         raise HTTPException(status_code=500, detail=f"Validation error: {e}")
 
 def lesson_form_in_database(db: Session, lesson: LessonRecord):
+    lesson_json = deepcopy(lesson.lesson_json)
+    if not isinstance(lesson_json, dict):
+        lesson_json = {}
+
     lesson_data = {
         "id": lesson.id,
         "topic": lesson.topic,
         "grade": str(lesson.grade),
         "duration_minutes": lesson.duration_minutes,
-        **deepcopy(lesson.lesson_json),
+        **lesson_json,
     }
-    activities = list(reversed(lesson_crud.get_activities(db, lesson_id=lesson.id)))
+
+    # while lesson_json already contain the lesson's activites and problems but we need to get the id for activities and problems because when after saving the lesson, lesson can be edited and changes can be made to the saved activities and problems
+    activities = list(
+        reversed(lesson_crud.get_activities(db, lesson_id=cast(int, lesson.id)))
+    )
     for activity_index, activity_data in enumerate(lesson_data.get("activities", [])):
         if activity_index >= len(activities):
             continue
         saved_problems = problem_crud.get_problems_by_activity(
-            db, activities[activity_index].id
+            db, cast(int, activities[activity_index].id)
         )
         for problem_index, problem_data in enumerate(activity_data.get("problems", [])):
             if problem_index < len(saved_problems):

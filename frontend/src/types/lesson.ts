@@ -75,3 +75,16 @@ export type Reflection = {
   keep_notes: string;
   change_notes: string;
 }
+
+export type Skill = {
+  id: number;
+  name: string;
+  normalized_name: string;
+};
+
+export type Page<T> = {
+  items: T[];
+  limit: number;
+  offset: number;
+  has_more: boolean;
+}

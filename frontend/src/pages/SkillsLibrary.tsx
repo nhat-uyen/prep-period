@@ -1,14 +1,15 @@
-import { useEffect, useMemo, useReducer, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 
 import AddProblemTab, { type NewProblemForm } from "../components/AddProblemTab";
 import BrowseSkillsTab from "../components/BrowseSkillsTab";
 import SearchProblemsTab from "../components/SearchProblemsTab";
 import { Alert, Box, Button, Container, Stack, Tab, Tabs, Typography, } from "@mui/material";
-import { createProblem, getProblems, updateProblem, deleteProblem } from "../api/problems";
-import type { Problem } from "../types/lesson";
+import { createProblem, updateProblem, deleteProblem, getSkills, getProblemsBySkillId } from "../api/problems";
+import type { Page, Problem, Skill } from "../types/lesson";
 import { Link as RouterLink } from "react-router";
 import { ArrowBack } from "@mui/icons-material";
 import { problemsReducer, initialProblemsState } from "../reducers/problemsReducer";
+import { useQueryClient } from "@tanstack/react-query";
 
 const emptyProblem: NewProblemForm = {
   question: "",
@@ -19,49 +20,59 @@ const emptyProblem: NewProblemForm = {
 };
 
 export default function SkillsLibrary() {
+  const queryClient = useQueryClient();
+  // for Tab: Browse Problems and Search Problems
   const [problems, dispatch] = useReducer(problemsReducer, initialProblemsState);
+  const [skills, setSkills] = useState<Skill[]>([]);
+
+  // for Tab: Add Problem
   const [form, setForm] = useState(emptyProblem);
+
+  //  states of the whole Skills Library page (including all three tabs)
   const [activeTab, setActiveTab] = useState<"add" | "browse" | "search">("add");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const skillProblemsRequestId = useRef(0);
 
+  // Load all skills for the Browse Problems tab
   useEffect(() => {
-    let cancelled = false;
-
-    getProblems()
-      .then((savedProblems) => {
-        if (cancelled) return;
-        dispatch({ type: "SET_PROBLEMS", problems: savedProblems });
-        setError("");
-      })
-      .catch((loadError: unknown) => {
-        if (cancelled) return;
-        console.error("Failed to load problems", loadError);
-        setError("Could not load the skills library.");
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    async function fetchSkills() {
+      try {
+        setLoading(true);
+        const skills = await getSkills();
+        setSkills(skills);
+      } catch (error) {
+        console.error("Failed to load skills", error);
+        setError("Failed to load skills.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSkills();
   }, []);
 
-  const problemsBySkill = useMemo(() => {
-    return problems.reduce((acc, problem) => {
-      const skill = problem.skills[0]; // Assuming each problem has at least one skill
-      if (!acc.some(([s]) => s === skill)) {
-        acc.push([skill, []]);
+  // Handle selection of a skill in the Browse Problems tab 
+  // When this is called, the problems list will be updated to show only problems related to the selected skill.
+  async function handleSkillSelected(skillId: number, offset: number): Promise<Page<Problem> | null> {
+    const requestId = ++skillProblemsRequestId.current;
+    dispatch({ type: "SET_PROBLEMS", problems: [] });
+    setError("");
+    try {
+      const problemPage = await getProblemsBySkillId(skillId, 5, offset);
+      if (requestId !== skillProblemsRequestId.current) {
+        return null;
       }
-      const skillGroup = acc.find(([s]) => s === skill);
-      if (skillGroup) {
-        skillGroup[1].push(problem);
+      dispatch({ type: "SET_PROBLEMS", problems: problemPage.items });
+      return problemPage;
+    } catch (error) {
+      console.error("Failed to load problems for skill", error);
+      if (requestId === skillProblemsRequestId.current) {
+        setError("Failed to load problems for the selected skill.");
       }
-      return acc;
-    }, [] as [string, Problem[]][]);
-  }, [problems]);
-
+      return null;
+    }
+  }
+  // Handle form submission for adding a new problem in the Add Problem tab
   async function handleSubmit(e: { preventDefault: () => void; }) {
     e.preventDefault();
     try {
@@ -74,6 +85,10 @@ export default function SkillsLibrary() {
         skills: [...new Set(form.skills.split(",").map((skill) => skill.trim()).filter(Boolean))],
       });
       dispatch({ type: "ADD_PROBLEM", problem: savedProblem });
+      void getSkills().then(setSkills).catch((refreshError) => {
+        console.error("Failed to refresh skills", refreshError);
+      });
+      await queryClient.invalidateQueries({ queryKey: ["searchResultsBySkill"] });
       setForm(emptyProblem);
       setActiveTab("browse");
     } catch (saveError) {
@@ -82,41 +97,52 @@ export default function SkillsLibrary() {
     }
   }
 
-  async function handleDeleteProblem(problem: Problem) {
+  // Handle deletion of a problem in SkillProblemsView in Browse and Search tabs
+  const handleDeleteProblem = async (problem: Problem): Promise<void> => {
     if (problem.id === undefined) return;
 
     try {
       setError("");
       await deleteProblem(problem.id);
       dispatch({ type: "DELETE_PROBLEM", id: problem.id });
+      await queryClient.invalidateQueries({ queryKey: ["searchResultsBySkill"] });
     } catch (error) {
       console.error("Failed to delete problem", error);
       setError("Could not delete the problem. Please try again.");
     }
-  }
+  };
 
+  // Handle editing of a problem in SkillProblemsView in Browse and Search tabs
   const handleEditProblem = async (problem: Problem): Promise<boolean> => {
     if (problem.id === undefined) return false;
 
     try {
       setError("");
-      const updatedProblem = await updateProblem(problem.id, {
-        question: problem.question,
-        instructions: problem.instructions,
-        answer: problem.answer,
-        explanation: problem.explanation,
-        skills: problem.skills,
-        difficulty: problem.difficulty,
-        problem_type: problem.problem_type,
-      });
+      //  checking for missing skills in the all skills list is already handled in the updateProblem function
+      const updatedProblem = await updateProblem(
+        problem.id,
+        {
+          question: problem.question,
+          instructions: problem.instructions,
+          answer: problem.answer,
+          explanation: problem.explanation,
+          skills: problem.skills,
+          difficulty: problem.difficulty,
+          problem_type: problem.problem_type,
+        },
+      );
       dispatch({ type: "UPDATE_PROBLEM", problem: updatedProblem });
+      await queryClient.invalidateQueries({ queryKey: ["searchResultsBySkill"] });
+      // need to refresh the skills list after updating the problem
+      const updatedSkills = await getSkills();
+      setSkills(updatedSkills);
       return true;
     } catch (error) {
       console.error("Failed to update problem", error);
       setError("Could not update the problem. Please try again.");
       return false;
     }
-  }
+  };
 
   return (
     <Box component="main" sx={{ py: { xs: 4, md: 7 } }}>
@@ -154,16 +180,15 @@ export default function SkillsLibrary() {
         </Box>
         <Box hidden={activeTab !== "browse"}>
           <BrowseSkillsTab
-            problemsBySkill={problemsBySkill}
+            skills={skills}
+            problemsBySkill={problems}
             loading={loading}
+            onSkillSelected={handleSkillSelected}
             onEdit={handleEditProblem}
-            onDelete={handleDeleteProblem}
-          />
+            onDelete={handleDeleteProblem} />
         </Box>
         <Box hidden={activeTab !== "search"}>
           <SearchProblemsTab
-            problemsBySkill={problemsBySkill}
-            loading={loading}
             onEdit={handleEditProblem}
             onDelete={handleDeleteProblem}
           />

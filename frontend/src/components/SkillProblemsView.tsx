@@ -1,33 +1,36 @@
 import { Button, Card, CardContent, Chip, Stack, Typography, IconButton, Tooltip, } from "@mui/material";
-import type { Problem } from "../types/lesson";
+import type { Problem, Skill } from "../types/lesson";
 import MathText from "./MathText";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import { useState } from "react";
 import ProblemEditor from "./ProblemEditor";
+import type { Page } from "../types/lesson";
 
 type SkillProblemsViewProps = {
-  skill: string;
+  skill: Pick<Skill, "name">;
   problems: Problem[];
+  pagination?: Pick<Page<Problem>, "limit" | "offset" | "has_more">;
+  onPageChange?: (offset: number) => void;
   onBack?: () => void;
   onEdit?: (problem: Problem) => Promise<boolean>;
   onDelete?: (problem: Problem) => void;
 };
 
-export default function SkillProblemsView({ skill, problems, onBack, onEdit, onDelete }: SkillProblemsViewProps) {
+export default function SkillProblemsView({ skill, problems, pagination, onPageChange, onBack, onEdit, onDelete }: SkillProblemsViewProps) {
   const [editProblem, setEditProblem] = useState<Problem | null>(null);
 
   return (
     <Stack spacing={2}>
       {onBack && (
         <Button onClick={onBack} variant="text" sx={{ alignSelf: "flex-start" }}>
-          ← All skills
+          Back to all skills
         </Button>
       )}
-      <Typography variant="h2" sx={{ fontSize: { xs: "1.8rem", md: "2.4rem" } }}>{skill}</Typography>
+      <Typography variant="h2" sx={{ fontSize: { xs: "1.8rem", md: "2.4rem" } }}>{skill.name}</Typography>
       {problems.length === 0 ? <Typography color="text.secondary">No problems found for this skill.</Typography>
         : problems.map((problem) => (
-          <Card key={`${skill}-${problem.id ?? problem.question}`} variant="outlined">
+          <Card key={problem.id ?? problem.question} variant="outlined">
             <CardContent>
               <Stack spacing={2.5} direction="row" sx={{ justifyContent: "flex-end" }}>
                 {onEdit && (
@@ -81,6 +84,27 @@ export default function SkillProblemsView({ skill, problems, onBack, onEdit, onD
           </Card>
         ))
       }
+      {pagination && onPageChange && (
+        <Stack direction="row" spacing={1} sx={{ alignItems: "center", justifyContent: "flex-end" }}>
+          <Typography color="text.secondary" sx={{ mr: "auto" }}>
+            {problems.length === 0
+              ? "No problems on this page"
+              : `Showing ${pagination.offset + 1}-${pagination.offset + problems.length}`}
+          </Typography>
+          <Button
+            disabled={pagination.offset === 0}
+            onClick={() => onPageChange(Math.max(0, pagination.offset - pagination.limit))}
+          >
+            Previous
+          </Button>
+          <Button
+            disabled={!pagination.has_more}
+            onClick={() => onPageChange(pagination.offset + pagination.limit)}
+          >
+            Next
+          </Button>
+        </Stack>
+      )}
     </Stack >
   );
 }
