@@ -368,3 +368,11 @@ FastAPI backend
 Frontend math rendering uses React Markdown, `remark-math`, and KaTeX. Backend prompt modules separate lesson structure, worksheet guidance, and LaTeX output rules; `json_repair.py` handles common LaTeX escape issues on the streamed save path.
 
 This file should be treated as the current project context for future work. Keep future changes aligned with this actual architecture and feature set.
+
+## Updating project guidance before pushing
+
+When the user asks to "implement and push" or "commit and push", treat that as authorization
+to push. Before committing, update this file only if the changes alter durable product,
+architecture, workflow, development, or convention guidance; include that update in the
+same commit. Run relevant checks, review the final diff, then push. Never push unless the
+user explicitly asks.
