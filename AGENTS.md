@@ -376,3 +376,7 @@ to push. Before committing, update this file only if the changes alter durable p
 architecture, workflow, development, or convention guidance; include that update in the
 same commit. Run relevant checks, review the final diff, then push. Never push unless the
 user explicitly asks.
+
+After a push, refresh this file only when the pushed work introduced durable project
+guidance that is not yet represented here. Keep the follow-up limited to those changes;
+do not commit or push the post-push update unless the user explicitly asks.
