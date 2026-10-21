@@ -1,13 +1,14 @@
 import LessonForm from '../components/LessonForm';
 import LessonEditor from '../components/LessonEditor';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Lesson, LessonDraft } from '../types/lesson';
 import { saveLesson, updateLesson } from '../api/lessons';
 import { Alert, Box, Button, Container, Stack, Tab, Tabs, Typography } from '@mui/material';
 import TeacherLessonView from '../components/TeacherLessonView';
 import StudentLessonView from '../components/StudentLessonView';
 import { Link } from 'react-router';
-import { ArrowBack } from '@mui/icons-material';
+import { ArrowBack, Print } from '@mui/icons-material';
+import '../styles/print.css';
 
 type GenerateProps = {
   addLesson: (lesson: Lesson) => void;
@@ -23,6 +24,12 @@ export default function GenerateLesson({ addLesson, editLesson }: GenerateProps)
   const [tab, setTab] = useState<'teacher' | 'student'>('teacher');
 
   const lessonFormRef = useRef<HTMLDivElement>(null);
+  const lessonActionsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!savedLesson) return;
+    lessonActionsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [savedLesson]);
 
   function handleLessonGenerated(newLesson: LessonDraft) {
     setError("");
@@ -105,6 +112,24 @@ export default function GenerateLesson({ addLesson, editLesson }: GenerateProps)
 
         {displayLesson && !editing && (
           <>
+            {savedLesson && (
+              <Stack
+                ref={lessonActionsRef}
+                direction={{ xs: "column", sm: "row" }}
+                spacing={2}
+                sx={{ mt: 3, alignItems: { xs: "stretch", sm: "center" }, scrollMarginTop: 2 }}
+              >
+                <Alert severity="success" sx={{ flexGrow: 1 }}>
+                  Lesson saved. You can now edit it.
+                </Alert>
+                <Button variant="contained" onClick={() => setEditing(true)}>
+                  Edit Lesson
+                </Button>
+                <Button variant="outlined" startIcon={<Print />} onClick={() => window.print()}>
+                  Print
+                </Button>
+              </Stack>
+            )}
             <Tabs
               value={tab}
               onChange={(_, nextTab) => setTab(nextTab)}
@@ -119,16 +144,11 @@ export default function GenerateLesson({ addLesson, editLesson }: GenerateProps)
               <Tab label="Teacher View" value="teacher" />
               <Tab label="Student View" value="student" />
             </Tabs>
-            {tab === "teacher" && <TeacherLessonView lesson={displayLesson} />}
-            {tab === "student" && <StudentLessonView lesson={displayLesson} />}
-            {savedLesson ? (
-              <Stack spacing={2} sx={{ mt: 2, alignItems: "flex-start" }}>
-                <Alert severity="success">Lesson saved. You can now edit it.</Alert>
-                <Button variant="contained" onClick={() => setEditing(true)}>
-                  Edit Lesson
-                </Button>
-              </Stack>
-            ) : (
+            <Box id="lesson-print-area">
+              {tab === "teacher" && <TeacherLessonView lesson={displayLesson} />}
+              {tab === "student" && <StudentLessonView lesson={displayLesson} />}
+            </Box>
+            {!savedLesson && (
               <Stack direction="row" spacing={2} sx={{ mt: 2, flexWrap: "wrap" }}>
                 <Button type="button" variant="contained" onClick={handleLessonSaved} disabled={isSaving}>
                   {isSaving ? "Saving…" : "Save to database"}

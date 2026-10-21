@@ -380,3 +380,10 @@ user explicitly asks.
 After a push, refresh this file only when the pushed work introduced durable project
 guidance that is not yet represented here. Keep the follow-up limited to those changes;
 do not commit or push the post-push update unless the user explicitly asks.
+
+## Saving implementation ideas for later
+
+When the user says "save this idea for later", "put this idea in implementation", or
+similar, append a concise, actionable proposal to `IMPLEMENTATION-IDEAS.md`. Do not
+implement the idea or modify unrelated files. Preserve the document's existing structure,
+and confirm what was added.

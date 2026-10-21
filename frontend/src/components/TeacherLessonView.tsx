@@ -67,6 +67,7 @@ export default function TeacherLessonView({ lesson }: TeacherLessonViewProps) {
             .map((activity) => (
               <Stack
                 key={activity.name}
+                className="lesson-activity"
                 spacing={2}
                 sx={{
                   p: 2,
