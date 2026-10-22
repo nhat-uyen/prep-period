@@ -8,7 +8,6 @@ import TeacherLessonView from '../components/TeacherLessonView';
 import StudentLessonView from '../components/StudentLessonView';
 import { Link } from 'react-router';
 import { ArrowBack, Print } from '@mui/icons-material';
-import '../styles/print.css';
 
 type GenerateProps = {
   addLesson: (lesson: Lesson) => void;
@@ -144,7 +143,7 @@ export default function GenerateLesson({ addLesson, editLesson }: GenerateProps)
               <Tab label="Teacher View" value="teacher" />
               <Tab label="Student View" value="student" />
             </Tabs>
-            <Box id="lesson-print-area">
+            <Box>
               {tab === "teacher" && <TeacherLessonView lesson={displayLesson} />}
               {tab === "student" && <StudentLessonView lesson={displayLesson} />}
             </Box>
