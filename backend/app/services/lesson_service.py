@@ -38,6 +38,7 @@ def build_lesson_generation_prompt(request: LessonRequest, db: Session) -> str:
             "skills": problem.skills or [],
             "difficulty": problem.difficulty,
             "problem_type": problem.problem_type,
+            "reponse_area": problem.response_area,
         }
         for problem in selected_problems
     ]
@@ -88,12 +89,11 @@ def lesson_form_in_database(db: Session, lesson: LessonRecord):
     }
 
     # while lesson_json already contain the lesson's activites and problems but we need to get the id for activities and problems because when after saving the lesson, lesson can be edited and changes can be made to the saved activities and problems
-    activities = list(
-        reversed(lesson_crud.get_activities(db, lesson_id=cast(int, lesson.id)))
-    )
+    activities = list(reversed(lesson_crud.get_activities(db, lesson_id=cast(int, lesson.id))))
     for activity_index, activity_data in enumerate(lesson_data.get("activities", [])):
         if activity_index >= len(activities):
             continue
+        activity_data["id"] = activities[activity_index].id
         saved_problems = problem_crud.get_problems_by_activity(
             db, cast(int, activities[activity_index].id)
         )
@@ -103,7 +103,6 @@ def lesson_form_in_database(db: Session, lesson: LessonRecord):
     return lesson_data
 
 def save_lesson_to_databse(db: Session, request: LessonRequest, lesson: LessonResponse):
-    # TODO: add options to whether or not to save lesson to databse
     saved_lesson = lesson_crud.create_lesson(db=db,
                        topic=request.topic,
                        grade=request.grade,

@@ -45,6 +45,7 @@ class Problem(Base):
     skills = Column(JSON, nullable=False, default=list)
     difficulty = Column(String, nullable=True)
     problem_type = Column(String, nullable=True)
+    response_area = Column(JSON, nullable=True)
 
     skill_links = relationship("ProblemSkill", back_populates="problem", cascade="all, delete-orphan")
 

@@ -33,6 +33,8 @@ Before changing behavior, inspect the current implementation in the relevant rou
 
 When a backend response changes, update the corresponding frontend TypeScript types and consumers. Do not change API behavior in isolation.
 
+When lesson data is reconstructed from the database, preserve the saved nested activity and problem IDs so frontend edits and backend references remain aligned with the original records. Do not silently drop IDs from persisted lesson JSON or rely on position alone when a stable record relationship is required.
+
 Keep LaTeX prompt rules aligned with JSON escaping and backend repair behavior.
 
 ### Use existing UI patterns

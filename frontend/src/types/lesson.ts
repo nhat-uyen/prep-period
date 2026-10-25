@@ -4,12 +4,12 @@ export type ResponseArea =
   | { type: "lines"; count: number }
   | {
     type: "grid";
-    xMin: number;
-    xMax: number;
-    yMin: number;
-    yMax: number;
+    x_min: number;
+    x_max: number;
+    y_min: number;
+    y_max: number;
     step: number;
-    showAxes: boolean;
+    show_axes: boolean;
   }
   | { type: "number_line"; min: number; max: number; step: number }
   | { type: "table"; columns: string[]; rows: number; prefilled?: string[][] }

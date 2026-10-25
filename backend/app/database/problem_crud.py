@@ -5,7 +5,8 @@ from app.database.models import Problem, ProblemSkill, Skill
 from app.database import skill_crud
 from app.models.pagination_helper import paginate_query
 
-
+# TODO: add the response _area for self added problems
+# give users a list of options to choose from??
 def create_problem(
     db: Session,
     question: str,
@@ -15,6 +16,7 @@ def create_problem(
     skills: list[str] | None = None,
     difficulty: str | None = None,
     problem_type: str | None = None,
+    response_area: str | None = None,
     activity_id: int | None = None,
     lesson_id: int | None = None,
 ) -> Problem:
@@ -28,6 +30,7 @@ def create_problem(
         skills=[],
         difficulty=difficulty,
         problem_type=problem_type,
+        response_area=response_area,
     )
     try:
         db.add(problem)

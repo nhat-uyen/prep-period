@@ -25,7 +25,14 @@ export default function ResponseAreaRenderer({ area }: { area?: ResponseArea }) 
     case "grid":
       return (
         <Box sx={printSx.gridWrap}>
-          <CoordinateGrid {...area} />
+          <CoordinateGrid
+            xMin={area.x_min}
+            xMax={area.x_max}
+            yMin={area.y_min}
+            yMax={area.y_max}
+            step={area.step}
+            showAxes={area.show_axes}
+          />
         </Box>
       );
     case "table":

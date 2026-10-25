@@ -17,10 +17,7 @@ Base = declarative_base()
 def migrate_problem_schema():
     columns = {column["name"] for column in inspect(engine).get_columns("problems")}
     missing_columns = {
-        "lesson_id": "INTEGER",
-        "activity_id": "INTEGER",
-        "difficulty": "VARCHAR",
-        "problem_type": "VARCHAR",
+        "response_area": "JSON"
     }
 
     with engine.begin() as connection:
@@ -54,6 +51,7 @@ def migrate_problem_skills():
 
     # Use an ORM Session for mapped objects and commit the backfill as a unit.
     with SessionLocal() as db:
+        db.execute(text("DELETE FROM problems WHERE id = 1"))
         try:
             skills_by_name = {
                 skill.normalized_name: skill
