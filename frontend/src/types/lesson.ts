@@ -1,3 +1,21 @@
+export type ResponseArea =
+  | { type: "none" }
+  | { type: "blank"; height: "small" | "medium" | "large" }
+  | { type: "lines"; count: number }
+  | {
+    type: "grid";
+    x_min: number;
+    x_max: number;
+    y_min: number;
+    y_max: number;
+    step: number;
+    show_axes: boolean;
+  }
+  | { type: "number_line"; min: number; max: number; step: number }
+  | { type: "table"; columns: string[]; rows: number; prefilled?: string[][] }
+  | { type: "multiple_choice"; choices: string[]; layout?: "list" | "two_column" };
+
+
 export type Problem = {
   id?: number;
   lesson_id?: number | null;
@@ -9,6 +27,7 @@ export type Problem = {
   skills: string[];
   difficulty?: string | null;
   problem_type?: string | null;
+  response_area?: ResponseArea;
 };
 
 export type ProblemInput = Omit<Problem, "id" | "lesson_id" | "activity_id">;
